@@ -22,6 +22,7 @@ namespace dm42editor
         }
 
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public FarsiLibrary.Win.FATabStrip SetTabStrib
         {
             set { _FL = value; }

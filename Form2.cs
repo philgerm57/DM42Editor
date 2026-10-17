@@ -5,8 +5,9 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ColorPicker; 
@@ -19,6 +20,7 @@ namespace dm42editor
         clParam Param= new clParam();
 
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public clParam  Parameter
         {
             get { return Param;  }
@@ -52,6 +54,7 @@ namespace dm42editor
         }
 
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public clParam.lp param
         {
             get {
@@ -324,23 +327,42 @@ namespace dm42editor
 
         public void LoadParam()
         {
-            DeserializeParam(ref parameters, "param.bin"); 
+            DeserializeParam(ref parameters, "param.json");
         }
 
         public void SaveParam()
         {
-            SerializeParam(parameters, "param.bin");
+            SerializeParam(parameters, "param.json");
         }
 
+        // BinaryFormatter n'existe plus en .NET 9+ : les paramètres sont sauvés en JSON
+        private static readonly JsonSerializerOptions jsonOptions = new JsonSerializerOptions
+        {
+            IncludeFields = true,
+            WriteIndented = true,
+            Converters = { new ColorJsonConverter() }
+        };
+
+        // une couleur nommée est sauvée par son nom (utilisé par les ColorPickerEx), sinon en #AARRGGBB
+        private class ColorJsonConverter : JsonConverter<Color>
+        {
+            public override Color Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                string s = reader.GetString();
+                if (s.StartsWith("#"))
+                    return Color.FromArgb(Convert.ToInt32(s.Substring(1), 16));
+                return Color.FromName(s);
+            }
+
+            public override void Write(Utf8JsonWriter writer, Color value, JsonSerializerOptions options)
+            {
+                writer.WriteStringValue(value.IsNamedColor ? value.Name : "#" + value.ToArgb().ToString("X8"));
+            }
+        }
 
         private void SerializeParam(pram lpt, string FileName)
         {
-            //BinaryWriter writer = new BinaryWriter(stream);
-            FileStream lFileStream = new FileStream(FileName, FileMode.Create);
-            IFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-            bf.Serialize(lFileStream, lpt);
-            lFileStream.Close();
-
+            File.WriteAllText(FileName, JsonSerializer.Serialize(lpt, jsonOptions));
         }
 
         /// <summary>
@@ -352,14 +374,8 @@ namespace dm42editor
         {
             if (File.Exists(FileName))
             {
-
-                FileStream lFileStream = new FileStream(FileName, FileMode.Open);
-                IFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                lpt = (pram)bf.Deserialize(lFileStream);
-
-                lFileStream.Close();
-                lFileStream.Dispose();
-            } 
+                lpt = JsonSerializer.Deserialize<pram>(File.ReadAllText(FileName), jsonOptions);
+            }
         }
     }
 }

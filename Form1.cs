@@ -11,6 +11,7 @@ using System.Windows.Forms;
 
 using FarsiLibrary.Win;
 using FastColoredTextBoxNS;
+using Range = FastColoredTextBoxNS.Range;
 using System.Threading;
 using System.Text.RegularExpressions;
 using DM42;

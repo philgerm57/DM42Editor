@@ -1,0 +1,333 @@
+Nom;Description;touche;page;GROUPE
+ABS;valeur absolue ;CONVERT/ABS;86;CONVEERT
+ACOS;Arc cosinus ;ACOS;82;TRIGO
+ACOSH;Arc cosinus hyperbolique;ACOS;89;TRIGO
+ADV;Avance l'imprimante d'une ligne ;PRINT/ADV;101;PRINT
+AGRAPH;Alpha graphique , affiche une  image graphique. Chaque caractere du registre alpha specifie un motif de colonnes de 8 points. Les registres X et Y specifient la position du pixel de l'image  ;PGM.FCN/AGRA;136;ALPHA
+AIP;ajoute un entier de X au registre ALPHA;PGM.FCN/AIP;133;ALPHA
+ALENG;Retourne le nombre de caracteres dans le registre ALPHA;prgm ou XEQ;135;ALPHA
+ALL;selectionne le formatd'affichage  ALL;DISP/ALL;36;DISPLAY
+ALL?;ALL?;STAT/ALL;233;STAT
+ALPHA;selectionne le menu ALPHA;;37;ALPHA
+AND;ET logique, retourne X AND Y;BASE/LOGIC/AND;250;BASE
+AOFF;exit du menu ALPHA;prgm ou XEQ;157;ALPHA
+AON;Active le menu ALPHA;;156;ALPHA
+ARCL;rappel un registre dans le registre ALPHA en append, le nombre est formate suivant le Format DISP;RCL en mode ALPHA;133;ALPHA
+AROT;Rotation du registre ALPHA de X places ( registre X) ;;135;ALPHA
+ASHF;Decallage du registre ALPHA de 6 position vers la gauche.;;135;ALPHA
+ASIN;Arc Sinus;ASIN;82;TRIGO
+ASINH;Arc hyperbolic sinus. Revoie sinh -1 X;ASINH;89;TRIGO
+ASSIGN;Assigne une fonction, un programme ou une variable a une touches du menu CUSTOM.;touche ASSIGN;68;PRGM
+ASTO;Alpha store. Copie les six premiers caracteres du registre Alpha dans un registre ou dans une variables.;STO;132;ALPHA
+ATAN;Arc tangente. Renvoie tan-1 X;ATAN;82;ALPHA
+ATANH;Arc hyperbolic tangente renvoie tanh -1 X ;ATANH;89;ALPHA
+ATOX;Alpha to X.Convertit le caractere  place le plus a gauche dans le registre Alpha en son code de caractere(renvoye dans le registre X) et suprime le caractere ;;134;ALPHA
+AVIEW;Alpha view. Affiche le registre Alpha;PGM.FCN/AVIEW;129;ALPHA
+BASE+;Base addition. Renvoie la somme 36 bits de Y +X ;BASE +;249;BASE
+BASE-;Base subtraction. Revoie la difference 36 bits entre Y et X ;BASE -;249;BASE
+BASEx;Base multiplication. Renvoie le produit 36 bites de X x Y;BASE x;249;BASE
+BASE÷;Base division.Renvoie le quotient 36 bits de Y / X ;BASE /;249;BASE
+BASE+/-;Base changement de  signe (2s compl.);BASE +/-;249;BASE
+BEEP;fait entendre 4 tonalites  ;PGM.FCN/BEEP;24;PRGM
+BEST;choisit le meilleur modele d'ajustement de courbe pour les donnees stat en cours ;STAT/CFIT/MODL/BEST;240;STAT
+BINM;choisit le modele binaire ;BASE/BINM;245;BASE 
+BIT?;Test le niem bit de Y. si le bit est arme(1), excute la ligne de programme suivante. Sinon saute 1 ligne;BASE/LOGIC/BIT?;250;BASE
+BST;Back step.ramene le pointeur de prgm a la ligne de prgm precedent.(non programmable);BST;111;PRGM
+CF;Clear flag.Efface l'indicateur nn(00<=nn<=35), (81<=nn<=99) indirect: OUI;FLAGS/CF;41;FLAGS
+CLA;Clear alpha.Efface le registre Alpha. Si le mode Alpha est actif et si la saisie de caracteres est terminee(pas de curseur affiche)<- execute la fct CLA;CLEAR/CLA;26;CLEAR
+CLALL;Clear all.Efface tous les programmes et donnees stockes ( non programmable);CLEAR/CLALL;26;CLEAR
+CLD;Clear display.Efface un message a l'affichage ;CLEAR/CLD;26;CLEAR
+CLKEYS;Efface toutes les assignations du menu CUSTOM.;CLEAR/CLKY;70;CLEAR
+CLLCD;Clear LCDEfface l'affichage;CLEAR/CLLCD;136;CLEAR
+CLMENU;Clear  menu.Supprime toutes les definitionsde touches de menu pour le menu programmable.;CLEAR/CLMN;146;CLEAR
+CLP;Efface un prgm de la memoire;CLEAR/CLP;119;CLEAR
+CLRG;Efface tous les registres de stockage numerote;CLEAR/CLRG;64;CLEAR
+CLST;Efface les registre de la pile ;CLEAR/CLST;43;CLEAR
+CLV;Efface une variable de la memoire ;CLEAR/CLV;62;CLEAR
+CLX;Efface le registre X . Si la saisie de chiffres est terminee(pas de curseur a l'affichage) <- execute aussi CLX;CLEAR/CLX;48;CLEAR
+CL?;Efface les donnees statistiques dans les registres de sommation;CLEAR/CL?;228;CLEAR
+COMB;Combinations de Y elements pris X a la fois  renvoie y! / (x!(y-x)!);PROB/COMB;87;PROB
+COMPLEX;Convertit 2 nombres reels ( ou matrices) en un nombre complexe (ou matrice). Convertit un nombre complexe (ou matrice) en 2 nombres reels( ou matrice);COMPLEX;91;COMPLEX
+CORR;Correlation;;240;
+COS;Cosinus. Renvoie cos X ;COS;81;TRIGO
+COSH;Cosinus hyperbolique. Renvoie cosh X;COSH;89;TRIGO
+CPXRES;Complex-results.Permet  au calculateur de renvoyer un resultat complexe, meme si les saisies sont des nombres reels;MODES/CRES;94;COMPLEX
+CPX?;Si le registre X contient un nombre complexe, execute la ligne de prgm suivante, s'il n'en contient pas, saute la ligne suivante;;151;COMPLEX
+CROSS;Renvoie le produit vectoriel de deux vecteurs ( matrices ou nombres complexes);MATRIX/CROSS;220;MATRICE
+CUSTOM;CUSTOM menu;;68;
+DECM;Decimal mode.Choisit le mode decimal ( base 10) ;BASE/DECM;245;BASE
+DEG;Choisit le mode angulaire Degres;MODES/DEG;80;TRIGO
+DEL;Delete. Supprime le nombre de lignes specifie du prgm en cours. Le mode de saisiede prgm doit etre actif (no programmable) ;CLEAR/DEL;120;CLEAR
+DELAY;Delay time.Regle le delai d'impressiona X secondes;PRINT/DELAY;103;PRINT
+DELR;Delete row.Supprime la ligne en cours de la matrice indexee;MATRIX/DELR;214;MATRICE
+DET;Renvoie le determinant de la matrice dans le registre X;MATRIX/DET;219;MATRICE
+DIM;Dimensionne une matrice a X colonnes et Y lignes. Si elle n'existe pas, DIM la cree.                     Parametre : nom de variable  indirect:Oui;MATRIX/DIM;217;MATRICE
+DIM?;Dimensions of matrix in X;;217;MATRICE 
+DOT;Renvoie le produit scalaire de 2 vecteurs (matrices ou nombres complexes);MATRIX/DOT;34;MATRICE
+DSE;Decrement, skip ig (less than or) Equal. Etant donne ccccccc.fffii de iiet saute la ligne de prgm suivante si ccccccc est alors <= fff.  Parametre : registre ou variable   indirect:oui;PGM.FCN/DES;153;
+E;"Saisissez exposant. Ajoute ""E"" au nombre en train d'etre saisi.Indique qu'une puissance de 10 suit.";;27;
+EDIT;Corrige une matrice dans le registre X;MATRIX/EDIT;206;MATRICE
+EDITN;Edite(corrige) une matrice nommee . Parametre : nom de variable  Indirect:oui;MATRIX/EDITN;208;MATRICE
+END;End. Fin d'un programme;END;118;PRGM
+ENG;Choisit le format d'affichage Ingenierie. Parametre : nombre de chiffres Indirect : oui;DISP/ENG;36;DISPLAY
+ENTER;Separe deux nombres saisis a la suite, copie X dans le registre Y, y dans le registre Z et s dans le registre T, t est perdu;;46;
+EXITALL;Sort de tous les menus;;;
+EXPF;Choisit le modele exponentiel d'ajustement de courbe;STAT/CFIT MODL EXPF;240;STAT
+E^X;Exposant naturel. Renvoie e|x;;78;MATH
+E^X-1;Exposant naturel pour les valeurs de x proches de zero. Renvoie eX -1, qui donne a la partie fractionnaire du resultat une plus grande precision";;;
+FC?;Si l'indicateur specifie est arme, execute  la ligne de prgm suivante, s'il est desarme, saute la ligne suivante.;FLAGS/FS?;41;FLAGS
+FC?C;Si l'indicateur specifie est arme, execute  la ligne de prgm suivante, s'il est desarme, saute la ligne suivante. Efface l'indicateur des la fin  du test  ( cette fct ne peut etre utilisee qu'avec les indicateurs 00..35 et 81 a 99a;FLAGS/FC?C;41;FLAGS
+FCSTX;Forecast x given y (stat).Predit une valeur X connaissant une valeur  Y.;;;STAT
+FCSTY;Forecast y given x (stat)..Predit une valeur Y connaissant une valeur  X.;STAT/CFIT/FCSTX;;STAT
+FIX;Fixed dec. display format;STAT/CFIT/FCSTX;;STAT
+FRNM;Renvoie la norme Frobenius de la matrice dans le registre X ;;;
+FP;Revoie la part fractionnaire de X;;;CONVERT
+GAMMA;Fonction Gamma ;;;PROB
+GETKEY;Put next key number to X-reg;PGM.FCN;;
+GETM;Get matrix. Copie une sous-matrice dans le registre X a partir de la matrice indexee;;226;MATRICE
+GRAD;Choisit le mode angulaire Grades;MODES/GRAD;80;MODE
+GROW;Grow mode (matrix  edition) cause la croissance de la matrice d'une nouvelle ligne si les pointeurs d'index se trouvent sur le dernier elements ( en bas a droite) de la matrice ;MATRICE/EDT/GROW;213;MATRICE 
+GTO;Go to label. A partir du clavier, palce le pointeur sur le label specifie. Dans un prgm en cours d'execution, provoque le branchement du prgm sur le label.;;111;
+GTO.;Place le pointeur de prgm sur un numero de ligne ou un label global ( non programmable);;118;
+GTO..;Place le pointeur de prgm sur un nouvel endroit du prgm ( non programmable);;;
+HEXM;Hexadecimal mode;BASE/HEXM;245;BASE 
+HMS+;Add x and y using H.MMSSss;;84;
+HMS-;Subtract x from y H.MMSSss;;84;
+I+;Inc. row pointer (matrix);;224;MATRICE 
+I-;Dec. row pointer (matrix);;224;MATRICE 
+INDEX;Index  une matrice nommee :Indirect : OUI;;223;MATRICE 
+INPUT;Rapel un registre ou une variable dans le registre X, affiche le nom du registre ou de la variable avec le contenu du registre X et arrete l'execution du programme, le fait d'appuyer sur R/S ( ou sur SST) stocke x dans le registre ou variable, le fait d'appuyer sur EXIT annule ( n'est utilisee qu'en programmation)   indirect : OUI;PGM.FCN;121;
+INSR;Insere une ligne dans la matrice indexee.;MATRIX/EDIT/INSR;;MATRICE 
+INTEG;Integre le programme d'integration specifie par respect a la variable specifiee: indirect :OUI;;203;
+INVRT;Renvoie l'inverse de la matrice dans le registre X;MATRIX/INV;219;MATRICE 
+IP;Renvoie la partie entiere de x;CONVERT/IP;86;CONVERT
+ISG;Increment, skip if greater.etant donne ccccccc?fffii dans une variable ou un registre, ajoute ii a ccccccc et saute la ligne de prgm suivante si ccccccc est > fff;PGM.FCN;153;
+J+;incremente le pointeur de colonne dans la matrice indexee;MATRIX;224;MATRICE 
+J-;decremente le pointeur de colonne dans la matrice indexee;MATRIX;224;MATRICE 
+KEYASN;Key-assignments .Choisit le mode d'assignations de touches pour le menu CUSTOM;MODE/KEY;167;MODE
+KEYG;On key, go to.Definit le label vers lequel s'effectuera un lorsque vous appuiererz sur une touche de menu precise.;;;
+KEYX;On key, execute.Definit le label qui devra etre execute ( en tant que S/prgm) lorsque vous appuiererz sur une touche de menu precise du menu.;;;
+LASTX;Last x. Rapelle la derniere valeur de X utilisee dans un calcul.;;;
+LBL;Label. Identifie prgm et  routines pour execution et branchement.;PGM.FCN;116;
+LCLBL;Choisit le mode label local pour le menu CUSTOM.;MODE;167;MODE
+LINF;Choisit le modele lineaire de statistique d'ajustement de courbes ;STAT/CFIT/MODL/LINF;240;STAT
+LINE;Linear mode (six sum regs).Choisit le mode de statistiques lineaires, lequel utilise six coefficients de sommation ;STAT/LINE;233;STAT
+LIST;List program lines. Imprime une partie du listing de prgm ( non programmable);PRINT/LIST;105;PRINT
+LN;Natural logarithm. Renvoie ln x;;78;
+LN1+X;Logarithme naturel pour les valeurs proches de zero. Renvoie ln(1+X), qui offre une bien plus grande precision dans la partie fractionnaire du resultat;;;
+LOG;Common logarithm. Renvoie log10 X;;78;
+LOGF;Choisit le modele logarithmique d'ajustement de courbe;STAT/CFIT/MODL/LOGF;240;STAT
+MAN;Choisit le mode d'impression manuel;PRINT/MAN;102;
+MAT?;Si le registre X contient une matrice , execute la ligne de prgm suivante , sinon saute la ligne suivante;;151;
+MEAN;Renvoie la moyenne des valeurs x (somme X / n) et celle des valeurs Y (somme Y / n);STAT/MEAN;231;STAT
+MENU;Programmable MENU;;146;
+MOD;Modulo. Renvoie le reste de Y /X;CONVERT/MOD;87;CONVERT
+MVAR;Declare une variable de menu;PGM.FCN/MVAR;125;PGM.FCN
+N!;Factoriel . Renvoit X!;PROB/N!;87;PROB
+NEWMAT;New matrix;;206;
+NORM;Choisit le mode d'impression normale, qui imprime les frappes de touches.;PRINT/NORM;102;PRINT
+NOT;Logical NOT. Renvoie NOT X ;BASE/LOGIC/NOT;250;BASE 
+OCTM;Choisit le mode Octal  ( base 8);BASE/OCTM;245;BASE 
+OFF;Off.Eteint le calculateur( programmable).;;18;
+OLD;Rapelle l'element en cours de la matrice indexee (equivalent a RCLEL);MATRCE;213;MATRICE 
+ON;Empeche le calculateur de s'eteindre automatiquement apres dix minutes d'inactivite.;;;
+OR;OU logique , renvoie X OR Y;;250;
+PERM;Permutations de y elements , pris x a la fois. Renvoie y! / (y-x)!;PROB/PERM;87;PROB
+PGMINT;choisit un prgm a integrer: parametre : label global indirect: oui;;203;
+PGMSLV;Choisit un prgm a resoudre: parametre: label global , indirect :OUI;;189;SOLVER
+PI;pi. Rapelle une estimation de PI dans le registre X ;;117;
+PIXEL;Pixel on. Allume un seul pixel point sur l'affichage.Son emplacement est donne par les nombres presents dans les registres X et Y ;PGM.FCN/PIXEL;135;PGM.FCN
+POLAR;Polar mode.Choisit  le mode de coordonnees polaires pour l'affichage des nombres complexes;MODES/POLAR;80;MODE
+POSA;"Position in alpha.Cherche, dans le registre Alpha la cible specifiee dans le registre X. Si elle la trouve, elle renvoie la position du caractere; -1 si elle ne la trouve pas.";;134;
+PRA;Print alpha. Imprime le registre ALPHA;PRINT/PRA;102;PRINT
+PRLCD;Print LCD. Imprime tout l'affichage;PRINT/PRLCD;101;PRINT
+PROFF;Printing off. Efface les indicateurs 21 et 55;PRINT/POFF;101;PRINT
+PROMPT;Affiche le registre ALPHA et arrete l'execution du Prgm;PGM.FCN/PROM;101;PGM.FCN
+PRON;Printing on.Arme les indicateurs 21 et 55;PRINT/PON;87;PRINT
+PRP;Print program. Si aucun label n'est specifie, imprime le prgm en cours. Parametre Label global ;PRINT/PRP;101;PRINT
+PRSTK;Print stack. Imprime le contenu des registres de la pile ( X Y Z T);;101;PRINT
+PRUSR;Print user vars and labels.Imprime les variables et prgms definis par l'utilisateur ;PRINT/PRUSR;101;PRINT
+PRV;Print variable. Imprime une variable:Parametre:nom de la variable , indirect:oui;PRINT/PRV;63;PRINT
+PRX;Print X-register;;101;PRINT
+PR?;Print summation registers.Imprime le contenu des registres de sommation;PRINT/PR?;237;PRINT
+PSE;Pause. Suspend l'execution du prgm pendant une seconde environ;PGM.FCN/PSE;131;
+PUTM;Put matrix.Stocke la matrice dans le registre X dans  la matrice indexe en commencant par l'element en cours;MATRIX/PUTM;226;MATRICE
+PWRF;Power fit. Choisit le modele de puissance pour l'ajustement de courbe;STAT/CFIT/MODL/PWRF;240;STAT
+QUIET;Quiet mode. Modifie l'indicateur 26 pour activer/desactiver la tonalite ( non programmable);MODE/QUIET;275;MODE
+RAD;Radians mode. Choisit le mode angulaire radians.;MODE/RAD;80;MODE
+RAN;Random number.Renvoie un nombre aleatoire(0<=x <=1);PROB/RAN;88;PROB
+RCL;Recall.Rappelle des donnees dans le registre X. Parametre: registre iu variable  indirect:oui;;55;
+RCL+;Recall add.Rappelle des donnees et les ajoute au contenu du registre X. Parametre : registre ou vaiable  indirect:OUI;;61;
+RCL-;Recall subtract..Rappelle des donnees et les soustrait au contenu du registre X. Parametre : registre ou vaiable  indirect:OUI;;61;
+RCLx;Recall multiply..Rappelle des donnees et les multiplie au contenu du registre X. Parametre : registre ou vaiable  indirect:OUI;;61;
+RCL÷;Recall divide..Rappelle des donnees et les divise au contenu du registre X. Parametre : registre ou vaiable  indirect:OUI;;61;
+RCLEL;Recall element.Rappelle l'element de matrice en cours de la matrice indexez;MATRIX/RCLEL;225;MATRICE 
+RCLIJ;Recall IJ pointers.Rappelle les valeurs de pointeurs de lignes et de colonnes (Iet J) pour la matrice indexee.;MATRIX/RCLIJ;224;MATRICE 
+RDX,;Choisit la virgule comme separateur decimal;DISP/RDX,;36;
+RDX.;Choisit le point comme separateur decimal;DISP/RDX.;36;
+REALRES;Desactive la possibilite qu'& le calculateur de renvoyer un resultat complexe a partir de saisies reelles;MODE/RRES;94;MODE
+REAL?;Si le registre X contient un nombre reel,execute la ligne de programme suivante,si ce n'est  pas le cas , saute la ligne  suivante.;;151;
+RECT;Choisit le mode de coordonnees rectangulaire  pour l'affichage des nombres complexes;;80;
+RND;Arrondit le nombre dans le registre X en utilisant le format d'affichage en cours;CONVERT/RND;86;CONVERT
+RNRM;Renvoie la norme ligne de la matrice dans le registre X;;219;
+ROTXY;Fait une rotation de x bits au nombre de 36 bits present dans le registre Y;BASE/LOGIC/ROTXY;250;BASE 
+RSUM;Row sum.Renvoie la somme-ligne de chaque ligne de la matrice presentedans le registre X et renvoie les sommes de la matrice colonne.;;220;MATRICE
+RTN;Return.Dans un prgm en cours d'execution, fait se brancher le pointeur sur la ligne suivant l'instruction XEQ la plus recente. S'il n'y en a pas, l'execution s'arrete.A partir du clavier , RTN deplace le pointeur de prgm vers la ligne 00 du prgm en cours.;PGM.FCN/RTN;143;
+R<>R;Row swap row.Permute les elements des lignes X et Y dans la matrice indexee;;225;MATRICE 
+R^;Roll up.Deplace le contenu des quatre registres de la pile d'une place vers le haut.;;44;
+Rv;Roll down.Deplace le contenu des quatre registres de la pile d'une place vers le bas.;;44;
+R/S;Run/stop.Execute un prgm ( en commencant a la ligne en cours). En mode de saisie de prgm insere une instruction STOP dans le programme.;;113;
+SCI;Choisit le format d'affichage scientifique. parametre : nombre de chiffres indirect:oui;DISP/SCI;35;
+SDEV;Renvoie l'ecart-type, sx et sy en utilisant les donnees statistiques.;STAT/SDEV;232;STAT
+SEED;Stocke un nombre de depart pour le generateur de nombres aleatoires.;PROB/SEED;88;
+SF;"Arme l'indicateur nn(00<= nn <= 35; 81 <= nn <= 99). ";FLAGS/SF;41;FLAGS
+SHOW;Montre la pleine precision du nombre present dans le registre X, le registre Alpha dans sa totalite ou une ligne entiere de programme.;;36;
+SIGN;Sign.Renvoie 1 pour X >=0, -1 pour X <0 et 0 pour les non-nombres.Renvoie le vecteur unite d'un nombre complexe.;CONVERT/SIGN;86;
+SIN;Sine.Renvoie sin X;;80;
+SINH;Hyperbolic sine. Renvoie sinh X;;89;
+SIZE;Size of REGS.Definit le nombre de registres de stockage. Parametre : nombre de regitres ;;64;
+SLOPE;Renvoie la pente de la transformationlineaire du modele d'ajustement de courbe en cours.;STAT/CFIT/SLOPE;240;STAT
+SOLVE;Solve for variable.Resout pour une inconnue. Parametre : nom de la variable  Indirect : oui ;SOLVER/SLOVE;189;SOLVER
+SQRT;Square root.Renvoie Racine carre de X ;;78;
+SST;Single step. Deplace le pointeur de prgm vers la ligne de prgm suivante (non programmable);;114;
+STAT;Choisit le menu STAT;;231;
+STO;Stocke une copie de X dans un registre destination ou dans une variable. Parametre: registre ou variable  indirect:oui;;55;
+STO+;Store addition. Ajoute X a un registre existant ou a une variable. Parametre: registre ou variable  Indirect : oui;;61;
+STO-;Store subtract.Soustrait X a un registre existant ou a une variable. Parametre: registre ou variable  Indirect : oui;;61;
+STO׻Store multiply.Multiplie X a un registre existant ou a une variable. Parametre: registre ou variable  Indirect : oui;;61;
+STO÷;Store divide.Divise X a un registre existant ou a une variable. Parametre: registre ou variable  Indirect : oui;;61;
+STOEL;Store element.Stocke une copie de X dans l'element en cours de la matrice indexee.;MATRIX/STOEL;225;
+STOIJ;Store IJ pointers.Deplace les pointeurs de lignes et de colonnes vers I=x et J=y dans la matrice indexee.;MATRIX/STOIJ;224;
+STOP;Stop program. Arrete l'execution du programme. Touche R/S en mode de saisie prgm;;114;
+STR?;Si le registre X contient une chaine Alpha, execute la ligne de prgm suivante, si le registre X ne contient pas de chaine Alpha, saute la ligne suivante.;;151;
+SUM;Recall ?x and ?y.Renvoie les sommes  ?x et ?y dans le s registres X et Y;STAT/SUM;231;STAT
+TAN;Tangent. Renvoie tan X;;;
+TANH;Hyperbolic tangent. Renvoie tanh X;;89;
+TONE;Tone (0-9). Fait resonner une tonalite.Parametre: numero 0..9  Indirect : OUI;PGM.FCN/TONE;141;
+TRACE;Choisit le mode d'impression Trace, qui donne une trace des frappes et des resultats;PRINT/TRACE;102;PRINT
+TRANS;Transpose matrix.Renvoie la transposee de la matrice du registre X;MATRIX/TRAN;219;MATRICE 
+UVEC;Unit vector. Renvoie le vecteur unite de la matrice ou du nombre complexe dans le registre X ;MATRIX/UVEC;220;MATRICE 
+VARMENU ;Variable menu.Cree un menu de variables en utilisant les instructions MVAR suivant le label global specifie.Parametre: Label global de prgm  indirect:OUI;PGM.FCN/VARM;125;
+VIEW;View.Visualisation du contenu d'un registre ou d'une variable. Parametre : label global Indirect : OUI;PGM.FCN / VIEW;128;
+WMEAN;Weighted mean. Renvoie la moyenne des valeurs X ponderee par les valeurs Y : ?xy /  ?y;STAT/WMN;231;STAT
+WRAP;Wrap mode. Choisit le mode Wrap, qui empeche la matrice indexee de croitre.;MATRIX/EDIT/WRAP;213;MATRICE 
+X<>;x exchange;;;
+X<>Y;x exchange y.Permute le contenu des registres X et Y ;;44;
+XEQ;Execute une fonction ou un programme. Parametre :fonction ou label indirect:oui;;143;
+XOR;XOR logique ou OR exclusif.Renvoie x XOR y.;BASE/LOGIC/XOR;;BASE
+XTOA;X to alpha. Rattache un caractere (specifie par le code dans le registre X) au registre Alpha.Si le registre X contient une chaine Alpha, rattache la chaine entiere.;PGM.FCN/XTOA;134;
+X^2;Renvoie X au carre ;;78;
+YINT;Y-intercept.Renvoie l'ordonnee a l'origine de la courbe ajustee aux donnees statistique en cours.;STAT/CFIT/YINT;240;
+Y^X;Power, yx.Renvoie Y puissance X;;78;
+1/X;Reciproque. Renvoie  1 / X;;78;
+10^X;Common exponential, 10?x;;78;
++;Addition . Renvoie Y + X ;;78;
+-;Subtraction. Renvoie Y -X;;78;
+x;Multiplication. Renvoie X x Y;;78;
+÷;Division. Renvoie Y / X;;78;
+/;Division. Renvoie Y / X;;78;
++/-;Change le signe du contenu du registre X.Pendant la saisie  d'un exposant, peut aussi servir a changer le signe de l'exposant.;;78;
+S+;Ajoute les valeurs X et Y dans les registres de sommations;;228;
+S-;Soustrait une paire de valeurs X et Y des registres de sommation.;;232;
+SREG;Registres de sommation.Definit le numero du premier de sommation. Parametre: numero de registre Indirect : OUI;STAT/?REG;234;
+SREG?;Renvoie le numero du premier registre de sommation;;234;
+>DEC;To decimal.Convertit la representation octale (base 8) d'un nombre en decimal(base 10).Remarque:Cette fonction est incluse pour permettre la compatibilite avec les programmes du HP41 ( qui utilise le nom de fonction DEC) et ne se refere pas a l'application Base (Ch 16);;171;
+>DEG;Convertit un angle de radian en degres. Renvoie (360 / 2 PI)X;CONVERT/?DEG;171;
+>HMS;En heure, linutes et secondes.Convertit X du format Heure decimales au format Heure,minutes secondes;CONVERT/?HMS;83;
+>HR;En Heure. Convertit X du format heure, minutes secondes au format decimal;CONVERT/?HR;83;
+>OCT;To octal;;;
+>POL;To polar;;;
+>RAD;To radians;;;
+>REC;To rectangular;;;
+>;Deplace le pointeur vers la gauche d'un element dans la matrice indexee;;212;MATRICE
+^;Deplace le pointeur vers la haut d'un element dans la matrice indexee;;212;MATRICE
+v;Deplace le pointeur vers le bas d'un element dans la matrice indexee;;212;MATRICE
+<;Deplace le pointeur vers la droite d'un element dans la matrice indexee;;212;MATRICE
+%;Pourcentage. Renvoie (X x Y) / 100 (Laisse la valeur y dans le registre Y);;79;
+%CH;Difference en pourcentage. Renvoie (X - Y) (100/ Y);;79;
+├;APPEND une chaine de 14 caracteres maxi;;;
+;;;;
+ADATE;Append date from X to alpha;;;
+ATIME;Append time from X to alpha;;;
+AT24 ;Append 24h time from X to a.;;;
+CL12;Set 12h time format AM/PM;;;
+CL24;Set 24h time format;;;
+DATE;Put date to X register;;;
+DATE+;Add dates in X and Y regs;;;
+DDAYS;Delta days of X and Y regs;;;
+DMY;Set date format to DMY;;;
+DOW;Day of Week of date in X reg;;;
+MDY;Set date format to MDY;;;
+TIME;Put time to X register;;;
+;;;;
+X<0?; Test X inferieur a zero;PGM.FCN/X?0/X<0?;151;
+X<Y?; Test X inferieur a Y;PGM.FCN/X?Y/X<Y?;151;
+X≤0?;Test X inferieur ou egal a zero.;PGM.FCN/X?0/X?0? ;151;
+X≤Y?;Test X  inferieur ou egal a Y;PGM.FCN/X?Y/X?Y? ;151;
+X=0?;Test X egal zero ;PGM.FCN/X?0/X=0? ;151;
+X=Y?;Test X egal Y;PGM.FCN/X?Y/X=Y? ;151;
+X≠0?;Test X different de zero;PGM.FCN/X?0/X?0? ;151;
+X≠Y?;Test X different de Y;PGM.FCN/X?Y/X?Y? ;151;
+X>0?;Test X superieur a zero;PGM.FCN/X?0/X>0?;151;
+X>Y?;Test X superieur a Y;PGM.FCN/X?Y/X>Y? ;151;
+X≥0?;Test X superieur ou egal a zero;PGM.FCN/X?0/X?0? ;151;
+X≥Y?;Test X superieur ou egal a Y;PGM.FCN/X?Y/X?Y? ;151;
+
+
+FLAGS;;;;
+00-10; User Flags;;;
+11; Auto Execute;;;
+12;Print Double-wide;;;
+13; Print Lowercase;;;
+15-16; Print Mode;;;
+19-20; General Use;;;
+21; Printer Enable;;;
+22; Numeric Input;;;
+23; Alpha Input;;;
+24; Ignore Range Errors;;;
+25; Ignore Next Error;;;
+26; Beeper Enable;;;
+27; CUSTOM Menu;;;
+28; Radix Mark Period;;;
+29; Digit Separators;;;
+30; Stack Lift Disable;;;
+31; DMY Date Format;;;
+34-35; AGRAPH Control;;;
+36-39; Number of Digits;;;
+40-41; Display Format;;;
+42; Grads Mode;;;
+43; Radians Mode;;;
+44; Continuous On;;;
+45; Solving;;;
+46; Integrating;;;
+47; Variable Menu;;;
+48; Alpha Mode;;;
+49; Low Battery Power;;;
+50; Message;;;
+51; Two-Line Message;;;
+52; Program-Entry Mode;;;
+53; INPUT;;;
+55; Printer Existence;;;
+56; Linear Model;;;
+57; Logarithmic Model;;;
+58; Exponential Model;;;
+59; Power Model;;;
+60; AllS Mode;;;
+61; Log Model Invalid;;;
+62; Exp Model Invalid;;;
+63; Pwr Model Invalid;;;
+64; Shift State;;;
+65; Matrix Editor In Use;;;
+66; Grow Mode;;;
+67; YMD Date Format;;;
+68-71;Base Mode;;;
+72; Local-Label Mode;;;
+73; Polar Mode;;;
+74; Real-Result Only;;;
+75; MENU;;;
+76; Edge Wrap;;;
+77; End Wrap;;;
+78; Base Signed;;;
+79; Base Wrap;;;
+81-99; User Flags;;;
+

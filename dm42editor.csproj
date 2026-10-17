@@ -1,254 +1,72 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F012E562-0B19-4316-B7FA-2EC03B6E8E7F}</ProjectGuid>
     <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>dm42editor</RootNamespace>
     <AssemblyName>dm42editor</AssemblyName>
-    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>1</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <PublishWizardCompleted>true</PublishWizardCompleted>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>x64</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
     <ApplicationIcon>Projet1.ico</ApplicationIcon>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Product>dm42editor</Product>
+    <Copyright>Copyright © 2020</Copyright>
+    <Version>1.9.0</Version>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
   </PropertyGroup>
-  <PropertyGroup>
-    <ManifestCertificateThumbprint>F4202246758D635FFCA8AD9D36DEF818D621945B</ManifestCertificateThumbprint>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ManifestKeyFile>dm42editor_TemporaryKey.pfx</ManifestKeyFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <GenerateManifests>true</GenerateManifests>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignManifests>true</SignManifests>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="ColorPickerEx, Version=1.0.7701.19677, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\ColorPickerEx.dll</HintPath>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4258.31" />
+  </ItemGroup>
+
+  <!-- WebView2 ajoute aussi sa version WPF (conflit WindowsBase) : inutile en WinForms -->
+  <Target Name="RemoveWebView2Wpf" BeforeTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <Reference Remove="@(Reference)" Condition="'%(Filename)' == 'Microsoft.Web.WebView2.Wpf'" />
+    </ItemGroup>
+  </Target>
+
+  <!-- librairies tierces compilées pour .NET Framework -->
+  <ItemGroup>
+    <Reference Include="ColorPickerEx">
+      <HintPath>lib\ColorPickerEx.dll</HintPath>
     </Reference>
-    <Reference Include="dm42dll, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="FastColoredTextBox">
+      <HintPath>lib\FastColoredTextBox.dll</HintPath>
+    </Reference>
+    <Reference Include="TabStrip">
+      <HintPath>lib\TabStrip.dll</HintPath>
+    </Reference>
+    <Reference Include="dm42dll">
       <HintPath>..\dm42dll\bin\Debug\dm42dll.dll</HintPath>
     </Reference>
-    <Reference Include="FastColoredTextBox, Version=2.16.26.0, Culture=neutral, PublicKeyToken=fb8aa12b994ef61b, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\FastColoredTextBox.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.VisualC" />
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-    <Reference Include="TabStrip, Version=2.0.7668.32309, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\TabStrip.dll</HintPath>
-    </Reference>
   </ItemGroup>
+
+  <!-- fichiers de données copiés à côté de l'exe -->
   <ItemGroup>
-    <Compile Include="Form1.cs">
-      <SubType>Form</SubType>
+    <None Include="data\**\*" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Form2.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form2.Designer.cs">
-      <DependentUpon>Form2.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Form3.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form3.Designer.cs">
-      <DependentUpon>Form3.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FrmAide.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FrmAide.Designer.cs">
-      <DependentUpon>FrmAide.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FrmAideCde.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FrmAideCde.Designer.cs">
-      <DependentUpon>FrmAideCde.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RawViewer.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="RawViewer.Designer.cs">
-      <DependentUpon>RawViewer.cs</DependentUpon>
-    </Compile>
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Form2.resx">
-      <DependentUpon>Form2.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Form3.resx">
-      <DependentUpon>Form3.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FrmAide.resx">
-      <DependentUpon>FrmAide.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FrmAideCde.resx">
-      <DependentUpon>FrmAideCde.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
+    <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
+    <Compile Update="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="RawViewer.resx">
-      <DependentUpon>RawViewer.cs</DependentUpon>
-    </EmbeddedResource>
-    <None Include="dm42editor_TemporaryKey.pfx" />
-    <None Include="Properties\Settings.settings">
+    <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Web.WebView2">
-      <Version>1.0.2903.40</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\backward0_16x16.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\bookmark--plus.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\box.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\bye.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\class_libraries.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\edit-padding-top.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\forward_16x16.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\layer--minus.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\layer--plus.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\lightning.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\lol.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\property.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\redo_16x16.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\rolleyes.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\sad_16x16.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\smile_16x16.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\undo_16x16.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\unsure.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Projet1.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.8.1">
-      <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.8.1 %28x86 et x64%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
 </Project>
