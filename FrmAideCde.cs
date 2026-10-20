@@ -36,6 +36,7 @@ namespace dm42editor
 
             List<ListViewItem> items = new List<ListViewItem>();
 
+            if (!Path.IsPathRooted(fileName)) fileName = Path.Combine(Application.StartupPath, fileName);   // indépendant du dossier courant
             using (var reader = new StreamReader(fileName,Encoding.UTF8))
             {
               

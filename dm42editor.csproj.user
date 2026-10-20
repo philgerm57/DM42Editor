@@ -9,5 +9,35 @@
     <ErrorReportUrlHistory />
     <FallbackCulture>fr-FR</FallbackCulture>
     <VerifyUploadedFiles>false</VerifyUploadedFiles>
+    <_LastSelectedProfileId>G:\dm42_editor\dm42editor\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Update="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Form1.Goto.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Form1.Python.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Form2.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Form3.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FrmAide.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FrmAideCde.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FrmPython.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="RawViewer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+  </ItemGroup>
 </Project>

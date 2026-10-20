@@ -17,8 +17,17 @@ namespace dm42editor
     {
         string pdfPath;
 
-        public FrmPDF() : this(Path.Combine(Application.StartupPath, "dm42_user_manual.pdf"))
+        public FrmPDF() : this(DocPath("dm42_user_manual.pdf"))
         {
+        }
+
+        /// <summary>Document cherché à côté de l'exe, puis dans le sous-dossier doc (installation).</summary>
+        public static string DocPath(string fileName)
+        {
+            string p = Path.Combine(Application.StartupPath, fileName);
+            if (File.Exists(p)) return p;
+            string d = Path.Combine(Application.StartupPath, "doc", fileName);
+            return File.Exists(d) ? d : p;
         }
 
         public FrmPDF(string aPdfPath)

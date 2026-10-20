@@ -43,6 +43,11 @@
     </Reference>
   </ItemGroup>
 
+  <!-- Python -> RPN (menu Python) -->
+  <ItemGroup>
+    <ProjectReference Include="..\Py42.Core\Py42.Core.csproj" />
+  </ItemGroup>
+
   <!-- fichiers de données copiés à côté de l'exe -->
   <ItemGroup>
     <None Include="data\**\*" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
@@ -67,6 +72,11 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+
+  <!-- fichier .raw direct depuis la page Python (encodeur partagé avec Py42) -->
+  <ItemGroup>
+    <Compile Include="..\Py42\Shared\RawExport.cs" Link="RawExport.cs" />
   </ItemGroup>
 
 </Project>

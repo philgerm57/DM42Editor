@@ -438,7 +438,9 @@ namespace dm42editor
             StringStyle = new TextStyle(new SolidBrush(gllp.StringColor), null, (gllp.StringBold) ? FontStyle.Bold : FontStyle.Regular);         // String 
             CommentStyle = new TextStyle(new  SolidBrush(gllp.CommentColor), null, (gllp.CommentBold) ? FontStyle.Bold : FontStyle.Regular);       // comment 
 
-            InitFctList(); // initialise la liste de fonctions 
+            InitFctList(); // initialise la liste de fonctions
+
+            InitPythonMenu(); // menu Python -> RPN (Form1.Python.cs)
 
         }
 
@@ -645,13 +647,18 @@ namespace dm42editor
                 Parser.SetDocument(lDoc);
                 Parser.parse();
 
-                string titre = CurrentTB.Parent.Tag.ToString(); // Recupere le chemin complet du fichier 
+                // Recupere le chemin complet du fichier.
+                // Un onglet jamais enregistre ("[new]" ou texte colle) n'a pas de Tag :
+                // CurrentTB.Parent.Tag.ToString() levait alors une NullReferenceException.
+                string titre = CurrentTB.Parent?.Tag as string;
+                if (string.IsNullOrWhiteSpace(titre))
+                    titre = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "programme.raw");
 
                 for (int lIdx = 0; lIdx < Parser.programs.Count; lIdx++)
                 {
                     if (Parser.programs[lIdx].getErrors().Count > 0)
                     {
-                        MessageBox.Show("Error to convert RPN Code !");
+                        MessageBox.Show("Error to convert RPN Code !\n\n" + string.Join("\n", Parser.programs[lIdx].getErrors().Select(er => er.ToString(false))));
                         return;
                     }
 
@@ -680,58 +687,61 @@ namespace dm42editor
                             return;
                         }
 
-                        using (BinaryWriter writer = new BinaryWriter(File.Open(sfdMain.FileName, FileMode.Create)))
+                        // 1) Encodage complet AVANT d'ouvrir le fichier : en cas d'erreur, l'ancien .raw n'est pas ecrase
+                        StringBuilder lRawLine = new StringBuilder();
+                        List<byte> lByteList = new List<byte>();
+
+                        for (int lIdx = 0; lIdx < Parser.programs.Count; lIdx++)
                         {
-
-                            string lRawLine = "";
-                            string[] strByte;
-                            List<byte> lByteList = new List<byte>();
-
-
-
-                            for (int lIdx = 0; lIdx < Parser.programs.Count; lIdx++)
+                            foreach (RawLine lLine in Parser.programs[lIdx].rawLines)
                             {
-                                foreach (RawLine line in Parser.programs[lIdx].rawLines)
+                                Encoder42.toRaw(lLine, "free42");
+                                if (lLine.hasError())
                                 {
-                                    RawLine lLine = line;
-                                    Encoder42.toRaw(lLine, "free42");
-                                    if (lLine.raw != null)
-                                    {
-                                        lRawLine += lLine.raw + " ";
-                                    }
-
+                                    // toRaw peut détecter des erreurs (chaîne trop longue...) après le contrôle de parse()
+                                    MessageBox.Show("Error to convert RPN Code !\n\n" + lLine.error.ToString(false));
+                                    return;
                                 }
+                                if (!string.IsNullOrEmpty(lLine.raw))
+                                    lRawLine.Append(lLine.raw).Append(' ');
                             }
-
-                            lRawLine = lRawLine.Trim(' ');
-                            strByte = lRawLine.Split(' ');
-
-                            if (strByte.Length > 0)
-                            {
-                                foreach (string str in strByte)
-                                {
-                                    lByteList.Add(byte.Parse(str, System.Globalization.NumberStyles.HexNumber));
-                                }
-                            }
-
-                            writer.Write(lByteList.ToArray());
-
-                            // Change Bytes number in source code 
-                            // strByte.Length;
-                            string lFirstLine = "{ " + strByte.Length.ToString() + " Bytes Prgm }";
-
-                            CurrentTB.SetSelectedLine(0);
-                            string lFirst = CurrentTB.TextSource.GetLines()[0];
-
-                            if (lFirst.Contains('{'))
-                            {
-                                // Delete remplace first Line 
-                                CurrentTB.TextSource.RemoveLine(0);
-                            }
-
-                            CurrentTB.Text = lFirstLine + "\r\n" + CurrentTB.Text;
-
                         }
+
+                        // RemoveEmptyEntries : un double espace donnait "" et byte.Parse levait une FormatException
+                        string[] strByte = lRawLine.ToString().Split(new[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        foreach (string str in strByte)
+                        {
+                            if (!byte.TryParse(str, System.Globalization.NumberStyles.HexNumber, null, out byte b))
+                            {
+                                MessageBox.Show("Invalid raw byte '" + str + "' : conversion aborted.");
+                                return;
+                            }
+                            lByteList.Add(b);
+                        }
+
+                        // 2) Ecriture du fichier
+                        try
+                        {
+                            File.WriteAllBytes(sfdMain.FileName, lByteList.ToArray());
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Unable to write " + sfdMain.FileName + "\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+
+                        // 3) Change Bytes number in source code
+                        string lFirstLine = "{ " + strByte.Length.ToString() + " Bytes Prgm }";
+
+                        CurrentTB.SetSelectedLine(0);
+                        if (CurrentTB.LinesCount > 0 && CurrentTB.TextSource.GetLines()[0].Contains('{'))
+                        {
+                            // Delete remplace first Line
+                            CurrentTB.TextSource.RemoveLine(0);
+                        }
+
+                        CurrentTB.Text = lFirstLine + "\r\n" + CurrentTB.Text;
 
 
                     }
@@ -782,6 +792,7 @@ namespace dm42editor
                 tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
                 
                 tb.KeyDown += new KeyEventHandler(tb_KeyDown);
+                ConfigureGotoKey(tb); // Ctrl+G : ligne de programme
                 tb.MouseMove += new MouseEventHandler(tb_MouseMove);
                 tb.ChangedLineColor = changedLineColor;
                 if (btHighlightCurrentLine.Checked)
@@ -864,6 +875,12 @@ namespace dm42editor
             if (e.Modifiers == (Keys.Control | Keys.Shift) && e.KeyCode == Keys.OemMinus)
             {
                 NavigateForward();
+                e.Handled = true;
+            }
+
+            if (e.KeyData == (Keys.G | Keys.Control))
+            {
+                GotoProgramLine(); // aller à une ligne de programme (Form1.Goto.cs)
                 e.Handled = true;
             }
 
@@ -967,9 +984,9 @@ namespace dm42editor
 
         private void tsFiles_TabStripItemClosing(TabStripItemClosingEventArgs e)
         {
-            if ((e.Item.Controls[0] as FastColoredTextBox) != null)
+            if (EditorOf(e.Item) != null)
 
-                if ((e.Item.Controls[0] as FastColoredTextBox).IsChanged)
+                if (EditorOf(e.Item).IsChanged)
                 {
                     switch (MessageBox.Show("Do you want save " + e.Item.Title + " ?", "Save", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information))
                     {
@@ -1039,13 +1056,18 @@ namespace dm42editor
 
         private void gotoButton_DropDownOpening(object sender, EventArgs e)
         {
-            gotoButton.DropDownItems.Clear();
-            foreach (Control tab in tsFiles.Items)
+            FillGotoMenu(); // ligne de programme + labels (Form1.Goto.cs)
+            bool firstBookmark = true;
+            foreach (FATabStripItem tab in tsFiles.Items)
             {
-                FastColoredTextBox tb = tab.Controls[0] as FastColoredTextBox;
+                // les onglets « View Raw data » (RawViewer) n'ont pas d'éditeur : tb == null
+                FastColoredTextBox tb = EditorOf(tab);
+                if (tb == null) continue;
+                string tabName = tab.Tag is string path ? Path.GetFileNameWithoutExtension(path) : tab.Title;
                 foreach (var bookmark in tb.Bookmarks)
                 {
-                    var item = gotoButton.DropDownItems.Add(bookmark.Name + " [" + Path.GetFileNameWithoutExtension(tab.Tag as String) + "]");
+                    if (firstBookmark) { gotoButton.DropDownItems.Add(new ToolStripSeparator()); firstBookmark = false; }
+                    var item = gotoButton.DropDownItems.Add(bookmark.Name + " [" + tabName + "]");
                     item.Tag = bookmark;
                     item.Click += (o, a) =>
                     {
@@ -1073,10 +1095,9 @@ namespace dm42editor
 
                 foreach (FATabStripItem tab in tsFiles.Items)
                 {
-                    if (btHighlightCurrentLine.Checked)
-                        (tab.Controls[0] as FastColoredTextBox).CurrentLineColor = currentLineColor;
-                    else
-                        (tab.Controls[0] as FastColoredTextBox).CurrentLineColor = Color.Transparent;
+                    var tb = EditorOf(tab);
+                    if (tb == null) continue;
+                    tb.CurrentLineColor = btHighlightCurrentLine.Checked ? currentLineColor : Color.Transparent;
                 }
                 if (CurrentTB != null)
                     CurrentTB.Invalidate();
@@ -1151,6 +1172,7 @@ namespace dm42editor
 
             List<ListViewItem> items = new List<ListViewItem>();
 
+            if (!Path.IsPathRooted(fileName)) fileName = Path.Combine(Application.StartupPath, fileName);   // indépendant du dossier courant
             using (var reader = new StreamReader(fileName, Encoding.UTF8))
             {
 
@@ -1182,9 +1204,7 @@ namespace dm42editor
         {
             get
             {
-                if (tsFiles.SelectedItem == null)
-                    return null;
-                return (tsFiles.SelectedItem.Controls[0] as FastColoredTextBox);
+                return EditorOf(tsFiles.SelectedItem);
             }
 
             set
@@ -1264,7 +1284,8 @@ namespace dm42editor
             FastColoredTextBox tb = null;
             for (int iTab = 0; iTab < tsFiles.Items.Count; iTab++)
             {
-                var t = (tsFiles.Items[iTab].Controls[0] as FastColoredTextBox);
+                var t = EditorOf(tsFiles.Items[iTab]);
+                if (t == null) continue;
                 for (int i = 0; i < t.LinesCount; i++)
                     if (t[i].LastVisit < lastNavigatedDateTime && t[i].LastVisit > max)
                     {
@@ -1294,7 +1315,8 @@ namespace dm42editor
             FastColoredTextBox tb = null;
             for (int iTab = 0; iTab < tsFiles.Items.Count; iTab++)
             {
-                var t = (tsFiles.Items[iTab].Controls[0] as FastColoredTextBox);
+                var t = EditorOf(tsFiles.Items[iTab]);
+                if (t == null) continue;
                 for (int i = 0; i < t.LinesCount; i++)
                     if (t[i].LastVisit > lastNavigatedDateTime && t[i].LastVisit < min)
                     {
@@ -1331,9 +1353,16 @@ namespace dm42editor
 
         }
 
+        /// <summary>Éditeur de texte d'un onglet, ou null pour un onglet sans éditeur (RawViewer).</summary>
+        private static FastColoredTextBox EditorOf(FATabStripItem tab)
+        {
+            return tab != null && tab.Controls.Count > 0 ? tab.Controls[0] as FastColoredTextBox : null;
+        }
+
         private bool Save(FATabStripItem tab)
         {
-            var tb = (tab.Controls[0] as FastColoredTextBox);
+            var tb = EditorOf(tab);
+            if (tb == null) return false; // onglet RawViewer : rien à enregistrer
             if (tab.Tag == null)
             {
 
