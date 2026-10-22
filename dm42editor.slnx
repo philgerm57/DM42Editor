@@ -1,4 +1,4 @@
 <Solution>
   <Project Path="dm42editor.csproj" />
-  <Project Path="../Py42.Core/Py42.Core.csproj" />
+  <Project Path="../Py42/Py42.Core/Py42.Core.csproj" />
 </Solution>

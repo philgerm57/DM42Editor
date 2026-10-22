@@ -45,7 +45,7 @@
 
   <!-- Python -> RPN (menu Python) -->
   <ItemGroup>
-    <ProjectReference Include="..\Py42.Core\Py42.Core.csproj" />
+    <ProjectReference Include="..\Py42\Py42.Core\Py42.Core.csproj" />
   </ItemGroup>
 
   <!-- fichiers de données copiés à côté de l'exe -->
