@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using FastColoredTextBoxNS;
+using Dm42.Editor;
 
 namespace dm42editor
 {
@@ -56,7 +56,7 @@ namespace dm42editor
                 
                 _FL.SelectedItem = TB;
 
-                FastColoredTextBox FCTB = (FastColoredTextBox)TB.Controls[0];
+                CodeEditor FCTB = (CodeEditor)TB.Controls[0];
 
                 FCTB.Selection.Start = new Place(0, lPosition);
                 FCTB.DoSelectionVisible();

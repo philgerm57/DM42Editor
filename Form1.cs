@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using FarsiLibrary.Win;
-using FastColoredTextBoxNS;
-using Range = FastColoredTextBoxNS.Range;
+using Dm42.Editor;
+using Range = Dm42.Editor.TextRange;
 using System.Threading;
 using System.Text.RegularExpressions;
 using DM42;
@@ -392,10 +392,11 @@ namespace dm42editor
 
         string rpnStyle = "testHL.xml"; // fichier externe de style 
 
-        Style NumberStyle; 
-        Style WordStyle;
-        Style StringStyle; 
-        Style CommentStyle; 
+        // créés une fois : un changement de schéma modifie leurs couleurs (ApplyEditorParams)
+        readonly TextStyle NumberStyle = new TextStyle(null, null, FontStyle.Regular);
+        readonly TextStyle WordStyle = new TextStyle(null, null, FontStyle.Regular);
+        readonly TextStyle StringStyle = new TextStyle(null, null, FontStyle.Regular);
+        readonly TextStyle CommentStyle = new TextStyle(null, null, FontStyle.Regular);
        
         MarkerStyle SameWordsStyle = new MarkerStyle(new SolidBrush(Color.FromArgb(40, Color.Gray)));
 
@@ -431,12 +432,8 @@ namespace dm42editor
 
             Parameter.LoadParam();
 
-            gllp= Parameter.parameters.Params[Parameter.parameters.current]; 
-
-            NumberStyle = new TextStyle(new  SolidBrush(gllp.NumColor), null, (gllp.NumBold) ? FontStyle.Bold : FontStyle.Regular);    // Number 
-            WordStyle = new TextStyle(new SolidBrush(gllp.WordColor), null, (gllp.WordBold) ? FontStyle.Bold : FontStyle.Regular);    //word
-            StringStyle = new TextStyle(new SolidBrush(gllp.StringColor), null, (gllp.StringBold) ? FontStyle.Bold : FontStyle.Regular);         // String 
-            CommentStyle = new TextStyle(new  SolidBrush(gllp.CommentColor), null, (gllp.CommentBold) ? FontStyle.Bold : FontStyle.Regular);       // comment 
+            ApplyTheme(Parameter.parameters.DarkMode);
+            ApplyEditorParams(Parameter.parameters.Params[Parameter.parameters.current]);
 
             InitFctList(); // initialise la liste de fonctions
 
@@ -734,11 +731,10 @@ namespace dm42editor
                         // 3) Change Bytes number in source code
                         string lFirstLine = "{ " + strByte.Length.ToString() + " Bytes Prgm }";
 
-                        CurrentTB.SetSelectedLine(0);
-                        if (CurrentTB.LinesCount > 0 && CurrentTB.TextSource.GetLines()[0].Contains('{'))
+                        if (CurrentTB.LinesCount > 0 && CurrentTB.GetLineText(0).Contains('{'))
                         {
                             // Delete remplace first Line
-                            CurrentTB.TextSource.RemoveLine(0);
+                            CurrentTB.RemoveLine(0);
                         }
 
                         CurrentTB.Text = lFirstLine + "\r\n" + CurrentTB.Text;
@@ -756,32 +752,22 @@ namespace dm42editor
             // print code 
             if (CurrentTB != null)
             {
-                var settings = new PrintDialogSettings();
-                settings.Title = tsFiles.SelectedItem.Title;
-                settings.Header = "&b&w&b";
-                settings.Footer = "&b&p";
-                CurrentTB.Print(settings);
+                CurrentTB.Print(tsFiles.SelectedItem.Title);
             }
         }
 
         #endregion
 
-        FastColoredTextBox InitNewTab(Color BackColor)
+        CodeEditor InitNewTab(Color BackColor)
         {
             try
             {
-                var tb = new FastColoredTextBox();
+                var tb = new CodeEditor();
                 tb.Font = new Font("Consolas", 12.00f, FontStyle.Bold);
-                tb.ForeColor = gllp.WordColor;//Color.LightCyan;
-                tb.BackColor = gllp.BackColor;
-                // tb.Font = new Font("Consolas", 9.75f);
                 tb.ContextMenuStrip = cmMain;
                 tb.Dock = DockStyle.Fill;
                 tb.BorderStyle = BorderStyle.Fixed3D;
-                //tb.VirtualSpace = true;
                 tb.LeftPadding = 17;
-               //!! tb.Language = Language.HP42; //Language.Custom;
-                tb.Language =Language.Custom;
 
                 tb.Tag = new TbInfo();
 
@@ -790,19 +776,12 @@ namespace dm42editor
                 tb.DelayedEventsInterval = 500;
                 tb.TextChangedDelayed += new EventHandler<TextChangedEventArgs>(tb_TextChangedDelayed);
                 tb.SelectionChangedDelayed += new EventHandler(tb_SelectionChangedDelayed);
-                
+
                 tb.KeyDown += new KeyEventHandler(tb_KeyDown);
-                ConfigureGotoKey(tb); // Ctrl+G : ligne de programme
                 tb.MouseMove += new MouseEventHandler(tb_MouseMove);
-                tb.ChangedLineColor = changedLineColor;
-                if (btHighlightCurrentLine.Checked)
-                    tb.CurrentLineColor = currentLineColor;
-                tb.OnSyntaxHighlight(new TextChangedEventArgs(tb.Range));
-                // tb.ShowFoldingLines = btShowFoldingLines.Checked;
-                tb.HighlightingRangeType = HighlightingRangeType.VisibleRange;
+                ApplyEditorColors(tb);
                 //create autocomplete popup menu
                 AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
-                popupMenu.Items.ImageList = ilAutocomplete; // Image list 
                 popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
                 BuildAutocompleteMenu(popupMenu);
                 (tb.Tag as TbInfo).popupMenu = popupMenu;
@@ -853,11 +832,11 @@ namespace dm42editor
           
         }
 
-        #region TB EVENT FastColoredTextBox
+        #region TB EVENT CodeEditor
 
         void tb_MouseMove(object sender, MouseEventArgs e)
         {
-            var tb = sender as FastColoredTextBox;
+            var tb = sender as CodeEditor;
             var place = tb.PointToPlace(e.Location);
             var r = new Range(tb, place, place);
             string text = r.GetFragment("[a-zA-Z]").Text;
@@ -894,7 +873,7 @@ namespace dm42editor
 
         void tb_SelectionChangedDelayed(object sender, EventArgs e)
         {
-            var tb = sender as FastColoredTextBox;
+            var tb = sender as CodeEditor;
             //remember last visit time
             if (tb.Selection.IsEmpty && tb.Selection.Start.iLine < tb.LinesCount)
             {
@@ -927,27 +906,32 @@ namespace dm42editor
         void tb_TextChangedDelayed(object sender, TextChangedEventArgs e)
         {
            
-            FastColoredTextBox tb = (sender as FastColoredTextBox);
-           
+            CodeEditor tb = (sender as CodeEditor);
+
             //rebuild object explorer
-            string text = (sender as FastColoredTextBox).Text;
+            string text = tb.Text;
             ThreadPool.QueueUserWorkItem(
                 (o) => ReBuildObjectExplorer(text)
             );
 
+            Highlight(e.ChangedRange);
+        }
 
-            e.ChangedRange.SetStyle(CommentStyle, HP42CommentRegex1);
-            e.ChangedRange.SetStyle(CommentStyle, HP42CommentRegex2);
-            e.ChangedRange.SetStyle(CommentStyle, HP42CommentRegex3);
+        /// <summary>Coloration RPN : commentaires, chaînes, nombres puis mots-clés (le premier style posé l'emporte).</summary>
+        void Highlight(Range r)
+        {
+            r.ClearStyle(CommentStyle, StringStyle, NumberStyle, WordStyle);
+
+            r.SetStyle(CommentStyle, HP42CommentRegex1);
+            r.SetStyle(CommentStyle, HP42CommentRegex2);
+            r.SetStyle(CommentStyle, HP42CommentRegex3);
 
             //string highlighting
-            e.ChangedRange.SetStyle(StringStyle, HP42StringRegex);
+            r.SetStyle(StringStyle, HP42StringRegex);
             //number highlighting
-            e.ChangedRange.SetStyle(NumberStyle, HP42NumberRegex);
+            r.SetStyle(NumberStyle, HP42NumberRegex);
             //keywords
-            e.ChangedRange.SetStyle(WordStyle, HP42KeywordsRegex);
-
-
+            r.SetStyle(WordStyle, HP42KeywordsRegex);
         }
 
         #endregion
@@ -1061,7 +1045,7 @@ namespace dm42editor
             foreach (FATabStripItem tab in tsFiles.Items)
             {
                 // les onglets « View Raw data » (RawViewer) n'ont pas d'éditeur : tb == null
-                FastColoredTextBox tb = EditorOf(tab);
+                CodeEditor tb = EditorOf(tab);
                 if (tb == null) continue;
                 string tabName = tab.Tag is string path ? Path.GetFileNameWithoutExtension(path) : tab.Title;
                 foreach (var bookmark in tb.Bookmarks)
@@ -1200,7 +1184,7 @@ namespace dm42editor
         /// <summary>
         ///  Page courante selectionnee
         /// </summary>
-        FastColoredTextBox CurrentTB
+        CodeEditor CurrentTB
         {
             get
             {
@@ -1281,7 +1265,7 @@ namespace dm42editor
         {
             DateTime max = new DateTime();
             int iLine = -1;
-            FastColoredTextBox tb = null;
+            CodeEditor tb = null;
             for (int iTab = 0; iTab < tsFiles.Items.Count; iTab++)
             {
                 var t = EditorOf(tsFiles.Items[iTab]);
@@ -1312,7 +1296,7 @@ namespace dm42editor
         {
             DateTime min = DateTime.Now;
             int iLine = -1;
-            FastColoredTextBox tb = null;
+            CodeEditor tb = null;
             for (int iTab = 0; iTab < tsFiles.Items.Count; iTab++)
             {
                 var t = EditorOf(tsFiles.Items[iTab]);
@@ -1347,16 +1331,16 @@ namespace dm42editor
                 items.Add(new AutocompleteItem(item));
 
             //set as autocomplete source
-            popupMenu.Items.SetAutocompleteItems(items);
+            popupMenu.SetItems(items);
             popupMenu.SearchPattern = @"[\w\.:=!<>]";
 
 
         }
 
         /// <summary>Éditeur de texte d'un onglet, ou null pour un onglet sans éditeur (RawViewer).</summary>
-        private static FastColoredTextBox EditorOf(FATabStripItem tab)
+        private static CodeEditor EditorOf(FATabStripItem tab)
         {
-            return tab != null && tab.Controls.Count > 0 ? tab.Controls[0] as FastColoredTextBox : null;
+            return tab != null && tab.Controls.Count > 0 ? tab.Controls[0] as CodeEditor : null;
         }
 
         private bool Save(FATabStripItem tab)
@@ -1400,19 +1384,13 @@ namespace dm42editor
         void popupMenu_Opening(object sender, CancelEventArgs e)
         {
             //---block autocomplete menu for comments
-            //get index of green style (used for comments)
-            var iGreenStyle = CurrentTB.GetStyleIndex(CurrentTB.SyntaxHighlighter.GreenStyle);
-            if (iGreenStyle >= 0)
-                if (CurrentTB.Selection.Start.iChar > 0)
-                {
-                    //current char (before caret)
-                    var c = CurrentTB[CurrentTB.Selection.Start.iLine][CurrentTB.Selection.Start.iChar - 1];
-                    //green Style
-                    var greenStyleIndex = Range.ToStyleIndex(iGreenStyle);
-                    //if char contains green style then block popup menu
-                    if ((c.style & greenStyleIndex) != 0)
-                        e.Cancel = true;
-                }
+            var tb = CurrentTB;
+            if (tb == null) return;
+            var caret = tb.Selection.Start;
+            string line = tb.GetLineText(caret.iLine);
+            string before = line.Substring(0, Math.Min(caret.iChar, line.Length));
+            if (before.Contains("//") || before.Contains("@") || before.Contains("#"))
+                e.Cancel = true;
         }
 
         private void tmUpdateInterface_Tick(object sender, EventArgs e)
@@ -1460,6 +1438,7 @@ namespace dm42editor
             FrmAideCde lFrmAide = new FrmAideCde();
 
 
+            if (AppTheme.Dark) AppTheme.Apply(lFrmAide);
             lFrmAide.ShowDialog();
 
             lFrmAide = null;
@@ -1516,6 +1495,7 @@ namespace dm42editor
 
             FrmAide lFrmAide = new FrmAide();
 
+            if (AppTheme.Dark) AppTheme.Apply(lFrmAide);
             lFrmAide.ShowDialog();
         }
 
@@ -1587,45 +1567,75 @@ namespace dm42editor
 
         private void parameterToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //parameter
-            frmParam lParam = new frmParam(); // fenêtre de parametrage 
-
-            lParam.Parameter = Parameter; 
-
-            lParam.ShowDialog();
-
-            Parameter = lParam.Parameter;
-
-            Parameter.SaveParam(); 
-
-            // Set color 
-
-            if (CurrentTB != null)
+            //parameter : aperçu en direct, rien n'est gardé si on annule
+            using (var lParam = new frmParam())
             {
-
-                int lIdx = Parameter.parameters.current;
-
-                gllp = Parameter.parameters.Params[lIdx]; 
-
-                currentLineColor = gllp.LineColor;
-              //  changedLineColor = Parameter.Param.LineColor; // goutiere numero de ligne 
-
-                CurrentTB.BackColor = gllp.BackColor;
-                CurrentTB.ForeColor = gllp.WordColor;
-                CurrentTB.CurrentLineColor = currentLineColor;
-                CurrentTB.ChangedLineColor = changedLineColor; 
-
-                NumberStyle = new TextStyle(new SolidBrush(gllp.NumColor), null, (gllp.NumBold)? FontStyle.Bold : FontStyle.Regular);    // Number 
-                WordStyle = new TextStyle(new SolidBrush(gllp.WordColor), null, (gllp.WordBold) ? FontStyle.Bold : FontStyle.Regular);    //word
-                StringStyle = new TextStyle(new SolidBrush(gllp.StringColor), null, (gllp.StringBold) ? FontStyle.Bold : FontStyle.Regular);         // String 
-                CommentStyle = new TextStyle(new SolidBrush(gllp.CommentColor), null, (gllp.CommentBold) ? FontStyle.Bold : FontStyle.Regular);       // comment 
-
-                CurrentTB.Update(); 
-
-
+                lParam.Parameter = Parameter;
+                lParam.Preview = (lp, dark) => { ApplyTheme(dark); ApplyEditorParams(lp); };
+                if (lParam.ShowDialog(this) == DialogResult.OK)
+                    Parameter = lParam.Parameter;    // déjà enregistré par la fenêtre
             }
+            ApplyTheme(Parameter.parameters.DarkMode);
+            ApplyEditorParams(Parameter.parameters.Params[Parameter.parameters.current]);
+        }
 
-         }
+        /// <summary>Thème clair / sombre de la fenêtre principale.</summary>
+        void ApplyTheme(bool dark)
+        {
+            AppTheme.Set(dark);
+            AppTheme.Apply(this);
+            AppTheme.Strip(cmMain);
+            tsFiles.ForeColor = SystemColors.ControlText;   // les onglets restent clairs : titre en noir
+            foreach (FATabStripItem tab in tsFiles.Items)
+            {
+                var tb = EditorOf(tab);
+                if (tb != null) ApplyEditorColors(tb);
+            }
+            tsFiles.Invalidate(true);
+        }
+
+        /// <summary>Applique un schéma de couleurs RPN à tous les onglets et recolore leur texte.</summary>
+        void ApplyEditorParams(clParam.lp lp)
+        {
+            gllp = lp;
+            // la ligne du curseur est un fond translucide : le texte reste lisible quelle que soit la couleur
+            currentLineColor = Color.FromArgb(70, lp.LineColor);
+
+            void Set(TextStyle st, Color c, bool bold)
+            {
+                st.ForeBrush = new SolidBrush(c);
+                st.FontStyle = bold ? FontStyle.Bold : FontStyle.Regular;
+            }
+            Set(NumberStyle, lp.NumColor, lp.NumBold);
+            Set(WordStyle, lp.WordColor, lp.WordBold);
+            Set(StringStyle, lp.StringColor, lp.StringBold);
+            Set(CommentStyle, lp.CommentColor, lp.CommentBold);
+
+            foreach (FATabStripItem tab in tsFiles.Items)
+            {
+                var tb = EditorOf(tab);
+                if (tb == null) continue;
+                ApplyEditorColors(tb);
+                Highlight(tb.Range);
+            }
+        }
+
+        /// <summary>Couleurs d'un éditeur : schéma RPN, marge assortie au fond.</summary>
+        void ApplyEditorColors(CodeEditor tb)
+        {
+            tb.BackColor = gllp.BackColor;
+            tb.ForeColor = gllp.WordColor;
+            bool darkBack = gllp.BackColor.GetBrightness() < 0.5f;
+            tb.IndentBackColor = darkBack ? ControlPaint.Light(gllp.BackColor, 0.15f) : ControlPaint.Dark(gllp.BackColor, 0.03f);
+            if (gllp.BackColor.ToArgb() == Color.Black.ToArgb()) tb.IndentBackColor = Color.FromArgb(28, 28, 28);
+            tb.LineNumberColor = darkBack ? Color.FromArgb(120, 120, 116) : Color.FromArgb(140, 140, 136);
+            tb.ServiceLinesColor = darkBack ? Color.FromArgb(60, 60, 58) : Color.FromArgb(215, 215, 210);
+            tb.CaretColor = darkBack ? Color.White : Color.Black;
+            tb.SelectionColor = darkBack ? Color.FromArgb(110, 70, 120, 200) : Color.FromArgb(90, 51, 153, 255);
+            tb.ChangedLineColor = changedLineColor;
+            tb.CurrentLineColor = btHighlightCurrentLine.Checked ? currentLineColor : Color.Transparent;
+            tb.Invalidate();
+        }
 
 
         /// <summary>
@@ -1674,6 +1684,7 @@ namespace dm42editor
             FrmPDF lFrmPDF = new FrmPDF();
 
 
+            if (AppTheme.Dark) AppTheme.Apply(lFrmPDF);
             lFrmPDF.ShowDialog();
 
             lFrmPDF = null;

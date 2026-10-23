@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using FastColoredTextBoxNS;
+using Dm42.Editor;
 
 namespace dm42editor
 {
@@ -21,7 +21,7 @@ namespace dm42editor
         /// Lignes vides, commentaires (# @ //) et en-tête { ... } ignorés.
         /// Si une ligne porte son numéro (« 12 RCL "A" »), c'est ce numéro qui compte.
         /// </summary>
-        static List<KeyValuePair<int, int>> ProgramLines(FastColoredTextBox tb)
+        static List<KeyValuePair<int, int>> ProgramLines(CodeEditor tb)
         {
             var result = new List<KeyValuePair<int, int>>();
             int count = 0;
@@ -40,11 +40,11 @@ namespace dm42editor
             return result;
         }
 
-        void GotoTextLine(FastColoredTextBox tb, int iLine)
+        void GotoTextLine(CodeEditor tb, int iLine)
         {
             if (tb == null || iLine < 0 || iLine >= tb.LinesCount) return;
             tb.Navigate(iLine);
-            tb.Selection = new FastColoredTextBoxNS.Range(tb, 0, iLine, tb.GetLineText(iLine).Length, iLine);
+            tb.Selection = new TextRange(tb, 0, iLine, tb.GetLineText(iLine).Length, iLine);
             tb.DoSelectionVisible();
             tb.Focus();
             tb.Invalidate();
@@ -86,6 +86,7 @@ namespace dm42editor
                 dlg.AcceptButton = ok;
                 dlg.CancelButton = cancel;
                 dlg.Shown += (s, e) => { num.Select(0, num.Text.Length); num.Focus(); };
+                if (AppTheme.Dark) AppTheme.Apply(dlg);
                 if (dlg.ShowDialog(this) != DialogResult.OK) return;
 
                 int wanted = (int)num.Value;
@@ -122,12 +123,6 @@ namespace dm42editor
                 gotoButton.DropDownItems.Add(new ToolStripSeparator());
                 gotoButton.DropDownItems.AddRange(labels.ToArray());
             }
-        }
-
-        /// <summary>Ctrl+G ouvre « Aller à la ligne de programme » à la place du Goto texte de FastColoredTextBox.</summary>
-        static void ConfigureGotoKey(FastColoredTextBox tb)
-        {
-            tb.HotkeysMapping.Remove(Keys.Control | Keys.G);
         }
     }
 }

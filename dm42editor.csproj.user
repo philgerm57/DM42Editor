@@ -12,6 +12,9 @@
     <_LastSelectedProfileId>G:\dm42_editor\dm42editor\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Update="Editor\FindReplaceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -34,6 +37,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="FrmPython.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FrmPython.Extras.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="RawViewer.cs">

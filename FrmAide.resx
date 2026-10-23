@@ -117,4 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="textBox1.Text" xml:space="preserve">
+    <value>Original works : 2018 J.Heilingbrunner "
+Ce logiciel est sous licence GPLv3. 
+Le cœur applicatif (dm42dll.dll) est basé sur le travail open-source
+ de J.Heilingbrunner, projet : vscode-dm42-Free42, sous licence MIT."</value>
+  </data>
 </root>

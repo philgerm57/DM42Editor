@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using FarsiLibrary.Win;
-using FastColoredTextBoxNS;
+using Dm42.Editor;
 
 namespace dm42editor
 {
@@ -81,7 +81,7 @@ namespace dm42editor
             FATabStripItem tab = null;
             foreach (FATabStripItem t in tsFiles.Items)
             {
-                if (t.Title == title && t.Controls.Count > 0 && t.Controls[0] is FastColoredTextBox)
+                if (t.Title == title && t.Controls.Count > 0 && t.Controls[0] is CodeEditor)
                 {
                     tab = t;
                     break;
@@ -98,7 +98,7 @@ namespace dm42editor
                 tsFiles.AddTab(tab);
             }
 
-            var box = (FastColoredTextBox)tab.Controls[0];
+            var box = (CodeEditor)tab.Controls[0];
             box.Text = rpn;
             box.IsChanged = true;
             tsFiles.SelectedItem = tab;

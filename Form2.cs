@@ -1,214 +1,217 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using ColorPicker; 
 
 namespace dm42editor
 {
+    /// <summary>
+    /// Paramètres : thème clair / sombre de l'application et couleurs du code RPN (4 schémas).
+    /// Les couleurs se choisissent comme dans la fenêtre Python : une pastille par élément, qui ouvre
+    /// le sélecteur de couleurs Windows ; l'éditeur se met à jour en direct.
+    /// </summary>
     public partial class frmParam : Form
     {
+        static readonly string[] SchemaNames = { "Noir", "Blanc", "Personnalisé 1", "Personnalisé 2" };
+        static readonly string[] RowNames = { "Fond de page", "Instructions (mots-clés)", "Nombres", "Textes \"…\"", "Commentaires", "Ligne du curseur" };
 
-        clParam Param= new clParam();
+        clParam Param = new clParam();
+        clParam.pram work = new clParam().parameters;     // copie modifiée dans la fenêtre
 
+        readonly ComboBox schemaBox = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 200 };
+        readonly CheckBox darkBox = new CheckBox { Text = "Thème sombre (menus, panneaux et fenêtres)", AutoSize = true };
+        readonly List<Button> swatches = new List<Button>();
+        readonly List<CheckBox> bolds = new List<CheckBox>();
+        bool loading;
+
+        /// <summary>Aperçu en direct : schéma affiché et thème sombre.</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Action<clParam.lp, bool> Preview { get; set; }
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public clParam  Parameter
+        public clParam Parameter
         {
-            get { return Param;  }
+            get => Param;
             set
             {
                 Param = value;
-
-                int lIdx = Param.parameters.current;
-
-               
-
-                clParam.lp llp = Param.parameters.Params[lIdx];
-
-                colorPickerEx1.SelectedText = llp.BackColor.Name;
-                colorPickerEx2.SelectedText = llp.WordColor.Name;
-                colorPickerEx3.SelectedText = llp.NumColor.Name;
-                colorPickerEx4.SelectedText = llp.StringColor.Name;
-                colorPickerEx5.SelectedText = llp.CommentColor.Name;
-                colorPickerEx6.SelectedText = llp.LineColor.Name;
-
-                checkBox1.Checked = llp.WordBold;
-                checkBox2.Checked = llp.NumBold;
-                checkBox3.Checked = llp.StringBold;
-                checkBox4.Checked = llp.CommentBold;
-
-                Param.parameters.Params[lIdx] = llp;
-
-                comboBox1.SelectedIndex = lIdx;
-
+                work = Copy(value.parameters);
+                LoadUi();
             }
         }
 
-
+        /// <summary>Schéma en cours d'édition.</summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public clParam.lp param
         {
-            get {
-
-                int lIdx = Param.parameters.current;
-
-                return Param.parameters.Params[lIdx]; 
-            
-            }
-            set 
-            {
-                int lIdx = Param.parameters.current;
-
-                clParam.lp llp = value; 
-
-                colorPickerEx1.SelectedText = llp.BackColor.Name;
-                colorPickerEx2.SelectedText = llp.WordColor.Name;
-                colorPickerEx3.SelectedText = llp.NumColor.Name;
-                colorPickerEx4.SelectedText = llp.StringColor.Name;
-                colorPickerEx5.SelectedText = llp.CommentColor.Name;
-                colorPickerEx6.SelectedText = llp.LineColor.Name;
-
-                checkBox1.Checked = llp.WordBold;
-                checkBox2.Checked = llp.NumBold;
-                checkBox3.Checked = llp.StringBold;
-                checkBox4.Checked = llp.CommentBold;
-
-                Param.parameters.Params[lIdx] = llp; 
-
-            }
-
+            get => work.Params[work.current];
+            set { work.Params[work.current] = value; LoadUi(); }
         }
+
         public frmParam()
         {
             InitializeComponent();
-
-            int lIdx = Param.parameters.current;
-            clParam.lp lLp = Param.parameters.Params[lIdx];
-
-            colorPickerEx1.Items = new KnownColorCollection(KnownColorFilter.Web);
-            colorPickerEx1.SelectedText = lLp.BackColor.Name; 
-
-            colorPickerEx2.Items = new KnownColorCollection(KnownColorFilter.Web);
-            colorPickerEx2.SelectedText = lLp.WordColor.Name;
-            checkBox1.Checked = lLp.WordBold; 
-
-            colorPickerEx3.Items = new KnownColorCollection(KnownColorFilter.Web);
-            colorPickerEx3.SelectedText = lLp.NumColor.Name;
-            checkBox2.Checked = lLp.NumBold;
-
-            colorPickerEx4.Items = new KnownColorCollection(KnownColorFilter.Web);
-            colorPickerEx4.SelectedText = lLp.StringColor.Name;
-            checkBox3.Checked = lLp.StringBold;
-
-            colorPickerEx5.Items = new KnownColorCollection(KnownColorFilter.Web);
-            colorPickerEx5.SelectedText = lLp.CommentColor.Name;
-            checkBox4.Checked = lLp.CommentBold;
-
-            colorPickerEx6.Items = new KnownColorCollection(KnownColorFilter.Web);
-            colorPickerEx6.SelectedText = lLp.LineColor.Name;
-            // colorPickerEx2.Items = new KnownColorCollection(KnownColorFilter.System);
-
-            comboBox1.Items.Add("Black");
-            comboBox1.Items.Add("White");
-            comboBox1.Items.Add("Custom_1");
-            comboBox1.Items.Add("Custom_2");
-
-            comboBox1.SelectedIndex = 0; 
+            BuildUi();
+            LoadUi();
         }
 
-        private void colorPickerEx1_SelectedIndexChanged(object sender, EventArgs e)
+        static clParam.pram Copy(clParam.pram p) =>
+            new clParam.pram { current = p.current, Params = new List<clParam.lp>(p.Params), DarkMode = p.DarkMode };
+
+        void BuildUi()
         {
-          //  if (this.colorPickerEx1.SelectedText.Length > 0) this.BackColor = Color.FromName(this.colorPickerEx1.SelectedText);
+            Text = "Paramètres";
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            ShowInTaskbar = false;
+            StartPosition = FormStartPosition.CenterParent;
+            Font = new Font("Segoe UI", 9.5f);
+            AutoSize = true;
+            AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            Padding = new Padding(14);
 
+            var grid = new TableLayoutPanel { AutoSize = true, ColumnCount = 3, Dock = DockStyle.Fill };
+            Label L(string t, bool title = false) => new Label
+            {
+                Text = t, AutoSize = true, Anchor = AnchorStyles.Left,
+                Margin = new Padding(0, title ? 14 : 6, 16, 4),
+                Font = title ? new Font("Segoe UI", 9.5f, FontStyle.Bold) : null
+            };
 
+            // chaque élément a sa cellule : une case « Gras » masquée ne décale pas la ligne
+            int r = 0;
+            void Span(Control c) { grid.Controls.Add(c, 0, r++); grid.SetColumnSpan(c, 3); }
+            Span(L("Apparence", true));
+            Span(darkBox);
+
+            Span(L("Couleurs du code RPN", true));
+            grid.Controls.Add(L("Schéma"), 0, r);
+            schemaBox.Items.AddRange(SchemaNames);
+            grid.Controls.Add(schemaBox, 1, r);
+            var reset = new Button { Text = "Valeurs par défaut", AutoSize = true };
+            reset.Click += (s, e) =>
+            {
+                work.Params[work.current] = new clParam().parameters.Params[work.current];
+                LoadUi();
+                DoPreview();
+            };
+            grid.Controls.Add(reset, 2, r++);
+
+            for (int i = 0; i < RowNames.Length; i++)
+            {
+                int row = i;
+                var b = new Button { Width = 200, Height = 26, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, Tag = "keep", Font = new Font("Segoe UI", 8.5f) };
+                b.FlatAppearance.BorderColor = Color.FromArgb(110, 108, 100);
+                b.Click += (s, e) =>
+                {
+                    using (var dlg = new ColorDialog { Color = GetColor(param, row), FullOpen = true, AnyColor = true })
+                        if (dlg.ShowDialog(this) == DialogResult.OK) { SetColor(row, dlg.Color); LoadUi(); DoPreview(); }
+                };
+                swatches.Add(b);
+                var bold = new CheckBox { Text = "Gras", AutoSize = true, Anchor = AnchorStyles.Left, Visible = GetBold(param, row) != null };
+                bold.CheckedChanged += (s, e) => { if (!loading) { SetBold(row, bold.Checked); DoPreview(); } };
+                bolds.Add(bold);
+                grid.Controls.Add(L(RowNames[row]), 0, r);
+                grid.Controls.Add(b, 1, r);
+                grid.Controls.Add(bold, 2, r++);
+            }
+
+            schemaBox.SelectedIndexChanged += (s, e) =>
+            {
+                if (loading) return;
+                work.current = schemaBox.SelectedIndex;
+                LoadUi();
+                DoPreview();
+            };
+            darkBox.CheckedChanged += (s, e) =>
+            {
+                if (loading) return;
+                work.DarkMode = darkBox.Checked;
+                AppTheme.Set(work.DarkMode);
+                AppTheme.Apply(this);
+                DoPreview();
+            };
+
+            var ok = new Button { Text = "OK", DialogResult = DialogResult.OK, AutoSize = true, MinimumSize = new Size(90, 0) };
+            var cancel = new Button { Text = "Annuler", DialogResult = DialogResult.Cancel, AutoSize = true, MinimumSize = new Size(90, 0) };
+            ok.Click += (s, e) => { Param.parameters = Copy(work); Param.SaveParam(); };
+            var buttons = new FlowLayoutPanel { FlowDirection = FlowDirection.RightToLeft, AutoSize = true, Dock = DockStyle.Fill, Margin = new Padding(0, 16, 0, 0) };
+            buttons.Controls.Add(cancel);
+            buttons.Controls.Add(ok);
+            var hint = new Label { Text = "L'éditeur se met à jour en direct.", AutoSize = true, ForeColor = Color.Gray, Tag = "keep", Anchor = AnchorStyles.Left, Margin = new Padding(0, 20, 0, 0) };
+            grid.Controls.Add(hint, 0, r);
+            grid.SetColumnSpan(hint, 2);
+            grid.Controls.Add(buttons, 2, r);
+
+            Controls.Add(grid);
+            AcceptButton = ok;
+            CancelButton = cancel;
+            if (AppTheme.Dark) AppTheme.Apply(this);
         }
 
-        private void colorPickerEx2_SelectedIndexChanged(object sender, EventArgs e)
+        void LoadUi()
         {
-
+            if (schemaBox.Items.Count == 0) return;
+            loading = true;
+            schemaBox.SelectedIndex = Math.Max(0, Math.Min(SchemaNames.Length - 1, work.current));
+            darkBox.Checked = work.DarkMode;
+            var p = param;
+            for (int i = 0; i < swatches.Count; i++)
+            {
+                var c = GetColor(p, i);
+                swatches[i].BackColor = c;
+                swatches[i].ForeColor = 0.299 * c.R + 0.587 * c.G + 0.114 * c.B > 140 ? Color.Black : Color.White;
+                swatches[i].Text = c.IsNamedColor ? c.Name : $"#{c.R:X2}{c.G:X2}{c.B:X2}";
+                var b = GetBold(p, i);
+                if (b != null) bolds[i].Checked = b.Value;
+            }
+            loading = false;
         }
 
-        private void colorPickerEx3_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        void DoPreview() => Preview?.Invoke(param, work.DarkMode);
 
+        static Color GetColor(clParam.lp p, int row) => row switch
+        {
+            0 => p.BackColor, 1 => p.WordColor, 2 => p.NumColor, 3 => p.StringColor, 4 => p.CommentColor, _ => p.LineColor
+        };
+
+        void SetColor(int row, Color c)
+        {
+            var p = param;
+            switch (row)
+            {
+                case 0: p.BackColor = c; break;
+                case 1: p.WordColor = c; break;
+                case 2: p.NumColor = c; break;
+                case 3: p.StringColor = c; break;
+                case 4: p.CommentColor = c; break;
+                default: p.LineColor = c; break;
+            }
+            work.Params[work.current] = p;
         }
 
-        private void colorPickerEx4_SelectedIndexChanged(object sender, EventArgs e)
+        static bool? GetBold(clParam.lp p, int row) => row switch
         {
+            1 => p.WordBold, 2 => p.NumBold, 3 => p.StringBold, 4 => p.CommentBold, _ => (bool?)null
+        };
 
-        }
-
-        private void colorPickerEx5_SelectedIndexChanged(object sender, EventArgs e)
+        void SetBold(int row, bool on)
         {
-
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-
-            // Recupere les parametres
-            int lIdx = Param.parameters.current;
-
-            clParam.lp  lLp= Param.parameters.Params[lIdx];
-
-            lLp.BackColor = Color.FromName(this.colorPickerEx1.SelectedText);
-            lLp.WordColor = Color.FromName(this.colorPickerEx2.SelectedText);
-            lLp.NumColor = Color.FromName(this.colorPickerEx3.SelectedText);
-            lLp.StringColor = Color.FromName(this.colorPickerEx4.SelectedText);
-            lLp.CommentColor = Color.FromName(this.colorPickerEx5.SelectedText);
-            lLp.LineColor = Color.FromName(this.colorPickerEx6.SelectedText);
-
-            lLp.WordBold = checkBox1.Checked;
-            lLp.NumBold = checkBox2.Checked;
-            lLp.StringBold = checkBox3.Checked;
-            lLp.CommentBold = checkBox4.Checked;
-
-            Param.parameters.Params[lIdx] = lLp; 
-
-            Param.SaveParam(); 
-
-            this.Close(); 
-        }
-
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            // Recupereles parametres
-            clParam.lp lLp = Param.parameters.Params[Param.parameters.current];
-            lLp.BackColor = Color.FromName(colorPickerEx1.SelectedText);
-            lLp.WordColor = Color.FromName(colorPickerEx2.SelectedText)  ;
-            lLp.NumColor = Color.FromName(colorPickerEx3.SelectedText)  ;
-            lLp.StringColor = Color.FromName(colorPickerEx4.SelectedText) ;
-            lLp.CommentColor= Color.FromName(colorPickerEx5.SelectedText)  ;
-            lLp.LineColor = Color.FromName(colorPickerEx6.SelectedText)  ;
-            Param.parameters.Params[Param.parameters.current] = lLp; 
-
-            // Changement de schéma
-            Param.parameters.current = comboBox1.SelectedIndex;
-
-             lLp = Param.parameters.Params[Param.parameters.current];
-            // affiche les couleurs du schéma 
-            colorPickerEx1.SelectedText = lLp.BackColor.Name;
-            colorPickerEx2.SelectedText = lLp.WordColor.Name;
-            checkBox1.Checked = lLp.WordBold;
-            colorPickerEx3.SelectedText = lLp.NumColor.Name;
-            checkBox2.Checked = lLp.NumBold;
-            colorPickerEx4.SelectedText = lLp.StringColor.Name;
-            checkBox3.Checked = lLp.StringBold;
-            colorPickerEx5.SelectedText = lLp.CommentColor.Name;
-            checkBox4.Checked = lLp.CommentBold;
-            colorPickerEx6.SelectedText = lLp.LineColor.Name;
-
-
-
+            var p = param;
+            switch (row)
+            {
+                case 1: p.WordBold = on; break;
+                case 2: p.NumBold = on; break;
+                case 3: p.StringBold = on; break;
+                case 4: p.CommentBold = on; break;
+            }
+            work.Params[work.current] = p;
         }
     }
 
@@ -237,6 +240,8 @@ namespace dm42editor
         {
             public int current=0;
             public List<lp> Params = new List<lp>();
+            /// <summary>Thème sombre de l'application.</summary>
+            public bool DarkMode;
 
             public pram()
             {

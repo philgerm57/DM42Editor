@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using FastColoredTextBoxNS;
+using Dm42.Editor;
 using Py = Py42.Core;
-using Range = FastColoredTextBoxNS.Range;
+using Range = Dm42.Editor.TextRange;
 
 namespace dm42editor
 {
@@ -53,7 +53,7 @@ namespace dm42editor
 
         readonly Action<string, string, string> sendToEditor;
 
-        FastColoredTextBox pyBox, rpnBox;
+        CodeEditor pyBox, rpnBox;
         ListBox messages;
         ToolStripTextBox progName;
         ToolStripButton radButton, upperButton, numButton;
@@ -100,24 +100,10 @@ namespace dm42editor
             // ---- barre d'outils
             var tools = new ToolStrip { GripStyle = ToolStripGripStyle.Hidden, BackColor = Bar, ForeColor = Ink, Padding = new Padding(6, 4, 6, 4) };
             tools.Renderer = new HpRenderer();   // survol et menus sombres : le texte blanc reste lisible
-            tools.Items.Add(Button("Nouveau", (s, e) => NewProgram(), "Nouveau programme Python"));
-            tools.Items.Add(Button("Ouvrir…", (s, e) => OpenFileDialog(), "Ouvrir un fichier .py (Ctrl+O)"));
-            tools.Items.Add(Button("Enregistrer", (s, e) => SavePython(false), "Enregistrer le source Python (Ctrl+S)"));
-            tools.Items.Add(Button("Sous…", (s, e) => SavePython(true), "Enregistrer sous…"));
-            tools.Items.Add(Button("Effacer", (s, e) => ClearPage(), "Efface toute la page Python (Ctrl+Z pour annuler)"));
+            tools.Items.Add(BuildFileMenu(tools));
+            tools.Items.Add(BuildViewMenu(tools));
             tools.Items.Add(new ToolStripSeparator());
-
-            var examples = new ToolStripDropDownButton("Exemples") { ForeColor = Ink };
-            for (int i = 0; i < Py.Examples.All.Count; i++)
-            {
-                int idx = i;
-                examples.DropDownItems.Add(Py.Examples.All[i].Title, null, (s, e) => LoadExample(idx)).ForeColor = Ink;
-            }
-            // le menu déroulant ne reprend pas toujours le rendu de la barre : on le lui donne explicitement
-            examples.DropDown.Renderer = tools.Renderer;
-            examples.DropDown.BackColor = Color.FromArgb(44, 44, 41);
-            examples.DropDown.ForeColor = Ink;
-            tools.Items.Add(examples);
+            tools.Items.Add(Button("Effacer", (s, e) => ClearPage(), "Efface toute la page Python (Ctrl+Z pour annuler)"));
             tools.Items.Add(new ToolStripSeparator());
 
             tools.Items.Add(new ToolStripLabel("Programme") { ForeColor = Muted });
@@ -129,8 +115,6 @@ namespace dm42editor
             upperButton = Toggle("MAJ", true, "Noms de variables et de labels en majuscules");
             numButton = Toggle("N° ligne", true, "Numéros de ligne dans le listing");
             tools.Items.AddRange(new ToolStripItem[] { radButton, upperButton, numButton, new ToolStripSeparator() });
-            tools.Items.Add(BuildViewMenu(tools));
-            tools.Items.Add(new ToolStripSeparator());
 
             var send = new ToolStripButton("→ Éditeur  F6") { BackColor = Shift, ForeColor = Color.FromArgb(28, 27, 25), Font = new Font(Font, FontStyle.Bold), Tag = HpRenderer.ShiftKey, ToolTipText = "Ouvre le RPN dans un onglet de DM42 Editor, prêt pour « Encode and save RAW »" };
             send.Click += (s, e) => SendToEditor();
@@ -232,18 +216,16 @@ namespace dm42editor
             return b;
         }
 
-        static FastColoredTextBox NewEditor(Color back, Color fore, bool readOnly)
+        static CodeEditor NewEditor(Color back, Color fore, bool readOnly)
         {
-            return new FastColoredTextBox
+            return new CodeEditor
             {
                 Dock = DockStyle.Fill,
                 Font = new Font("Consolas", 11.5f),
                 BackColor = back,
                 ForeColor = fore,
                 ReadOnly = readOnly,
-                Language = Language.Custom,
                 BorderStyle = BorderStyle.None,
-                WordWrap = false,
                 CaretColor = Shift,
                 SelectionColor = Color.FromArgb(70, 224, 137, 47)
             };
@@ -349,7 +331,7 @@ namespace dm42editor
                 items.Add(new AutocompleteItem(f));
             foreach (var h in Py.Hp42.AllHelp().OrderBy(k => k.Name, StringComparer.OrdinalIgnoreCase))
                 items.Add(new AutocompleteItem(h.Name) { ToolTipTitle = h.Name, ToolTipText = h.Help });
-            menu.Items.SetAutocompleteItems(items);
+            menu.SetItems(items);
         }
 
         // ==================================================================
@@ -575,6 +557,7 @@ namespace dm42editor
             currentFile = null;
             pyBox.Text = "# Programme Python pour HP-42S / DM42\r\nimport math\r\n\r\ndef carre(x):\r\n    return x * x\r\n\r\nn = float(input(\"N ?\"))\r\nprint(\"CARRE\", carre(n))\r\n";
             pyBox.ClearUndo();
+            pyBox.IsChanged = false;
             preferredEntry = "MAIN";
             stackBox.Text = "";
             inputsBox.Text = "5";
@@ -591,6 +574,7 @@ namespace dm42editor
             entryBox.Items.Clear();
             pyBox.Text = ex.Source.TrimStart('\n').Replace("\r\n", "\n").Replace("\n", "\r\n");
             pyBox.ClearUndo();
+            pyBox.IsChanged = false;
             stackBox.Text = ex.Stack;
             inputsBox.Text = ex.Inputs;
             simOut.Text = "";
@@ -601,6 +585,7 @@ namespace dm42editor
 
         void OpenFileDialog()
         {
+            if (!ConfirmDiscard()) return;
             using (var dlg = new OpenFileDialog { Filter = "Python (*.py)|*.py|Tous les fichiers (*.*)|*.*" })
                 if (dlg.ShowDialog(this) == DialogResult.OK) OpenFile(dlg.FileName);
         }
@@ -611,6 +596,7 @@ namespace dm42editor
             {
                 pyBox.Text = File.ReadAllText(path);
                 pyBox.ClearUndo();
+                pyBox.IsChanged = false;
                 currentFile = path;
                 UpdateTitle();
                 Recompile();
@@ -675,19 +661,17 @@ namespace dm42editor
             else if (e.KeyCode == Keys.F7) { SendToFree42(); e.Handled = true; }
             else if (e.KeyCode == Keys.F8) { SaveRaw(); e.Handled = true; }
             else if (e.Control && e.KeyCode == Keys.K && pyBox.Focused) { ToggleComment(); e.Handled = true; }
+            else if (e.Control && e.Shift && e.KeyCode == Keys.S) { SavePython(true); e.Handled = true; }
             else if (e.Control && e.KeyCode == Keys.S) { SavePython(false); e.Handled = true; }
             else if (e.Control && e.KeyCode == Keys.O) { OpenFileDialog(); e.Handled = true; }
+            else if (e.Control && e.KeyCode == Keys.N) { if (ConfirmDiscard()) NewProgram(); e.Handled = true; }
+            else if (e.Control && e.KeyCode == Keys.P) { pyBox.Print(PrintTitle()); e.Handled = true; }
+            if (e.Handled) e.SuppressKeyPress = true;
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            if (pyBox.IsChanged && currentFile != null)
-            {
-                var r = MessageBox.Show(this, "Enregistrer les modifications de " + Path.GetFileName(currentFile) + " ?", "Python → RPN",
-                                        MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-                if (r == DialogResult.Cancel) { e.Cancel = true; return; }
-                if (r == DialogResult.Yes) SavePython(false);
-            }
+            if (e.CloseReason == CloseReason.UserClosing && !ConfirmDiscard()) { e.Cancel = true; return; }
             base.OnFormClosing(e);
         }
 
@@ -845,7 +829,8 @@ namespace dm42editor
             sb.AppendLine("  Pile de 4 niveaux · variables globales (les locales en conflit sont renommées) · pas de récursivité");
             sb.AppendLine("  Noms de 7 caractères · 99 labels locaux · pas de listes, chaînes manipulées, classes, exceptions");
             sb.AppendLine();
-            sb.AppendLine("RACCOURCIS : F5 simulation · F6 envoyer vers l'éditeur · F7 envoyer vers Free42 / Plus42 · Ctrl+K commenter · Ctrl+S enregistrer · Ctrl+O ouvrir");
+            sb.AppendLine("RACCOURCIS : F5 simulation · F6 envoyer vers l'éditeur · F7 envoyer vers Free42 / Plus42 · Ctrl+K commenter · Ctrl+N nouveau · Ctrl+O ouvrir · Ctrl+S enregistrer · Ctrl+P imprimer · Ctrl+F rechercher · Ctrl+H remplacer");
+            sb.AppendLine("  Menu Fichier : nouveau, ouvrir, enregistrer (sous), exemples, imprimer le code Python ou le listing RPN, quitter.");
             sb.AppendLine("  Clic droit dans le code : couper, copier, coller, effacer la sélection, effacer la page.");
             sb.AppendLine("  Menu Affichage : thème clair / sombre du Python, couleurs et fond du listing RPN.");
             sb.AppendLine("FICHIER .RAW : F8 (Générer .raw) encode directement le programme : DM42 → copiez-le sur son disque USB puis Load Program ; Free42 → File → Import Programs.");

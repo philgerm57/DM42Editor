@@ -8,8 +8,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using FastColoredTextBoxNS;
-using Range = FastColoredTextBoxNS.Range;
+using Dm42.Editor;
+using Range = Dm42.Editor.TextRange;
 
 namespace dm42editor
 {
@@ -187,9 +187,67 @@ namespace dm42editor
             return m;
         }
 
+        /// <summary>Menu Fichier : nouveau, ouvrir, enregistrer, exemples, imprimer, quitter.</summary>
+        ToolStripDropDownButton BuildFileMenu(ToolStrip tools)
+        {
+            var file = new ToolStripDropDownButton("Fichier") { ForeColor = Ink, ShowDropDownArrow = false };
+            var examples = new ToolStripMenuItem("Exemples") { ForeColor = Ink };
+            for (int i = 0; i < Py42.Core.Examples.All.Count; i++)
+            {
+                int idx = i;
+                examples.DropDownItems.Add(Item(Py42.Core.Examples.All[i].Title, null, (s, e) => { if (ConfirmDiscard()) LoadExample(idx); }));
+            }
+            examples.DropDown.Renderer = tools.Renderer;
+            examples.DropDown.BackColor = Color.FromArgb(44, 44, 41);
+
+            file.DropDownItems.AddRange(new ToolStripItem[]
+            {
+                Item("Nouveau", "Ctrl+N", (s, e) => { if (ConfirmDiscard()) NewProgram(); }),
+                Item("Ouvrir…", "Ctrl+O", (s, e) => OpenFileDialog()),
+                Item("Enregistrer", "Ctrl+S", (s, e) => SavePython(false)),
+                Item("Enregistrer sous…", "Ctrl+Maj+S", (s, e) => SavePython(true)),
+                new ToolStripSeparator(),
+                examples,
+                new ToolStripSeparator(),
+                Item("Imprimer le code Python…", "Ctrl+P", (s, e) => pyBox.Print(PrintTitle())),
+                Item("Imprimer le listing RPN…", null, (s, e) => PrintRpn()),
+                new ToolStripSeparator(),
+                Item("Quitter", "Alt+F4", (s, e) => Close())
+            });
+            // le menu déroulant ne reprend pas toujours le rendu de la barre : on le lui donne explicitement
+            file.DropDown.Renderer = tools.Renderer;
+            file.DropDown.BackColor = Color.FromArgb(44, 44, 41);
+            file.DropDown.ForeColor = Ink;
+            return file;
+        }
+
+        string PrintTitle() => currentFile != null ? Path.GetFileName(currentFile)
+                             : (progName.Text.Trim().Length > 0 ? progName.Text.Trim() : "MAIN") + ".py";
+
+        void PrintRpn()
+        {
+            if (last == null) { status.Text = "Rien à imprimer : corrigez d'abord les erreurs."; return; }
+            rpnBox.Print(Path.GetFileNameWithoutExtension(PrintTitle()) + " — listing RPN");
+        }
+
+        /// <summary>
+        /// Avant de remplacer le code : propose d'enregistrer les modifications.
+        /// Renvoie false si l'utilisateur annule (ou n'enregistre pas alors qu'il l'a demandé).
+        /// </summary>
+        bool ConfirmDiscard()
+        {
+            if (!pyBox.IsChanged) return true;
+            string name = currentFile != null ? Path.GetFileName(currentFile) : "ce programme";
+            var r = MessageBox.Show(this, "Enregistrer les modifications de " + name + " ?", "Python → RPN",
+                                    MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+            if (r == DialogResult.Cancel) return false;
+            if (r == DialogResult.Yes) { SavePython(false); return !pyBox.IsChanged; }
+            return true;
+        }
+
         ToolStripDropDownButton BuildViewMenu(ToolStrip tools)
         {
-            var view = new ToolStripDropDownButton("Affichage") { ForeColor = Ink };
+            var view = new ToolStripDropDownButton("Affichage") { ForeColor = Ink, ShowDropDownArrow = false };
             darkItem = new ToolStripMenuItem("Code Python : thème sombre") { CheckOnClick = true, ForeColor = Ink };
             darkItem.CheckedChanged += (s, e) =>
             {
