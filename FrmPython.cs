@@ -325,7 +325,7 @@ namespace dm42editor
             foreach (var f in new[] { "print", "input", "prompt", "menu", "varmenu", "int", "float", "abs", "max", "min", "pow",
                                       "math.sqrt", "math.sin", "math.cos", "math.tan", "math.asin", "math.acos", "math.atan",
                                       "math.atan2", "math.exp", "math.log", "math.log10", "math.hypot", "math.pi", "math.e",
-                                      "math.radians", "math.degrees", "math.factorial", "math.gamma", "math.floor", "math.ceil",
+                                      "math.radians", "math.degrees", "math.factorial", "math.gamma", "math.floor", "math.ceil", "round",
                                       "np.array", "np.zeros", "np.linalg.solve", "np.linalg.inv", "np.linalg.det", "np.linalg.norm",
                                       "np.dot", "np.cross", "np.transpose", "zeros", "solve", "inv", "det", "transpose", "norm",
                                       "rows", "cols", "len", "dot", "cross", "copy",
@@ -355,7 +355,7 @@ namespace dm42editor
             r.SetStyle(pyKeyword, @"\b(def|return|if|elif|else|while|for|in|break|continue|pass|and|or|not|True|False|import|from|global|assert)\b");
             r.SetStyle(pyDef, @"(?<=\bdef\s+)\w+");
             r.SetStyle(pyHp, HpRegex, RegexOptions.IgnoreCase);
-            r.SetStyle(pyBuiltin, @"\b(print|input|prompt|menu|varmenu|range|int|float|abs|max|min|pow|math|sqrt|sin|cos|tan|asin|acos|atan|atan2|sinh|cosh|tanh|asinh|acosh|atanh|exp|expm1|log|log1p|log10|hypot|pi|e|factorial|gamma|radians|degrees|fabs|trunc|floor|ceil|cmath|np|numpy|linalg|array|zeros|solve|inv|det|transpose|norm|rows|cols|len|dot|cross|copy|complex|conjugate|conj|phase|rect|real|imag)\b");
+            r.SetStyle(pyBuiltin, @"\b(print|input|prompt|menu|varmenu|range|int|float|abs|max|min|pow|math|sqrt|sin|cos|tan|asin|acos|atan|atan2|sinh|cosh|tanh|asinh|acosh|atanh|exp|expm1|log|log1p|log10|hypot|pi|e|factorial|gamma|radians|degrees|fabs|trunc|floor|ceil|round|cmath|np|numpy|linalg|array|zeros|solve|inv|det|transpose|norm|rows|cols|len|dot|cross|copy|complex|conjugate|conj|phase|rect|real|imag)\b");
             r.SetStyle(pyNumber, @"\b\d+(\.\d*)?([eE][+-]?\d+)?j\b");
             r.SetStyle(pyNumber, @"\b\d+(\.\d*)?([eE][+-]?\d+)?\b|\.\d+");
         }
@@ -794,6 +794,7 @@ namespace dm42editor
             sb.AppendLine("  print(\"texte\", x) ou print(\"texte\" + str(x))  → ALPHA + AVIEW    print(x) → VIEW \"X\"");
             sb.AppendLine("  import math : sqrt sin cos tan asin acos atan atan2 sinh cosh tanh exp log log10");
             sb.AppendLine("                hypot pow max min abs int floor ceil factorial gamma radians degrees pi e");
+            sb.AppendLine("  round(x, n) : arrondi à n décimales (n constant, 0 à 11) ; les demis s'éloignent de zéro, comme RND");
             sb.AppendLine();
             sb.AppendLine("EXPRESSIONS");
             sb.AppendLine("  Parenthèses imbriquées sans limite : ce qui dépasse la pile à 4 niveaux est calculé");
@@ -823,7 +824,7 @@ namespace dm42editor
             sb.AppendLine("  SF(n) CF(n)                 lève / baisse le drapeau n");
             sb.AppendLine("  if FS(n): ...  if FC(n):    tests ; FSC(n) / FCC(n) testent puis baissent le drapeau");
             sb.AppendLine();
-            sb.AppendLine("COMMANDES HP42S (noms de pyrpn.atug.com/cmds, majuscules ou minuscules)");
+            sb.AppendLine("COMMANDES HP42S ( majuscules ou minuscules)");
             sb.AppendLine("  Les arguments suivent l'ordre de la pile : le dernier va dans X.");
             sb.AppendLine("  SIN(x), COS(x)... utilisent le mode d'angle de la calculatrice (DEG(), RAD()) ;");
             sb.AppendLine("  math.sin(x) travaille toujours en radians.");
