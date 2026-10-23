@@ -446,7 +446,7 @@ namespace dm42editor
         }
 
         // ==================================================================
-        //  Fichier .raw direct (encodeur dm42dll, comme « Encode and save RAW »)
+        //  Fichier .raw direct (encodeur dm42dll, comme « Encoder et enregistrer en .raw »)
         // ==================================================================
         string lastRawDir;
 

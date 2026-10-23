@@ -142,8 +142,9 @@ namespace Dm42.Editor
 
         Font FontFor(FontStyle st)
         {
-            if (st == FontStyle.Regular) return Font;
-            if (!fonts.TryGetValue(st, out var f)) fonts[st] = f = new Font(Font, st);
+            // style exact demandé : « Regular » reste maigre même si la police de base est en gras
+            if (st == Font.Style) return Font;
+            if (!fonts.TryGetValue(st, out var f)) fonts[st] = f = new Font(Font.FontFamily, Font.Size, st, Font.Unit);
             return f;
         }
 
@@ -678,7 +679,7 @@ namespace Dm42.Editor
                 for (int s = 0; s < styles.Count; s++)
                     if ((mask & (1 << s)) != 0 && styles[s] is TextStyle ts && ts.ForeBrush != null)
                         return (ColorOf(ts.ForeBrush, ForeColor), ts.FontStyle);
-            return (ForeColor, FontStyle.Regular);
+            return (ForeColor, Font.Style);   // texte sans style : police de base
         }
 
         // ==================================================================
@@ -785,6 +786,9 @@ namespace Dm42.Editor
                             case Keys.Y: case Keys.R: if (!ReadOnly) Redo(); break;
                             case Keys.F: ShowFindDialog(); break;
                             case Keys.H: if (!ReadOnly) ShowReplaceDialog(); break;
+                            case Keys.B:   // Ctrl+B : signet, Ctrl+Maj+B : le retirer
+                                if (shift) UnbookmarkLine(selection.Start.iLine); else BookmarkLine(selection.Start.iLine);
+                                break;
                             case Keys.Home: MoveCaret(new Place(0, 0), shift); break;
                             case Keys.End: MoveCaret(EndPlace, shift); break;
                             default: handled = false; break;

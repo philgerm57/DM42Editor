@@ -119,7 +119,7 @@ namespace dm42editor
             numButton = Toggle("N° ligne", true, "Numéros de ligne dans le listing");
             tools.Items.AddRange(new ToolStripItem[] { radButton, upperButton, numButton, new ToolStripSeparator() });
 
-            var send = new ToolStripButton("→ Éditeur  F6") { BackColor = Shift, ForeColor = Color.FromArgb(28, 27, 25), Font = new Font(Font, FontStyle.Bold), Tag = HpRenderer.ShiftKey, ToolTipText = "Ouvre le RPN dans un onglet de DM42 Editor, prêt pour « Encode and save RAW »" };
+            var send = new ToolStripButton("→ Éditeur  F6") { BackColor = Shift, ForeColor = Color.FromArgb(28, 27, 25), Font = new Font(Font, FontStyle.Bold), Tag = HpRenderer.ShiftKey, ToolTipText = "Ouvre le RPN dans un onglet de DM42 Editor, prêt pour « Encoder et enregistrer en .raw »" };
             send.Click += (s, e) => SendToEditor();
             tools.Items.Add(send);
             var rawBtn = new ToolStripButton("Générer .raw  F8") { BackColor = Shift, ForeColor = Color.FromArgb(28, 27, 25), Font = new Font(Font, FontStyle.Bold), Tag = HpRenderer.ShiftKey, ToolTipText = "Encode directement le programme en fichier .raw pour la DM42 / Free42" };
@@ -644,7 +644,7 @@ namespace dm42editor
                             : (progName.Text.Trim().Length > 0 ? progName.Text.Trim() : "MAIN");
             string path = currentFile != null ? Path.ChangeExtension(currentFile, ".free42") : null;
             sendToEditor?.Invoke(last.Listing(numButton.Checked, header: true), baseName + ".free42", path);
-            status.Text = $"RPN envoyé dans l'onglet « {baseName}.free42 ». Utilisez « Encode and save RAW » pour la DM42.";
+            status.Text = $"RPN envoyé dans l'onglet « {baseName}.free42 ». Utilisez « Encoder et enregistrer en .raw » pour la DM42.";
         }
 
         void CopyRpn()

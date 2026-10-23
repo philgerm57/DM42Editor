@@ -11,7 +11,7 @@ namespace dm42editor
 {
     /// <summary>
     /// Menu « Python » : conversion d'un Python simplifié en RPN HP-42S / DM42 (bibliothèque Py42.Core).
-    /// Le RPN généré arrive dans un onglet normal de l'éditeur, prêt pour « Encode and save RAW ».
+    /// Le RPN généré arrive dans un onglet normal de l'éditeur, prêt pour « Encoder et enregistrer en .raw ».
     /// </summary>
     public partial class Form1
     {

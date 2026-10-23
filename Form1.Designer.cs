@@ -150,20 +150,20 @@
             this.quitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileToolStripMenuItem.Text = "File";
+            this.fileToolStripMenuItem.Text = "Fichier";
             // 
             // newProgramToolStripMenuItem
             // 
             this.newProgramToolStripMenuItem.Name = "newProgramToolStripMenuItem";
             this.newProgramToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.newProgramToolStripMenuItem.Text = "New program";
+            this.newProgramToolStripMenuItem.Text = "Nouveau programme";
             this.newProgramToolStripMenuItem.Click += new System.EventHandler(this.newProgramToolStripMenuItem_Click);
             // 
             // OpenPrgmToolStripMenuItem
             // 
             this.OpenPrgmToolStripMenuItem.Name = "OpenPrgmToolStripMenuItem";
             this.OpenPrgmToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.OpenPrgmToolStripMenuItem.Text = "Open Program ...";
+            this.OpenPrgmToolStripMenuItem.Text = "Ouvrir un programme…";
             this.OpenPrgmToolStripMenuItem.Click += new System.EventHandler(this.OpenPrgmToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
@@ -171,7 +171,7 @@
             this.saveToolStripMenuItem.Enabled = false;
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
             this.saveToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.saveToolStripMenuItem.Text = "Save ";
+            this.saveToolStripMenuItem.Text = "Enregistrer";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // saveAsToolStripMenuItem
@@ -179,7 +179,7 @@
             this.saveAsToolStripMenuItem.Enabled = false;
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
             this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.saveAsToolStripMenuItem.Text = "Save As ...";
+            this.saveAsToolStripMenuItem.Text = "Enregistrer sous…";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
             // saveAllToolStripMenuItem
@@ -187,7 +187,7 @@
             this.saveAllToolStripMenuItem.Enabled = false;
             this.saveAllToolStripMenuItem.Name = "saveAllToolStripMenuItem";
             this.saveAllToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.saveAllToolStripMenuItem.Text = "Save All";
+            this.saveAllToolStripMenuItem.Text = "Tout enregistrer";
             this.saveAllToolStripMenuItem.Click += new System.EventHandler(this.saveAllToolStripMenuItem_Click);
             // 
             // toolStripMenuItem3
@@ -199,7 +199,7 @@
             // 
             this.parameterToolStripMenuItem.Name = "parameterToolStripMenuItem";
             this.parameterToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.parameterToolStripMenuItem.Text = "Parameter";
+            this.parameterToolStripMenuItem.Text = "Paramètres…";
             this.parameterToolStripMenuItem.Click += new System.EventHandler(this.parameterToolStripMenuItem_Click);
             // 
             // toolStripMenuItem9
@@ -212,7 +212,7 @@
             this.toolStripMenuItem2.Enabled = false;
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
             this.toolStripMenuItem2.Size = new System.Drawing.Size(185, 22);
-            this.toolStripMenuItem2.Text = "Encode and Save raw";
+            this.toolStripMenuItem2.Text = "Encoder et enregistrer en .raw…";
             this.toolStripMenuItem2.Click += new System.EventHandler(this.toolStripMenuItem2_Click);
             // 
             // printToolStripMenuItem
@@ -220,7 +220,7 @@
             this.printToolStripMenuItem.Enabled = false;
             this.printToolStripMenuItem.Name = "printToolStripMenuItem";
             this.printToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.printToolStripMenuItem.Text = "Print Code...";
+            this.printToolStripMenuItem.Text = "Imprimer le code…";
             this.printToolStripMenuItem.Click += new System.EventHandler(this.printToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
@@ -232,7 +232,7 @@
             // 
             this.quitToolStripMenuItem.Name = "quitToolStripMenuItem";
             this.quitToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.quitToolStripMenuItem.Text = "Quit";
+            this.quitToolStripMenuItem.Text = "Quitter";
             this.quitToolStripMenuItem.Click += new System.EventHandler(this.quitToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
@@ -243,27 +243,27 @@
             this.aProposToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
-            this.helpToolStripMenuItem.Text = "Help";
+            this.helpToolStripMenuItem.Text = "Aide";
             // 
             // equivalenceToolStripMenuItem
             // 
             this.equivalenceToolStripMenuItem.Name = "equivalenceToolStripMenuItem";
             this.equivalenceToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
-            this.equivalenceToolStripMenuItem.Text = "Equivalence";
+            this.equivalenceToolStripMenuItem.Text = "Équivalences";
             this.equivalenceToolStripMenuItem.Click += new System.EventHandler(this.equivalenceToolStripMenuItem_Click);
             // 
             // toolStripMenuItem10
             // 
             this.toolStripMenuItem10.Name = "toolStripMenuItem10";
             this.toolStripMenuItem10.Size = new System.Drawing.Size(137, 22);
-            this.toolStripMenuItem10.Text = "aide PDF";
+            this.toolStripMenuItem10.Text = "Aide PDF";
             this.toolStripMenuItem10.Click += new System.EventHandler(this.toolStripMenuItem10_Click);
             // 
             // aProposToolStripMenuItem
             // 
             this.aProposToolStripMenuItem.Name = "aProposToolStripMenuItem";
             this.aProposToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
-            this.aProposToolStripMenuItem.Text = "A propos";
+            this.aProposToolStripMenuItem.Text = "À propos";
             this.aProposToolStripMenuItem.Click += new System.EventHandler(this.aProposToolStripMenuItem_Click);
             // 
             // toolStrip1
@@ -302,7 +302,7 @@
             this.newToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.newToolStripButton.Name = "newToolStripButton";
             this.newToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.newToolStripButton.Text = "&New";
+            this.newToolStripButton.Text = "&Nouveau";
             this.newToolStripButton.Click += new System.EventHandler(this.newProgramToolStripMenuItem_Click);
             // 
             // openToolStripButton
@@ -312,7 +312,7 @@
             this.openToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.openToolStripButton.Name = "openToolStripButton";
             this.openToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.openToolStripButton.Text = "&Open";
+            this.openToolStripButton.Text = "&Ouvrir";
             this.openToolStripButton.Click += new System.EventHandler(this.OpenPrgmToolStripMenuItem_Click);
             // 
             // saveToolStripButton
@@ -323,7 +323,7 @@
             this.saveToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.saveToolStripButton.Name = "saveToolStripButton";
             this.saveToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.saveToolStripButton.Text = "&Save";
+            this.saveToolStripButton.Text = "&Enregistrer";
             this.saveToolStripButton.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // printToolStripButton
@@ -334,7 +334,7 @@
             this.printToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.printToolStripButton.Name = "printToolStripButton";
             this.printToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.printToolStripButton.Text = "&Print";
+            this.printToolStripButton.Text = "&Imprimer";
             this.printToolStripButton.Click += new System.EventHandler(this.printToolStripMenuItem_Click);
             // 
             // cutToolStripButton
@@ -345,7 +345,7 @@
             this.cutToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.cutToolStripButton.Name = "cutToolStripButton";
             this.cutToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.cutToolStripButton.Text = "C&ut";
+            this.cutToolStripButton.Text = "Co&uper";
             this.cutToolStripButton.Click += new System.EventHandler(this.cutToolStripButton_Click);
             // 
             // copyToolStripButton
@@ -356,7 +356,7 @@
             this.copyToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.copyToolStripButton.Name = "copyToolStripButton";
             this.copyToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.copyToolStripButton.Text = "&Copy";
+            this.copyToolStripButton.Text = "&Copier";
             this.copyToolStripButton.Click += new System.EventHandler(this.copyToolStripButton_Click);
             // 
             // pasteToolStripButton
@@ -367,7 +367,7 @@
             this.pasteToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.pasteToolStripButton.Name = "pasteToolStripButton";
             this.pasteToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.pasteToolStripButton.Text = "&Paste";
+            this.pasteToolStripButton.Text = "C&oller";
             this.pasteToolStripButton.Click += new System.EventHandler(this.pasteToolStripButton_Click);
             // 
             // btHighlightCurrentLine
@@ -380,7 +380,7 @@
             this.btHighlightCurrentLine.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btHighlightCurrentLine.Name = "btHighlightCurrentLine";
             this.btHighlightCurrentLine.Size = new System.Drawing.Size(23, 22);
-            this.btHighlightCurrentLine.Text = "Highlight current line";
+            this.btHighlightCurrentLine.Text = "Surligner la ligne du curseur";
             this.btHighlightCurrentLine.ToolTipText = "Highlight current line";
             this.btHighlightCurrentLine.Click += new System.EventHandler(this.btHighlightCurrentLine_Click);
             // 
@@ -392,7 +392,7 @@
             this.undoStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.undoStripButton.Name = "undoStripButton";
             this.undoStripButton.Size = new System.Drawing.Size(23, 22);
-            this.undoStripButton.Text = "Undo (Ctrl+Z)";
+            this.undoStripButton.Text = "Annuler (Ctrl+Z)";
             this.undoStripButton.Click += new System.EventHandler(this.undoStripButton_Click);
             // 
             // redoStripButton
@@ -403,7 +403,7 @@
             this.redoStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.redoStripButton.Name = "redoStripButton";
             this.redoStripButton.Size = new System.Drawing.Size(23, 22);
-            this.redoStripButton.Text = "Redo (Ctrl+R)";
+            this.redoStripButton.Text = "Rétablir (Ctrl+Y)";
             this.redoStripButton.Click += new System.EventHandler(this.redoStripButton_Click);
             // 
             // backStripButton
@@ -413,7 +413,7 @@
             this.backStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.backStripButton.Name = "backStripButton";
             this.backStripButton.Size = new System.Drawing.Size(23, 22);
-            this.backStripButton.Text = "Navigate Backward (Ctrl+ -)";
+            this.backStripButton.Text = "Position précédente (Ctrl+ -)";
             this.backStripButton.Click += new System.EventHandler(this.backStripButton_Click);
             // 
             // forwardStripButton
@@ -423,7 +423,7 @@
             this.forwardStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.forwardStripButton.Name = "forwardStripButton";
             this.forwardStripButton.Size = new System.Drawing.Size(23, 22);
-            this.forwardStripButton.Text = "Navigate Forward (Ctrl+Shift+ -)";
+            this.forwardStripButton.Text = "Position suivante (Ctrl+Maj+ -)";
             this.forwardStripButton.Click += new System.EventHandler(this.forwardStripButton_Click);
             // 
             // bookmarkPlusButton
@@ -433,7 +433,7 @@
             this.bookmarkPlusButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.bookmarkPlusButton.Name = "bookmarkPlusButton";
             this.bookmarkPlusButton.Size = new System.Drawing.Size(23, 22);
-            this.bookmarkPlusButton.Text = "Add bookmark (Ctrl-B)";
+            this.bookmarkPlusButton.Text = "Ajouter un signet (Ctrl+B)";
             this.bookmarkPlusButton.Click += new System.EventHandler(this.bookmarkPlusButton_Click);
             // 
             // bookmarkMinusButton
@@ -443,7 +443,7 @@
             this.bookmarkMinusButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.bookmarkMinusButton.Name = "bookmarkMinusButton";
             this.bookmarkMinusButton.Size = new System.Drawing.Size(23, 22);
-            this.bookmarkMinusButton.Text = "Remove bookmark (Ctrl-Shift-B)";
+            this.bookmarkMinusButton.Text = "Retirer le signet (Ctrl+Maj+B)";
             this.bookmarkMinusButton.Click += new System.EventHandler(this.bookmarkMinusButton_Click);
             // 
             // tbFind
@@ -460,7 +460,7 @@
             this.toolStripLabel1.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.toolStripLabel1.Name = "toolStripLabel1";
             this.toolStripLabel1.Size = new System.Drawing.Size(36, 22);
-            this.toolStripLabel1.Text = "Find: ";
+            this.toolStripLabel1.Text = "Rechercher : ";
             this.toolStripLabel1.Visible = false;
             // 
             // toolStripSeparator1
@@ -475,7 +475,7 @@
             this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton1.Name = "toolStripButton1";
             this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButton1.Text = "Affiche ligne";
+            this.toolStripButton1.Text = "Afficher les numéros de pas";
             this.toolStripButton1.Click += new System.EventHandler(this.viewCodeLineToolStripMenuItem_Click);
             // 
             // toolStripButton2
@@ -485,7 +485,7 @@
             this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton2.Name = "toolStripButton2";
             this.toolStripButton2.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButton2.Text = "Masque Ligne";
+            this.toolStripButton2.Text = "Masquer les numéros de pas";
             this.toolStripButton2.Click += new System.EventHandler(this.toolStripMenuItem8_Click);
             // 
             // gotoButton
@@ -495,7 +495,7 @@
             this.gotoButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.gotoButton.Name = "gotoButton";
             this.gotoButton.Size = new System.Drawing.Size(55, 22);
-            this.gotoButton.Text = "Goto...";
+            this.gotoButton.Text = "Aller à…";
             this.gotoButton.DropDownOpening += new System.EventHandler(this.gotoButton_DropDownOpening);
             // 
             // statusStrip1
@@ -545,35 +545,35 @@
             // 
             this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
             this.cutToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.cutToolStripMenuItem.Text = "Cut";
+            this.cutToolStripMenuItem.Text = "Couper";
             this.cutToolStripMenuItem.Click += new System.EventHandler(this.cutToolStripButton_Click);
             // 
             // copyToolStripMenuItem
             // 
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
             this.copyToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.copyToolStripMenuItem.Text = "Copy";
+            this.copyToolStripMenuItem.Text = "Copier";
             this.copyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripButton_Click);
             // 
             // copyWithoutCommentToolStripMenuItem
             // 
             this.copyWithoutCommentToolStripMenuItem.Name = "copyWithoutCommentToolStripMenuItem";
             this.copyWithoutCommentToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.copyWithoutCommentToolStripMenuItem.Text = "Copy without Comment";
+            this.copyWithoutCommentToolStripMenuItem.Text = "Copier sans les commentaires";
             this.copyWithoutCommentToolStripMenuItem.Click += new System.EventHandler(this.copyWithoutCommentToolStripMenuItem_Click);
             // 
             // pasteToolStripMenuItem
             // 
             this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
             this.pasteToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.pasteToolStripMenuItem.Text = "Paste";
+            this.pasteToolStripMenuItem.Text = "Coller";
             this.pasteToolStripMenuItem.Click += new System.EventHandler(this.pasteToolStripButton_Click);
             // 
             // selectAllToolStripMenuItem
             // 
             this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
             this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.selectAllToolStripMenuItem.Text = "Select all";
+            this.selectAllToolStripMenuItem.Text = "Tout sélectionner";
             this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.selectAllToolStripMenuItem_Click);
             // 
             // toolStripMenuItem4
@@ -585,14 +585,14 @@
             // 
             this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
             this.undoToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.undoToolStripMenuItem.Text = "Undo";
+            this.undoToolStripMenuItem.Text = "Annuler";
             this.undoToolStripMenuItem.Click += new System.EventHandler(this.undoStripButton_Click);
             // 
             // redoToolStripMenuItem
             // 
             this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
             this.redoToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.redoToolStripMenuItem.Text = "Redo";
+            this.redoToolStripMenuItem.Text = "Rétablir";
             this.redoToolStripMenuItem.Click += new System.EventHandler(this.redoStripButton_Click);
             // 
             // toolStripMenuItem5
@@ -604,14 +604,14 @@
             // 
             this.findToolStripMenuItem.Name = "findToolStripMenuItem";
             this.findToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.findToolStripMenuItem.Text = "Find";
+            this.findToolStripMenuItem.Text = "Rechercher…";
             this.findToolStripMenuItem.Click += new System.EventHandler(this.findToolStripMenuItem_Click);
             // 
             // replaceToolStripMenuItem
             // 
             this.replaceToolStripMenuItem.Name = "replaceToolStripMenuItem";
             this.replaceToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.replaceToolStripMenuItem.Text = "Replace";
+            this.replaceToolStripMenuItem.Text = "Remplacer…";
             this.replaceToolStripMenuItem.Click += new System.EventHandler(this.replaceToolStripMenuItem_Click);
             // 
             // toolStripMenuItem6
@@ -623,14 +623,14 @@
             // 
             this.viewCodeLineToolStripMenuItem.Name = "viewCodeLineToolStripMenuItem";
             this.viewCodeLineToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.viewCodeLineToolStripMenuItem.Text = "Format with code Line";
+            this.viewCodeLineToolStripMenuItem.Text = "Afficher les numéros de pas";
             this.viewCodeLineToolStripMenuItem.Click += new System.EventHandler(this.viewCodeLineToolStripMenuItem_Click);
             // 
             // toolStripMenuItem8
             // 
             this.toolStripMenuItem8.Name = "toolStripMenuItem8";
             this.toolStripMenuItem8.Size = new System.Drawing.Size(207, 22);
-            this.toolStripMenuItem8.Text = "Format without code line";
+            this.toolStripMenuItem8.Text = "Masquer les numéros de pas";
             this.toolStripMenuItem8.Click += new System.EventHandler(this.toolStripMenuItem8_Click);
             // 
             // toolStripMenuItem7
@@ -642,7 +642,7 @@
             // 
             this.encodeAndSaveRAWToolStripMenuItem.Name = "encodeAndSaveRAWToolStripMenuItem";
             this.encodeAndSaveRAWToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.encodeAndSaveRAWToolStripMenuItem.Text = "Encode and save RAW ";
+            this.encodeAndSaveRAWToolStripMenuItem.Text = "Encoder et enregistrer en .raw…";
             this.encodeAndSaveRAWToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem2_Click);
             // 
             // toolStripSeparator2
@@ -654,7 +654,7 @@
             // 
             this.viewRawDataToolStripMenuItem.Name = "viewRawDataToolStripMenuItem";
             this.viewRawDataToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.viewRawDataToolStripMenuItem.Text = "View Raw data";
+            this.viewRawDataToolStripMenuItem.Text = "Voir les octets .raw";
             this.viewRawDataToolStripMenuItem.Click += new System.EventHandler(this.viewRawDataToolStripMenuItem_Click);
             // 
             // ilAutocomplete
@@ -793,16 +793,16 @@
             // 
             // columnHeader2
             // 
-            this.columnHeader2.Text = "designation";
+            this.columnHeader2.Text = "Désignation";
             this.columnHeader2.Width = 500;
             // 
             // columnHeader3
             // 
-            this.columnHeader3.Text = "Key";
+            this.columnHeader3.Text = "Touche";
             // 
             // columnHeader4
             // 
-            this.columnHeader4.Text = "Page Help";
+            this.columnHeader4.Text = "Page d'aide";
             // 
             // columnHeader5
             // 
