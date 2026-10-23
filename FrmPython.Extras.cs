@@ -120,6 +120,18 @@ namespace dm42editor
             LoadViewSettings();
             pyBox.ContextMenuStrip = BuildPythonMenu();
             rpnBox.ContextMenuStrip = BuildRpnMenu();
+            messages.ContextMenuStrip = BuildMessagesMenu();
+            messages.KeyDown += (s, e) =>
+            {
+                if (e.Control && e.KeyCode == Keys.C) { CopyMessages(!e.Shift); e.Handled = true; }
+            };
+            // clic droit : sélectionne le message visé avant d'ouvrir le menu
+            messages.MouseDown += (s, e) =>
+            {
+                if (e.Button != MouseButtons.Right) return;
+                int i = messages.IndexFromPoint(e.Location);
+                if (i >= 0 && i != messages.SelectedIndex) messages.SelectedIndex = i;
+            };
             ApplyPythonTheme();
             ApplyRpnColors();
             FormClosed += (s, e) => SaveViewSettings();
@@ -166,6 +178,35 @@ namespace dm42editor
                 paste.Enabled = clip;
             };
             return m;
+        }
+
+        ContextMenuStrip BuildMessagesMenu()
+        {
+            var m = DarkMenu();
+            var one = Item("Copier le message", "Ctrl+C", (s, e) => CopyMessages(true));
+            var all = Item("Copier tous les messages", "Ctrl+Maj+C", (s, e) => CopyMessages(false));
+            m.Items.AddRange(new ToolStripItem[] { one, all });
+            m.Opening += (s, e) =>
+            {
+                one.Enabled = messages.SelectedItem != null;
+                all.Enabled = messages.Items.Count > 0;
+            };
+            return m;
+        }
+
+        /// <summary>Copie le message sélectionné (ou tous) dans le presse-papiers.</summary>
+        void CopyMessages(bool selectedOnly)
+        {
+            var items = selectedOnly
+                ? (messages.SelectedItem != null ? new[] { messages.SelectedItem } : Array.Empty<object>())
+                : messages.Items.Cast<object>().ToArray();
+            if (items.Length == 0) { status.Text = "Aucun message à copier."; return; }
+            try
+            {
+                Clipboard.SetText(string.Join(Environment.NewLine, items.Select(i => i.ToString())));
+                status.Text = items.Length == 1 ? "Message copié dans le presse-papiers." : $"{items.Length} messages copiés dans le presse-papiers.";
+            }
+            catch (Exception ex) { status.Text = "Presse-papiers indisponible : " + ex.Message; }
         }
 
         ContextMenuStrip BuildRpnMenu()

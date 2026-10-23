@@ -791,7 +791,7 @@ namespace dm42editor
             sb.AppendLine("  global, assert condition, \"message\"");
             sb.AppendLine("  # commentaire  ou bloc \"\"\" … \"\"\" (ou ''') en début de ligne : commentaires ignorés, absents du RPN");
             sb.AppendLine("  x = input(\"...\")  → INPUT \"X\"        x = prompt(\"PRIX ?\") ou PROMPT(\"PRIX ?\")  → texte + PROMPT");
-            sb.AppendLine("  print(\"texte\", x)  → ALPHA + AVIEW    print(x) → VIEW \"X\"");
+            sb.AppendLine("  print(\"texte\", x) ou print(\"texte\" + str(x))  → ALPHA + AVIEW    print(x) → VIEW \"X\"");
             sb.AppendLine("  import math : sqrt sin cos tan asin acos atan atan2 sinh cosh tanh exp log log10");
             sb.AppendLine("                hypot pow max min abs int floor ceil factorial gamma radians degrees pi e");
             sb.AppendLine();
@@ -840,6 +840,7 @@ namespace dm42editor
             sb.AppendLine("RACCOURCIS : F5 simulation · F6 envoyer vers l'éditeur · F7 envoyer vers Free42 / Plus42 · Ctrl+K commenter · Ctrl+N nouveau · Ctrl+O ouvrir · Ctrl+S enregistrer · Ctrl+P imprimer · Ctrl+F rechercher · Ctrl+H remplacer");
             sb.AppendLine("  Menu Fichier : nouveau, ouvrir, enregistrer (sous), exemples, imprimer le code Python ou le listing RPN, quitter.");
             sb.AppendLine("  Clic droit dans le code : couper, copier, coller, effacer la sélection, effacer la page.");
+            sb.AppendLine("  Clic droit ou Ctrl+C dans les messages : copier le message (Ctrl+Maj+C : tous les messages).");
             sb.AppendLine("  Menu Affichage : thème clair / sombre du Python, couleurs et fond du listing RPN.");
             sb.AppendLine("FICHIER .RAW : F8 (Générer .raw) encode directement le programme : DM42 → copiez-le sur son disque USB puis Load Program ; Free42 → File → Import Programs.");
             sb.AppendLine("FREE42 / PLUS42 : F7 copie le listing et affiche le simulateur ; en mode PRGM (⇧ R/S), Ctrl+V ajoute le programme.");
