@@ -325,6 +325,7 @@ namespace dm42editor
                 pyBox.CurrentLineColor = Color.FromArgb(50, 255, 255, 255);
                 pyBox.ServiceLinesColor = Color.FromArgb(60, 60, 58);
                 Fore(pyComment, Color.FromArgb(118, 150, 96));
+                Fore(pyDoc, Color.FromArgb(118, 150, 96));
                 Fore(pyString, Color.FromArgb(214, 157, 120));
                 Fore(pyKeyword, Color.FromArgb(240, 150, 70));
                 Fore(pyBuiltin, Color.FromArgb(120, 190, 240));
@@ -341,6 +342,7 @@ namespace dm42editor
                 pyBox.CurrentLineColor = Color.FromArgb(60, 210, 210, 255);
                 pyBox.ServiceLinesColor = Color.FromArgb(220, 218, 210);
                 Fore(pyComment, Color.FromArgb(138, 134, 118));
+                Fore(pyDoc, Color.FromArgb(138, 134, 118));
                 Fore(pyString, Color.FromArgb(61, 122, 42));
                 Fore(pyKeyword, Color.FromArgb(184, 86, 27));
                 Fore(pyBuiltin, Color.FromArgb(45, 94, 158));

@@ -33,6 +33,9 @@ namespace dm42editor
 
         // Styles Python
         readonly TextStyle pyComment = new TextStyle(new SolidBrush(Color.FromArgb(138, 134, 118)), null, FontStyle.Italic);
+        // commentaire multiligne """ … """ : même couleur, enregistré avant les autres styles pour l'emporter sur eux
+        readonly TextStyle pyDoc = new TextStyle(new SolidBrush(Color.FromArgb(138, 134, 118)), null, FontStyle.Italic);
+        static readonly Regex DocRegex = new Regex(@"(""""""|''')[\s\S]*?(\1|\z)", RegexOptions.Compiled);
         readonly TextStyle pyString = new TextStyle(new SolidBrush(Color.FromArgb(61, 122, 42)), null, FontStyle.Regular);
         readonly TextStyle pyKeyword = new TextStyle(new SolidBrush(Color.FromArgb(184, 86, 27)), null, FontStyle.Bold);
         readonly TextStyle pyBuiltin = new TextStyle(new SolidBrush(Color.FromArgb(45, 94, 158)), null, FontStyle.Regular);
@@ -342,6 +345,10 @@ namespace dm42editor
 
         void HighlightPython(Range r)
         {
+            // un bloc """ peut couvrir des lignes non modifiées : il est recalculé sur tout le texte
+            var all = pyBox.Range;
+            all.ClearStyle(pyDoc);
+            all.SetStyle(pyDoc, DocRegex);
             r.ClearStyle(pyComment, pyString, pyKeyword, pyBuiltin, pyHp, pyNumber, pyDef);
             r.SetStyle(pyComment, @"#.*$", RegexOptions.Multiline);
             r.SetStyle(pyString, @"""(?:\\.|[^""\\])*""|'(?:\\.|[^'\\])*'");
@@ -782,6 +789,7 @@ namespace dm42editor
             sb.AppendLine("  if / elif / else, while (+ else), for i in range(...) (+ else), break, continue, pass");
             sb.AppendLine("  def f(a, b, ...) : 4 paramètres max ; return x ou return a, b (puis a, b = f(...))");
             sb.AppendLine("  global, assert condition, \"message\"");
+            sb.AppendLine("  # commentaire  ou bloc \"\"\" … \"\"\" (ou ''') en début de ligne : commentaires ignorés, absents du RPN");
             sb.AppendLine("  x = input(\"...\")  → INPUT \"X\"        x = prompt(\"PRIX ?\") ou PROMPT(\"PRIX ?\")  → texte + PROMPT");
             sb.AppendLine("  print(\"texte\", x)  → ALPHA + AVIEW    print(x) → VIEW \"X\"");
             sb.AppendLine("  import math : sqrt sin cos tan asin acos atan atan2 sinh cosh tanh exp log log10");
