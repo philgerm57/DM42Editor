@@ -221,6 +221,7 @@ namespace dm42editor
                 Item("Copier tout le listing", null, (s, e) => CopyRpn()),
                 Item("Envoyer vers Free42 / Plus42", "F7", (s, e) => SendToFree42()),
                 Item("Générer le fichier .raw…", "F8", (s, e) => SaveRaw()),
+                Item("Logigramme du listing…", null, (s, e) => ShowFlowchart()),
                 new ToolStripSeparator(),
                 Item("Couleurs du listing…", null, (s, e) => EditRpnColors())
             });
@@ -260,6 +261,28 @@ namespace dm42editor
             file.DropDown.BackColor = Color.FromArgb(44, 44, 41);
             file.DropDown.ForeColor = Ink;
             return file;
+        }
+
+        /// <summary>Logigramme du listing RPN ; double-clic sur une forme : ligne Python d'origine.</summary>
+        void ShowFlowchart()
+        {
+            if (last == null) { status.Text = "Rien à représenter : corrigez d'abord les erreurs."; return; }
+            var f = new Flowchart.FrmFlowchart(() => rpnBox.IsDisposed ? "" : rpnBox.Text,
+                Path.GetFileNameWithoutExtension(PrintTitle()), line =>
+                {
+                    // ligne du listing → ligne Python qui l'a produite
+                    int i = line - HeaderLines;
+                    if (last == null || i < 0 || i >= last.Code.Count || last.Code[i].Line <= 0 || last.Code[i].Line > pyBox.LinesCount) return;
+                    pyBox.Selection = new Range(pyBox, 0, last.Code[i].Line - 1, 0, last.Code[i].Line - 1);
+                    pyBox.DoSelectionVisible();
+                    Activate();
+                    pyBox.Focus();
+                });
+            // suit les nouvelles conversions du listing
+            EventHandler<Dm42.Editor.TextChangedEventArgs> follow = (s, e) => { if (!f.IsDisposed) f.Reload(); };
+            rpnBox.TextChangedDelayed += follow;
+            f.FormClosed += (s, e) => rpnBox.TextChangedDelayed -= follow;
+            f.Show(this);
         }
 
         string PrintTitle() => currentFile != null ? Path.GetFileName(currentFile)

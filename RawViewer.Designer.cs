@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             this.listView1 = new System.Windows.Forms.ListView();
+            this.columnHeaderStep = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeaderComment = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -38,7 +40,9 @@
             // 
             this.listView1.Activation = System.Windows.Forms.ItemActivation.OneClick;
             this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeaderStep,
             this.columnHeader1,
+            this.columnHeaderComment,
             this.columnHeader2,
             this.columnHeader3});
             this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -53,19 +57,30 @@
             this.listView1.View = System.Windows.Forms.View.Details;
             this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
             // 
+            // columnHeaderStep
+            // 
+            this.columnHeaderStep.Text = "Ligne";
+            this.columnHeaderStep.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.columnHeaderStep.Width = 50;
+            // 
+            // columnHeaderComment
+            // 
+            this.columnHeaderComment.Text = "Commentaire";
+            this.columnHeaderComment.Width = 220;
+            // 
             // columnHeader1
             // 
-            this.columnHeader1.Text = "RPN Code";
+            this.columnHeader1.Text = "Code RPN";
             this.columnHeader1.Width = 167;
             // 
             // columnHeader2
             // 
-            this.columnHeader2.Text = "Raw  Byte";
+            this.columnHeader2.Text = "Octets .raw";
             this.columnHeader2.Width = 263;
             // 
             // columnHeader3
             // 
-            this.columnHeader3.Text = "Error message";
+            this.columnHeader3.Text = "Erreur";
             this.columnHeader3.Width = 211;
             // 
             // RawViewer
@@ -85,5 +100,7 @@
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.ColumnHeader columnHeader3;
+        private System.Windows.Forms.ColumnHeader columnHeaderStep;
+        private System.Windows.Forms.ColumnHeader columnHeaderComment;
     }
 }

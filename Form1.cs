@@ -397,6 +397,8 @@ namespace dm42editor
         readonly TextStyle WordStyle = new TextStyle(null, null, FontStyle.Regular);
         readonly TextStyle StringStyle = new TextStyle(null, null, FontStyle.Regular);
         readonly TextStyle CommentStyle = new TextStyle(null, null, FontStyle.Regular);
+        readonly TextStyle TestStyle = new TextStyle(null, null, FontStyle.Regular);
+        static readonly Regex HP42TestRegex = new Regex(FrmPython.RpnTestPattern, RegexOptions.Compiled);
        
         MarkerStyle SameWordsStyle = new MarkerStyle(new SolidBrush(Color.FromArgb(40, Color.Gray)));
 
@@ -431,11 +433,15 @@ namespace dm42editor
         {
             InitializeComponent();
 
+            EnlargeToolbarIcons(toolStrip1, 24);
+
             Parameter.LoadParam();
 
             InitFctList(); // initialise la liste de fonctions
 
             InitPythonMenu(); // menu Python -> RPN (Form1.Python.cs), avant le thème pour qu'il en profite
+            InitFlowchartMenu(); // logigramme (Form1.Flowchart.cs)
+            InitHp41Menu(); // conversion HP-41 → DM42 (Form1.Hp41.cs)
 
             ApplyTheme(Parameter.parameters.DarkMode);
             ApplyEditorParams(Parameter.parameters.Params[Parameter.parameters.current]);
@@ -508,27 +514,26 @@ namespace dm42editor
 
                 var tab = new FATabStripItem(TabName, tb);
 
+                int docIdx = 0;   // ligne de l'éditeur de chaque instruction (lDoc suit les lignes de l'éditeur)
                 for (int lIdx = 0; lIdx < Parser.programs.Count; lIdx++)
                 {
                     foreach (RawLine line in Parser.programs[lIdx].rawLines)
                     {
                         RawLine lLine = line;
                         Encoder42.toRaw(lLine, "free42");
+
+                        int k = docIdx;
+                        while (k < lDoc.Count && lDoc[k] != lLine.docCode) k++;
+                        int textLine = k < lDoc.Count ? k : -1;
+                        if (textLine >= 0) docIdx = k + 1;
+
                         if (lLine.raw != null)
                         {
-                            //  listBox2.Items.Add(lLine.raw);
-                            tb.Add(lLine.docCode, lLine.raw);
+                            tb.Add(lLine.docCode, lLine.raw, "", textLine);
                         }
                         else
                         {
-                            if (lLine.error != null)
-                            {
-                                tb.Add(lLine.docCode, "", lLine.error.Message);
-                            }
-                            else
-                            {
-                                tb.Add(lLine.docCode, "", "Erreur !");
-                            }
+                            tb.Add(lLine.docCode, "", lLine.error != null ? lLine.error.Message : "Erreur !", textLine);
                         }
                     }
 
@@ -918,10 +923,10 @@ namespace dm42editor
             Highlight(e.ChangedRange);
         }
 
-        /// <summary>Coloration RPN : commentaires, chaînes, nombres puis mots-clés (le premier style posé l'emporte).</summary>
+        /// <summary>Coloration RPN : commentaires, chaînes, tests, nombres puis mots-clés (le premier style posé l'emporte).</summary>
         void Highlight(Range r)
         {
-            r.ClearStyle(CommentStyle, StringStyle, NumberStyle, WordStyle);
+            r.ClearStyle(CommentStyle, StringStyle, TestStyle, NumberStyle, WordStyle);
 
             r.SetStyle(CommentStyle, HP42CommentRegex1);
             r.SetStyle(CommentStyle, HP42CommentRegex2);
@@ -929,6 +934,8 @@ namespace dm42editor
 
             //string highlighting
             r.SetStyle(StringStyle, HP42StringRegex);
+            //tests X<Y?, FS? 01… (avant les nombres : le n° de drapeau prend la couleur du test)
+            r.SetStyle(TestStyle, HP42TestRegex);
             //number highlighting
             r.SetStyle(NumberStyle, HP42NumberRegex);
             //keywords
@@ -1248,7 +1255,7 @@ namespace dm42editor
                            foreach (ExplorerItem exp in explorerList)
                            {
                                dgvObjectExplorer.Rows[lRow].Cells[0].Value = explorerList[lRow].title;
-                               dgvObjectExplorer.Rows[lRow].Cells[1].Value = explorerList[lRow].position.ToString();
+                               dgvObjectExplorer.Rows[lRow].Cells[1].Value = (explorerList[lRow].position + 1).ToString();   // ligne de l'éditeur, à partir de 1
                                lRow++;
                            }
                        }
@@ -1580,6 +1587,34 @@ namespace dm42editor
             ApplyEditorParams(Parameter.parameters.Params[Parameter.parameters.current]);
         }
 
+        /// <summary>
+        /// Icônes de la barre d'outils agrandies (16 → size pixels), redimensionnées une fois en bicubique :
+        /// plus nettes que la mise à l'échelle automatique de la barre.
+        /// </summary>
+        static void EnlargeToolbarIcons(ToolStrip strip, int size)
+        {
+            foreach (ToolStripItem it in strip.Items)
+            {
+                if (it.Image == null) continue;
+                using (var src = new Bitmap(it.Image))
+                {
+                    // fond magenta des icônes : transparent avant le lissage (sinon liseré rose)
+                    if (it.ImageTransparentColor != Color.Empty) src.MakeTransparent(it.ImageTransparentColor);
+                    var big = new Bitmap(size, size);
+                    using (var g = Graphics.FromImage(big))
+                    {
+                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                        g.DrawImage(src, new Rectangle(0, 0, size, size));
+                    }
+                    it.Image = big;
+                }
+                it.ImageTransparentColor = Color.Empty;
+                it.ImageScaling = ToolStripItemImageScaling.None;
+            }
+            strip.ImageScalingSize = new Size(size, size);
+        }
+
         bool? themeDark;   // thème déjà appliqué à la fenêtre (null : aucun)
 
         /// <summary>Thème clair / sombre de la fenêtre principale.</summary>
@@ -1614,6 +1649,7 @@ namespace dm42editor
             Set(WordStyle, lp.WordColor, lp.WordBold);
             Set(StringStyle, lp.StringColor, lp.StringBold);
             Set(CommentStyle, lp.CommentColor, lp.CommentBold);
+            Set(TestStyle, lp.TestColor.A == 0 ? clParam.DefaultTestColor(lp.BackColor) : lp.TestColor, lp.TestBold);
 
             foreach (FATabStripItem tab in tsFiles.Items)
             {

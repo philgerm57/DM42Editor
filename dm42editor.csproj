@@ -73,4 +73,12 @@
     <Compile Include="..\Py42\Shared\RawExport.cs" Link="RawExport.cs" />
   </ItemGroup>
 
+  <!-- fichiers partiels de Form1 et fenêtre Python construite en code : ouverts en code, pas dans le Concepteur
+       (sinon Visual Studio crée un .resx en double, ex. Form1.Goto.resx → erreur MSB3577) -->
+  <ItemGroup>
+    <Compile Update="Form1.Goto.cs;Form1.Python.cs;Form1.Flowchart.cs;Form1.Hp41.cs;FrmPython.cs;FrmPython.Extras.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
 </Project>

@@ -18,7 +18,7 @@ namespace dm42editor
     public partial class frmParam : Form
     {
         static readonly string[] SchemaNames = { "Noir", "Blanc", "Personnalisé 1", "Personnalisé 2" };
-        static readonly string[] RowNames = { "Fond de page", "Instructions (mots-clés)", "Nombres", "Textes \"…\"", "Commentaires", "Ligne du curseur" };
+        static readonly string[] RowNames = { "Fond de page", "Instructions (mots-clés)", "Nombres", "Textes \"…\"", "Commentaires", "Tests (X<Y?, FS?…)", "Ligne du curseur" };
 
         clParam Param = new clParam();
         clParam.pram work = new clParam().parameters;     // copie modifiée dans la fenêtre
@@ -178,7 +178,7 @@ namespace dm42editor
 
         static Color GetColor(clParam.lp p, int row) => row switch
         {
-            0 => p.BackColor, 1 => p.WordColor, 2 => p.NumColor, 3 => p.StringColor, 4 => p.CommentColor, _ => p.LineColor
+            0 => p.BackColor, 1 => p.WordColor, 2 => p.NumColor, 3 => p.StringColor, 4 => p.CommentColor, 5 => p.TestColor, _ => p.LineColor
         };
 
         void SetColor(int row, Color c)
@@ -191,6 +191,7 @@ namespace dm42editor
                 case 2: p.NumColor = c; break;
                 case 3: p.StringColor = c; break;
                 case 4: p.CommentColor = c; break;
+                case 5: p.TestColor = c; break;
                 default: p.LineColor = c; break;
             }
             work.Params[work.current] = p;
@@ -198,7 +199,7 @@ namespace dm42editor
 
         static bool? GetBold(clParam.lp p, int row) => row switch
         {
-            1 => p.WordBold, 2 => p.NumBold, 3 => p.StringBold, 4 => p.CommentBold, _ => (bool?)null
+            1 => p.WordBold, 2 => p.NumBold, 3 => p.StringBold, 4 => p.CommentBold, 5 => p.TestBold, _ => (bool?)null
         };
 
         void SetBold(int row, bool on)
@@ -210,6 +211,7 @@ namespace dm42editor
                 case 2: p.NumBold = on; break;
                 case 3: p.StringBold = on; break;
                 case 4: p.CommentBold = on; break;
+                case 5: p.TestBold = on; break;
             }
             work.Params[work.current] = p;
         }
@@ -228,12 +230,19 @@ namespace dm42editor
             public Color LineColor;
 
 
-            public bool NumBold ; 
+            public bool NumBold ;
             public bool  WordBold;
             public bool StringBold;
-            public bool CommentBold; 
+            public bool CommentBold;
 
+            /// <summary>Tests : X&lt;Y?, X=0?, FS? 01…</summary>
+            public Color TestColor;
+            public bool TestBold;
         }
+
+        /// <summary>Couleur des tests par défaut : doré sur fond sombre, orange brûlé sur fond clair (distincte des mots-clés bleus).</summary>
+        public static Color DefaultTestColor(Color back) =>
+            back.GetBrightness() < 0.5f ? Color.FromArgb(240, 190, 80) : Color.FromArgb(184, 86, 27);
 
         [Serializable]
         public class pram
@@ -265,6 +274,7 @@ namespace dm42editor
             lLp.StringColor = Color.Red;
             lLp.CommentColor = Color.Green;
             lLp.LineColor = Color.Aqua;
+            lLp.TestColor = DefaultTestColor(lLp.BackColor);
 
             lLp.NumBold = false;
             lLp.WordBold = false;
@@ -284,6 +294,7 @@ namespace dm42editor
             lLp.StringColor = Color.Red;
             lLp.CommentColor = Color.Green;
             lLp.LineColor = Color.Aqua;
+            lLp.TestColor = DefaultTestColor(lLp.BackColor);
 
             lLp.NumBold = false;
             lLp.WordBold = false;
@@ -301,6 +312,7 @@ namespace dm42editor
             lLp.StringColor = Color.Red;
             lLp.CommentColor = Color.Green;
             lLp.LineColor = Color.Aqua;
+            lLp.TestColor = DefaultTestColor(lLp.BackColor);
 
             lLp.NumBold = false;
             lLp.WordBold = false;
@@ -318,6 +330,7 @@ namespace dm42editor
             lLp.StringColor = Color.Red;
             lLp.CommentColor = Color.Green;
             lLp.LineColor = Color.Aqua;
+            lLp.TestColor = DefaultTestColor(lLp.BackColor);
 
             lLp.NumBold = false;
             lLp.WordBold = false;
@@ -333,6 +346,12 @@ namespace dm42editor
         public void LoadParam()
         {
             DeserializeParam(ref parameters, "param.json");
+            // param.json d'une version sans couleur des tests : couleur par défaut selon le fond
+            for (int i = 0; i < parameters.Params.Count; i++)
+            {
+                var p = parameters.Params[i];
+                if (p.TestColor.A == 0) { p.TestColor = DefaultTestColor(p.BackColor); parameters.Params[i] = p; }
+            }
         }
 
         public void SaveParam()

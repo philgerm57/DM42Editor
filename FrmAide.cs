@@ -12,6 +12,7 @@ namespace dm42editor
 {
     public partial class FrmAide : Form
     {
+        string _Version = "2.1";
         public FrmAide()
         {
             InitializeComponent();
@@ -28,6 +29,7 @@ namespace dm42editor
         private void FrmAide_Load(object sender, EventArgs e)
         {
             this.CenterToParent();
+            label4.Text = "Version:" + _Version;
         }
 
         private void label5_Click(object sender, EventArgs e)

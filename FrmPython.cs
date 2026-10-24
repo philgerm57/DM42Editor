@@ -48,6 +48,13 @@ namespace dm42editor
         readonly TextStyle rpLabel = new TextStyle(new SolidBrush(Color.FromArgb(140, 47, 12)), null, FontStyle.Bold);
         readonly TextStyle rpFlow = new TextStyle(new SolidBrush(Color.FromArgb(154, 82, 0)), null, FontStyle.Bold);
         readonly TextStyle rpTest = new TextStyle(new SolidBrush(Color.FromArgb(31, 76, 120)), null, FontStyle.Bold);
+
+        /// <summary>
+        /// Tests HP-42S (X&lt;Y?, X=0?, X≤Y?, FS? 01, FC?C 12, BIT?…) et leur argument : partagé avec l'éditeur RPN.
+        /// </summary>
+        internal const string RpnTestPattern =
+            @"(?<!\S)(X(=|≠|<|>|≤|≥|<=|>=|!=)(0|Y)\?|F[SC]\?C?|BIT\?|MAT\?|CPX\?|REAL\?|STR\?)(?!\S)([ \t]+(IND[ \t]+)?(ST[ \t]+[XYZTL]|\d+|""[^""]*""))?";   // argument sur la même ligne seulement
+        static readonly Regex RpnTestRegex = new Regex(RpnTestPattern, RegexOptions.Compiled);
         readonly TextStyle rpAlpha = new TextStyle(new SolidBrush(Color.FromArgb(85, 107, 20)), null, FontStyle.Regular);
 
         // Marques de lignes
@@ -368,7 +375,7 @@ namespace dm42editor
             r.SetStyle(rpLabel, @"\bLBL\s+(""[^""]*""|\d+)");
             r.SetStyle(rpFlow, @"\b(GTO|XEQ)\s+(""[^""]*""|\d+)|\b(RTN|END|STOP|KEY \d GTO \d+)\b");
             r.SetStyle(rpAlpha, @"⊢?""[^""]*""");
-            r.SetStyle(rpTest, @"\b[XF]\S*\?C?\b(\s\d\d)?");
+            r.SetStyle(rpTest, RpnTestRegex);
         }
 
         /// <summary>Entrée : reprend l'indentation, +4 après « : », -4 après return / break / continue / pass.</summary>

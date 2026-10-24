@@ -81,9 +81,9 @@
             label4.Location = new System.Drawing.Point(13, 439);
             label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             label4.Name = "label4";
-            label4.Size = new System.Drawing.Size(129, 25);
+            label4.Size = new System.Drawing.Size(93, 25);
             label4.TabIndex = 5;
-            label4.Text = "Version: 2.0";
+            label4.Text = "Version:";
             label4.Click += label4_Click;
             // 
             // label6

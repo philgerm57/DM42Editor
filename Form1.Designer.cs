@@ -667,12 +667,12 @@
             // 
             this.dgvObjectExplorer.AllowUserToAddRows = false;
             this.dgvObjectExplorer.AllowUserToDeleteRows = false;
-            this.dgvObjectExplorer.AllowUserToResizeColumns = false;
+            this.dgvObjectExplorer.AllowUserToResizeColumns = true;
             this.dgvObjectExplorer.AllowUserToResizeRows = false;
             this.dgvObjectExplorer.BackgroundColor = System.Drawing.Color.White;
             this.dgvObjectExplorer.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.dgvObjectExplorer.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvObjectExplorer.ColumnHeadersVisible = false;
+            this.dgvObjectExplorer.ColumnHeadersVisible = true;
             this.dgvObjectExplorer.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Column1,
             this.Column2});
@@ -692,13 +692,17 @@
             // 
             // Column1
             // 
-            this.Column1.HeaderText = "Column1";
+            this.Column1.HeaderText = "Repère";
+            this.Column1.MinimumWidth = 40;
+            this.Column1.Width = 200;
             this.Column1.Name = "Column1";
             this.Column1.ReadOnly = true;
             // 
             // Column2
             // 
-            this.Column2.HeaderText = "Column2";
+            this.Column2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Column2.HeaderText = "Ligne";
+            this.Column2.MinimumWidth = 30;
             this.Column2.Name = "Column2";
             this.Column2.ReadOnly = true;
             // 
