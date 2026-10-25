@@ -132,7 +132,7 @@ namespace dm42editor
             var rawBtn = new ToolStripButton("Générer .raw  F8") { BackColor = Shift, ForeColor = Color.FromArgb(28, 27, 25), Font = new Font(Font, FontStyle.Bold), Tag = HpRenderer.ShiftKey, ToolTipText = "Encode directement le programme en fichier .raw pour la DM42 / Free42" };
             rawBtn.Click += (s, e) => SaveRaw();
             tools.Items.Add(rawBtn);
-            tools.Items.Add(Button("Free42  F7", (s, e) => SendToFree42(), "Copie le listing et affiche Free42 / Plus42 (le lance si besoin) : mode PRGM puis Ctrl+V"));
+            tools.Items.Add(Button("Émulateur  F7", (s, e) => SendToFree42(), "Copie le listing et affiche l'émulateur réglé dans Paramètres (Free42, Plus42…), lancé si besoin : mode PRGM puis Ctrl+V"));
             tools.Items.Add(new ToolStripSeparator());
             tools.Items.Add(Button("Aide", (s, e) => ShowHelp(this), "Python accepté et commandes HP42S"));
 
@@ -350,6 +350,9 @@ namespace dm42editor
         static readonly string HpRegex =
             @"\b(" + string.Join("|", Py.Hp42.AllHelp().Select(h => h.Name).Distinct(StringComparer.OrdinalIgnoreCase).OrderByDescending(n => n.Length).Select(Regex.Escape)) + @")\b(?=\s*\()";
 
+        /// <summary>Chaîne "…" / '…' (fermée ou non, sur une seule ligne) ou commentaire # jusqu'en fin de ligne.</summary>
+        static readonly Regex StringOrComment = new Regex(@"""(?:\\.|[^""\\\n])*""?|'(?:\\.|[^'\\\n])*'?|#[^\n]*", RegexOptions.Compiled);
+
         void HighlightPython(Range r)
         {
             // un bloc """ peut couvrir des lignes non modifiées : il est recalculé sur tout le texte
@@ -357,8 +360,13 @@ namespace dm42editor
             all.ClearStyle(pyDoc);
             all.SetStyle(pyDoc, DocRegex);
             r.ClearStyle(pyComment, pyString, pyKeyword, pyBuiltin, pyHp, pyNumber, pyDef);
-            r.SetStyle(pyComment, @"#.*$", RegexOptions.Multiline);
-            r.SetStyle(pyString, @"""(?:\\.|[^""\\])*""|'(?:\\.|[^'\\])*'");
+            // chaînes et commentaires lus ensemble, de gauche à droite et sans passer à la ligne :
+            // l'apostrophe de « # l'angle » ne commence pas une chaîne, le # de "N#1" n'est pas un commentaire
+            var none = new Range(pyBox, 0, 0, 0, 0);
+            none.SetStyle(pyComment);    // ordre des styles : commentaire et chaîne l'emportent sur les mots-clés
+            none.SetStyle(pyString);
+            foreach (var m in r.GetRanges(StringOrComment))
+                m.SetStyle(m.Text.StartsWith("#") ? pyComment : pyString);
             r.SetStyle(pyKeyword, @"\b(def|return|if|elif|else|while|for|in|break|continue|pass|and|or|not|True|False|import|from|global|assert)\b");
             r.SetStyle(pyDef, @"(?<=\bdef\s+)\w+");
             r.SetStyle(pyHp, HpRegex, RegexOptions.IgnoreCase);
@@ -374,7 +382,7 @@ namespace dm42editor
             r.SetStyle(rpLineNo, @"^\d{2,3}(?=\s)", RegexOptions.Multiline);
             r.SetStyle(rpLabel, @"\bLBL\s+(""[^""]*""|\d+)");
             r.SetStyle(rpFlow, @"\b(GTO|XEQ)\s+(""[^""]*""|\d+)|\b(RTN|END|STOP|KEY \d GTO \d+)\b");
-            r.SetStyle(rpAlpha, @"⊢?""[^""]*""");
+            r.SetStyle(rpAlpha, @"⊢?""[^""\n]*""");
             r.SetStyle(rpTest, RpnTestRegex);
         }
 
@@ -845,13 +853,13 @@ namespace dm42editor
             sb.AppendLine("  Pile de 4 niveaux · variables globales (les locales en conflit sont renommées) · pas de récursivité");
             sb.AppendLine("  Noms de 7 caractères · 99 labels locaux · pas de listes, chaînes manipulées, classes, exceptions");
             sb.AppendLine();
-            sb.AppendLine("RACCOURCIS : F5 simulation · F6 envoyer vers l'éditeur · F7 envoyer vers Free42 / Plus42 · Ctrl+K commenter · Ctrl+N nouveau · Ctrl+O ouvrir · Ctrl+S enregistrer · Ctrl+P imprimer · Ctrl+F rechercher · Ctrl+H remplacer");
+            sb.AppendLine("RACCOURCIS : F5 simulation · F6 envoyer vers l'éditeur · F7 envoyer vers l'émulateur · Ctrl+K commenter · Ctrl+N nouveau · Ctrl+O ouvrir · Ctrl+S enregistrer · Ctrl+P imprimer · Ctrl+F rechercher · Ctrl+H remplacer");
             sb.AppendLine("  Menu Fichier : nouveau, ouvrir, enregistrer (sous), exemples, imprimer le code Python ou le listing RPN, quitter.");
             sb.AppendLine("  Clic droit dans le code : couper, copier, coller, effacer la sélection, effacer la page.");
             sb.AppendLine("  Clic droit ou Ctrl+C dans les messages : copier le message (Ctrl+Maj+C : tous les messages).");
             sb.AppendLine("  Menu Affichage : thème clair / sombre du Python, couleurs et fond du listing RPN.");
             sb.AppendLine("FICHIER .RAW : F8 (Générer .raw) encode directement le programme : DM42 → copiez-le sur son disque USB puis Load Program ; Free42 → File → Import Programs.");
-            sb.AppendLine("FREE42 / PLUS42 : F7 copie le listing et affiche le simulateur ; en mode PRGM (⇧ R/S), Ctrl+V ajoute le programme.");
+            sb.AppendLine("ÉMULATEUR : F7 copie le listing et affiche l'émulateur choisi dans Fichier → Paramètres (Free42, Plus42…) ; en mode PRGM (⇧ R/S), Ctrl+V ajoute le programme.");
 
             var f = new Form
             {

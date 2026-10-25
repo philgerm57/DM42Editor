@@ -402,7 +402,7 @@ namespace dm42editor
        
         MarkerStyle SameWordsStyle = new MarkerStyle(new SolidBrush(Color.FromArgb(40, Color.Gray)));
 
-        Regex HP42StringRegex = new Regex(@"""([^\\""]|\\"")*""",RegexOptions.Compiled);
+        Regex HP42StringRegex = new Regex(@"""([^\\""\n]|\\"")*""", RegexOptions.Compiled);   // sur une seule ligne
         Regex HP42NumberRegex = new Regex(@"\b(\d+[\.]?\d*)\b", RegexOptions.Compiled);
         // pas d'alternative vide en tête : elle répondait toujours en premier et aucun mot-clé n'était coloré
         Regex HP42KeywordsRegex = new Regex(@"\b(\-|\+|\÷|LBL|ABS|ACOS|ACOSH|ADV|AGRAPH|AIP|ALENG|ALL|ALLΣ|AND|AOFF|AON|ARCL|IND|ST|AROT|ASHF|ASIN|ASINH|ASSIGN|ASTO|ATAN|ATANH|ATOX|AVIEW|BASE+|BASE-|BASE×|BASE÷|BASE+/-|BEEP|BEST|BINM|BIT?|CF|CLA|CLD|CLKEYS|CLLCD|CLMENU|CLP|CLRG|CLST|CLV|CLX|CLΣ|COMB|COMPLEX|CORR|COS|COSH|CPXRES|CPX?|CROSS|CUSTOM|DECM|DEG|DELAY|DELR|DET|DIM|DIM?|DOT|DSE|EDIT|EDITN|ENG|ENTER|EXITALL|EXPF|E^X|E^X-1|FC?|FC?|FC\\?C|FC?C|FCSTX|FCSTY|FIX|FNRM|FP|FS?|FS?|FS?C|FS?C|GAMMA|GETKEY|GETM|GRAD|GROW|GTO|GTO|HEXM|HMS+|HMS-|I+|I-|INDEX|INPUT|INSR|INTEG|INTEG|INVRT|IP|ISG|ISG|KEYASN|KEY|LASTX|LCLBL|LINF|LINΣ|LN|LN1+X|LOG|LOGF|MAN|MAT?|MEAN|MENU|MOD|MVAR|N!|NEWMAT|NORM|NOT|OCTM|OFF|OLD|ON|OR|PERM|PGMINT|PGMSLV|PI|PIXEL|POLAR|POSA|PRA|PRLCD|PROFF|PROMPT|PRON|PRSTK|PRUSR|PRV|PRX|PRΣ|PSE|PUTM|PWRF|RAD|RAN|RCL|RCL+|RCL+|RCL-|RCL×|RCL÷|RCLEL|RCLIJ|RDX,|RDX.|REALRES|REAL?|RECT|RND|RNRM|ROTXY|RSUM|RTN|R<>R|R^|R↓|SCI|SDEV|SEED|SF|SIGN|SIN|SINH|SIZE|SLOPE|SOLVE|SQRT|STO|STO+|STO-|STO×|STO÷|STOEL|STOIJ|STOP|STR?|SUM|TAN|TANH|TONE|TRACE|TRANS|UVEC|VARMENU|VARMENU|VIEW|WMEAN|WRAP|X<>|X<>Y|X<0?|X<Y?|X≤0?|X≤Y?|X=0?|X=Y?|X≠0?|X≠Y?|X>0?|X>Y?|X≥0?|X≥Y?|XEQ|XOR|XTOA|X^2|YINT|Y^X|1/X|10^X|-|×|÷|Σ+|Σ-|ΣREG|ΣREG?|→DEC|→DEG|→HMS|→HR|→OCT|→POL|→RAD|→REC|←|^|↓|→|%|%CH|[FIND]|[MAX]|[MIN]|END)\b", RegexOptions.Compiled);
@@ -433,7 +433,6 @@ namespace dm42editor
         {
             InitializeComponent();
 
-            EnlargeToolbarIcons(toolStrip1, 24);
 
             Parameter.LoadParam();
 
@@ -1587,34 +1586,6 @@ namespace dm42editor
             ApplyEditorParams(Parameter.parameters.Params[Parameter.parameters.current]);
         }
 
-        /// <summary>
-        /// Icônes de la barre d'outils agrandies (16 → size pixels), redimensionnées une fois en bicubique :
-        /// plus nettes que la mise à l'échelle automatique de la barre.
-        /// </summary>
-        static void EnlargeToolbarIcons(ToolStrip strip, int size)
-        {
-            foreach (ToolStripItem it in strip.Items)
-            {
-                if (it.Image == null) continue;
-                using (var src = new Bitmap(it.Image))
-                {
-                    // fond magenta des icônes : transparent avant le lissage (sinon liseré rose)
-                    if (it.ImageTransparentColor != Color.Empty) src.MakeTransparent(it.ImageTransparentColor);
-                    var big = new Bitmap(size, size);
-                    using (var g = Graphics.FromImage(big))
-                    {
-                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                        g.DrawImage(src, new Rectangle(0, 0, size, size));
-                    }
-                    it.Image = big;
-                }
-                it.ImageTransparentColor = Color.Empty;
-                it.ImageScaling = ToolStripItemImageScaling.None;
-            }
-            strip.ImageScalingSize = new Size(size, size);
-        }
-
         bool? themeDark;   // thème déjà appliqué à la fenêtre (null : aucun)
 
         /// <summary>Thème clair / sombre de la fenêtre principale.</summary>
@@ -1624,6 +1595,7 @@ namespace dm42editor
             AppTheme.Set(dark);
             AppTheme.Apply(this);
             AppTheme.Strip(cmMain);
+            SetToolbarIcons();   // icônes assorties au thème
             tsFiles.ForeColor = SystemColors.ControlText;   // les onglets restent clairs : titre en noir
             foreach (FATabStripItem tab in tsFiles.Items)
             {

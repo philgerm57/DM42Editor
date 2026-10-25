@@ -25,6 +25,7 @@ namespace dm42editor
 
         readonly ComboBox schemaBox = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 200 };
         readonly CheckBox darkBox = new CheckBox { Text = "Thème sombre (menus, panneaux et fenêtres)", AutoSize = true };
+        readonly TextBox emulatorBox = new TextBox { Width = 200 };
         readonly List<Button> swatches = new List<Button>();
         readonly List<CheckBox> bolds = new List<CheckBox>();
         bool loading;
@@ -122,6 +123,49 @@ namespace dm42editor
                 grid.Controls.Add(bold, 2, r++);
             }
 
+            // émulateur qui reçoit les programmes (F7) : Free42, Plus42 ou autre
+            Span(L("Émulateur (F7 : envoyer le programme)", true));
+            grid.Controls.Add(L("Programme"), 0, r);
+            emulatorBox.Text = Emulator.ExePath;
+            grid.Controls.Add(emulatorBox, 1, r);
+            var browse = new Button { Text = "Parcourir…", AutoSize = true };
+            var detect = new Button { Text = "Détecter", AutoSize = true };
+            var tip = new ToolTip();
+            tip.SetToolTip(emulatorBox, "Exécutable de l'émulateur : Free42Decimal.exe, Free42Binary.exe, Plus42Decimal.exe…");
+            tip.SetToolTip(detect, "Reprend l'émulateur Free42 / Plus42 actuellement ouvert");
+            // chemin long : on montre la fin (nom de l'exécutable), le chemin complet en info-bulle
+            void ShowEnd() { emulatorBox.Select(emulatorBox.Text.Length, 0); emulatorBox.ScrollToCaret(); tip.SetToolTip(emulatorBox, emulatorBox.Text.Length > 0 ? emulatorBox.Text : "Exécutable de l'émulateur : Free42Decimal.exe, Free42Binary.exe, Plus42Decimal.exe…"); }
+            emulatorBox.TextChanged += (s, e) => ShowEnd();
+            Shown += (s, e) => ShowEnd();
+            browse.Click += (s, e) =>
+            {
+                using (var dlg = new OpenFileDialog
+                {
+                    Title = "Choisir l'émulateur (Free42, Plus42…)",
+                    Filter = "Émulateurs HP-42S|Free42*.exe;Plus42*.exe|Programmes (*.exe)|*.exe"
+                })
+                {
+                    string cur = emulatorBox.Text.Trim();
+                    if (cur.Length > 0 && Directory.Exists(Path.GetDirectoryName(cur)))
+                    {
+                        dlg.InitialDirectory = Path.GetDirectoryName(cur);
+                        dlg.FileName = Path.GetFileName(cur);
+                    }
+                    if (dlg.ShowDialog(this) == DialogResult.OK) emulatorBox.Text = dlg.FileName;
+                }
+            };
+            detect.Click += (s, e) =>
+            {
+                string found = Emulator.DetectRunning();
+                if (found != null) emulatorBox.Text = found;
+                else MessageBox.Show(this, "Aucun Free42 ni Plus42 ouvert. Lancez l'émulateur puis cliquez de nouveau sur « Détecter », ou utilisez « Parcourir… ».",
+                                     "Émulateur", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            };
+            var emuButtons = new FlowLayoutPanel { AutoSize = true, Margin = new Padding(0), WrapContents = false };
+            emuButtons.Controls.Add(browse);
+            emuButtons.Controls.Add(detect);
+            grid.Controls.Add(emuButtons, 2, r++);
+
             schemaBox.SelectedIndexChanged += (s, e) =>
             {
                 if (loading) return;
@@ -140,7 +184,12 @@ namespace dm42editor
 
             var ok = new Button { Text = "OK", DialogResult = DialogResult.OK, AutoSize = true, MinimumSize = new Size(90, 0) };
             var cancel = new Button { Text = "Annuler", DialogResult = DialogResult.Cancel, AutoSize = true, MinimumSize = new Size(90, 0) };
-            ok.Click += (s, e) => { Param.parameters = Copy(work); Param.SaveParam(); };
+            ok.Click += (s, e) =>
+            {
+                Param.parameters = Copy(work);
+                Param.SaveParam();
+                if (emulatorBox.Text.Trim() != Emulator.ExePath) Emulator.ExePath = emulatorBox.Text;
+            };
             var buttons = new FlowLayoutPanel { FlowDirection = FlowDirection.RightToLeft, AutoSize = true, Dock = DockStyle.Fill, Margin = new Padding(0, 16, 0, 0) };
             buttons.Controls.Add(cancel);
             buttons.Controls.Add(ok);

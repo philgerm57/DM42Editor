@@ -16,6 +16,22 @@ namespace dm42editor
             int at = fileToolStripMenuItem.DropDownItems.IndexOf(toolStripMenuItem2);   // avant « Encoder et enregistrer en .raw »
             fileToolStripMenuItem.DropDownItems.Insert(at < 0 ? fileToolStripMenuItem.DropDownItems.Count : at, item);
             cmMain.Items.Add(new ToolStripMenuItem("Convertir la syntaxe HP-41 → DM42…", null, (s, e) => ConvertHp41()) { ShortcutKeyDisplayString = "Ctrl+Maj+H" });
+
+            // envoi vers l'émulateur réglé dans Paramètres (Free42, Plus42…)
+            var send = new ToolStripMenuItem("Envoyer vers l'émulateur", null, (s, e) => SendToEmulator()) { ShortcutKeys = Keys.F7 };
+            int p = fileToolStripMenuItem.DropDownItems.IndexOf(toolStripMenuItem2);
+            fileToolStripMenuItem.DropDownItems.Insert(p < 0 ? fileToolStripMenuItem.DropDownItems.Count : p + 1, send);
+            cmMain.Items.Add(new ToolStripMenuItem("Envoyer vers l'émulateur", null, (s, e) => SendToEmulator()) { ShortcutKeyDisplayString = "F7" });
+        }
+
+        /// <summary>Copie le programme de l'onglet (sans commentaires) et affiche l'émulateur : mode PRGM puis Ctrl+V.</summary>
+        private void SendToEmulator()
+        {
+            var tb = CurrentTB;
+            if (tb == null) { MessageBox.Show(this, "Ouvrez d'abord un programme.", "Émulateur"); return; }
+            string listing = Emulator.CleanListing(tb.Text, out int steps);
+            if (steps == 0) { lbWordUnderMouse.Text = "Rien à envoyer : l'onglet ne contient pas d'instruction."; return; }
+            lbWordUnderMouse.Text = Emulator.Send(this, listing, steps);
         }
 
         private void ConvertHp41()

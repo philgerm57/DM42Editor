@@ -106,7 +106,7 @@ namespace dm42editor
         public static void Strip(ToolStrip ts)
         {
             ts.RenderMode = ToolStripRenderMode.ManagerRenderMode;
-            Put(ts, "Fore", ts.ForeColor, v => ts.ForeColor = v, DarkFore);
+            Put(ts, "Fore", LightFore(ts.ForeColor), v => ts.ForeColor = v, DarkFore);
             foreach (ToolStripItem it in ts.Items) Item(it);
         }
 
@@ -119,10 +119,14 @@ namespace dm42editor
             if (it is ToolStripDropDownItem dd)
             {
                 var drop = dd.DropDown;
-                Put(drop, "Fore", drop.ForeColor, v => drop.ForeColor = v, DarkFore);
+                Put(drop, "Fore", LightFore(drop.ForeColor), v => drop.ForeColor = v, DarkFore);
                 foreach (ToolStripItem sub in dd.DropDownItems) Item(sub);
             }
         }
+
+        // Une barre de menus hérite de la couleur de sa fenêtre : si celle-ci est déjà passée en sombre
+        // (démarrage en thème sombre), la couleur lue est le blanc du thème, pas celle d'origine.
+        static Color LightFore(Color c) => c == DarkFore ? SystemColors.ControlText : c;
 
         /// <summary>
         /// Liste en mode Détails : Windows ignore ses couleurs, on la dessine nous-mêmes en thème sombre

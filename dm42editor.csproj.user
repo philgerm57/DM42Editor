@@ -15,10 +15,22 @@
     <Compile Update="Editor\FindReplaceForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Flowchart\FlowchartView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Flowchart\FrmFlowchart.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Form1.Flowchart.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Form1.Goto.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Form1.Hp41.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Form1.Python.cs">

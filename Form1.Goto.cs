@@ -103,7 +103,7 @@ namespace dm42editor
         {
             gotoButton.DropDownItems.Clear();
 
-            var line = new ToolStripMenuItem("Aller à la ligne de programme…", null, (s, e) => GotoProgramLine())
+            var line = new ToolStripMenuItem("Aller à la ligne de programme…", MenuIcon("goto"), (s, e) => GotoProgramLine())
             { ShortcutKeyDisplayString = "Ctrl+G" };
             gotoButton.DropDownItems.Add(line);
 

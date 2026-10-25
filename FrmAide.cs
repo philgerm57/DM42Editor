@@ -12,7 +12,7 @@ namespace dm42editor
 {
     public partial class FrmAide : Form
     {
-        string _Version = "2.1";
+        string _Version = "2.2";
         public FrmAide()
         {
             InitializeComponent();

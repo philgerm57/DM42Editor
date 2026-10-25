@@ -57,7 +57,6 @@ namespace dm42editor
 
         bool pyDark;
         RpnColors rpnColors = RpnColors.Lcd();
-        string free42Path;
         ToolStripMenuItem darkItem;
 
         Color RpnFore => rpnColors.Text;
@@ -74,7 +73,8 @@ namespace dm42editor
                     .Select(l => l.Split(new[] { '=' }, 2)).Where(p => p.Length == 2)
                     .ToDictionary(p => p[0].Trim(), p => p[1].Trim());
                 pyDark = d.TryGetValue("PythonSombre", out var v) && v == "1";
-                if (d.TryGetValue("Free42", out var f)) free42Path = f;
+                // ancien réglage de l'émulateur : repris par le réglage commun (Paramètres)
+                if (d.TryGetValue("Free42", out var f) && f.Length > 0 && Emulator.ExePath.Length == 0) Emulator.ExePath = f;
                 Color C(string key, Color def) => d.TryGetValue(key, out var s) && TryColor(s, out var c) ? c : def;
                 var r = RpnColors.Lcd();
                 rpnColors = new RpnColors
@@ -96,8 +96,7 @@ namespace dm42editor
                 {
                     "PythonSombre=" + (pyDark ? "1" : "0"),
                     "Rpn.Fond=" + H(rpnColors.Back), "Rpn.Texte=" + H(rpnColors.Text), "Rpn.Numeros=" + H(rpnColors.LineNo),
-                    "Rpn.Labels=" + H(rpnColors.Label), "Rpn.Sauts=" + H(rpnColors.Flow), "Rpn.Tests=" + H(rpnColors.Test), "Rpn.Textes=" + H(rpnColors.Alpha),
-                    "Free42=" + (free42Path ?? "")
+                    "Rpn.Labels=" + H(rpnColors.Label), "Rpn.Sauts=" + H(rpnColors.Flow), "Rpn.Tests=" + H(rpnColors.Test), "Rpn.Textes=" + H(rpnColors.Alpha)
                 });
             }
             catch { /* dossier non accessible : tant pis */ }
@@ -219,7 +218,7 @@ namespace dm42editor
                 Item("Tout sélectionner", "Ctrl+A", (s, e) => rpnBox.SelectAll()),
                 new ToolStripSeparator(),
                 Item("Copier tout le listing", null, (s, e) => CopyRpn()),
-                Item("Envoyer vers Free42 / Plus42", "F7", (s, e) => SendToFree42()),
+                Item("Envoyer vers l'émulateur", "F7", (s, e) => SendToFree42()),
                 Item("Générer le fichier .raw…", "F8", (s, e) => SaveRaw()),
                 Item("Logigramme du listing…", null, (s, e) => ShowFlowchart()),
                 new ToolStripSeparator(),
@@ -233,7 +232,7 @@ namespace dm42editor
         ToolStripDropDownButton BuildFileMenu(ToolStrip tools)
         {
             var file = new ToolStripDropDownButton("Fichier") { ForeColor = Ink, ShowDropDownArrow = false };
-            var examples = new ToolStripMenuItem("Exemples") { ForeColor = Ink };
+            var examples = Ico("examples", new ToolStripMenuItem("Exemples") { ForeColor = Ink });
             for (int i = 0; i < Py42.Core.Examples.All.Count; i++)
             {
                 int idx = i;
@@ -244,17 +243,17 @@ namespace dm42editor
 
             file.DropDownItems.AddRange(new ToolStripItem[]
             {
-                Item("Nouveau", "Ctrl+N", (s, e) => { if (ConfirmDiscard()) NewProgram(); }),
-                Item("Ouvrir…", "Ctrl+O", (s, e) => OpenFileDialog()),
-                Item("Enregistrer", "Ctrl+S", (s, e) => SavePython(false)),
-                Item("Enregistrer sous…", "Ctrl+Maj+S", (s, e) => SavePython(true)),
+                Ico("new", Item("Nouveau", "Ctrl+N", (s, e) => { if (ConfirmDiscard()) NewProgram(); })),
+                Ico("open", Item("Ouvrir…", "Ctrl+O", (s, e) => OpenFileDialog())),
+                Ico("save", Item("Enregistrer", "Ctrl+S", (s, e) => SavePython(false))),
+                Ico("save", Item("Enregistrer sous…", "Ctrl+Maj+S", (s, e) => SavePython(true))),
                 new ToolStripSeparator(),
                 examples,
                 new ToolStripSeparator(),
-                Item("Imprimer le code Python…", "Ctrl+P", (s, e) => pyBox.Print(PrintTitle())),
-                Item("Imprimer le listing RPN…", null, (s, e) => PrintRpn()),
+                Ico("print", Item("Imprimer le code Python…", "Ctrl+P", (s, e) => pyBox.Print(PrintTitle()))),
+                Ico("print", Item("Imprimer le listing RPN…", null, (s, e) => PrintRpn())),
                 new ToolStripSeparator(),
-                Item("Quitter", "Alt+F4", (s, e) => Close())
+                Ico("quit", Item("Quitter", "Alt+F4", (s, e) => Close()))
             });
             // le menu déroulant ne reprend pas toujours le rendu de la barre : on le lui donne explicitement
             file.DropDown.Renderer = tools.Renderer;
@@ -283,6 +282,14 @@ namespace dm42editor
             rpnBox.TextChangedDelayed += follow;
             f.FormClosed += (s, e) => rpnBox.TextChangedDelayed -= follow;
             f.Show(this);
+        }
+
+        /// <summary>Icône vectorielle (16 px, traits clairs) sur une entrée des menus sombres de la fenêtre.</summary>
+        static ToolStripMenuItem Ico(string name, ToolStripMenuItem item)
+        {
+            item.Image = ToolbarIcons.Make(name, 16, Ink, Color.FromArgb(44, 44, 41));
+            item.ImageScaling = ToolStripItemImageScaling.None;
+            return item;
         }
 
         string PrintTitle() => currentFile != null ? Path.GetFileName(currentFile)
@@ -552,61 +559,12 @@ namespace dm42editor
         }
 
         // ==================================================================
-        //  Envoi vers Free42 / Plus42 (presse-papiers + fenêtre au premier plan)
+        //  Envoi vers l'émulateur réglé dans Paramètres (presse-papiers + fenêtre au premier plan)
         // ==================================================================
-        static readonly string[] Free42Processes = { "Free42Decimal", "Free42Binary", "Free42", "Plus42Decimal", "Plus42Binary", "Plus42" };
-
-        [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr hWnd);
-        [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-        [DllImport("user32.dll")] static extern bool IsIconic(IntPtr hWnd);
-
         void SendToFree42()
         {
             if (last == null) { status.Text = "Rien à envoyer : corrigez d'abord les erreurs."; return; }
-            try { Clipboard.SetText(last.Listing(true, header: true)); }
-            catch (Exception ex) { status.Text = "Presse-papiers indisponible : " + ex.Message; return; }
-
-            var proc = Free42Processes.SelectMany(n => Process.GetProcessesByName(n))
-                                      .FirstOrDefault(p => p.MainWindowHandle != IntPtr.Zero);
-            if (proc == null)
-            {
-                if (string.IsNullOrEmpty(free42Path) || !File.Exists(free42Path))
-                {
-                    using (var dlg = new OpenFileDialog
-                    {
-                        Title = "Où se trouve Free42 ou Plus42 ?",
-                        Filter = "Free42 / Plus42|Free42*.exe;Plus42*.exe|Programmes (*.exe)|*.exe"
-                    })
-                    {
-                        if (dlg.ShowDialog(this) != DialogResult.OK)
-                        {
-                            status.Text = "Listing copié. Ouvrez Free42, passez en mode PRGM puis Ctrl+V.";
-                            return;
-                        }
-                        free42Path = dlg.FileName;
-                        SaveViewSettings();
-                    }
-                }
-                try
-                {
-                    proc = Process.Start(new ProcessStartInfo(free42Path) { UseShellExecute = true, WorkingDirectory = Path.GetDirectoryName(free42Path) });
-                    proc?.WaitForInputIdle(5000);
-                }
-                catch (Exception ex)
-                {
-                    free42Path = null;
-                    SaveViewSettings();
-                    MessageBox.Show(this, "Impossible de lancer Free42 :\n" + ex.Message, "Free42", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-            }
-            else
-            {
-                IntPtr h = proc.MainWindowHandle;
-                if (IsIconic(h)) ShowWindow(h, 9);   // SW_RESTORE
-                SetForegroundWindow(h);
-            }
-            status.Text = $"Listing de {last.Code.Count} pas copié. Dans Free42 / Plus42 : mode PRGM (⇧ R/S) puis Ctrl+V — le programme est ajouté à la fin de la mémoire.";
+            status.Text = Emulator.Send(this, last.Listing(true, header: true), last.Code.Count);
         }
     }
 }
