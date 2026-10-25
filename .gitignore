@@ -4,3 +4,14 @@
 /publish/
 /dm42editor.iss.bak
 /dm42editor.csproj.user
+/Output/
+*.user
+*.pfx
+*.bak
+*.bak_*
+/data/42s manuel utilisation.pdf
+/data/Quick Reference Guide.pdf
+/data/dm42_user_manual.pdf
+/data/42s manuel utilisation.pdf
+/data/Quick Reference Guide.pdf
+/data/dm42_user_manual.pdf
