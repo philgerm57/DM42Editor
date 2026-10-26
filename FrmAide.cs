@@ -12,7 +12,8 @@ namespace dm42editor
 {
     public partial class FrmAide : Form
     {
-        string _Version = "2.2";
+        // numéro de version unique : balise <Version> de dm42editor.csproj (lue aussi par build.bat pour Inno Setup)
+        static readonly string _Version = Application.ProductVersion.Split('+')[0];
         public FrmAide()
         {
             InitializeComponent();

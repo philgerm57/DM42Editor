@@ -11,7 +11,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Product>dm42editor</Product>
     <Copyright>Copyright © 2020</Copyright>
-    <Version>1.9.0</Version>
+    <Version>2.2</Version>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>false</SelfContained>
   </PropertyGroup>

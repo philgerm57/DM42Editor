@@ -14,17 +14,28 @@
 ; ===========================================================================
 
 #define MyAppName "DM42editor"
+; chemins relatifs à ce fichier (dm42editor\) : rien n'est lié à la lettre G:
+#define Root AddBackslash(SourcePath) + "..\"
+#define Build Root + "_build\"
+
+; Version : balise <Version> de dm42editor.csproj, passée par build.bat (/DMyAppVersion=…).
+; Compilé directement dans Inno Setup : lue dans l'exe publié (même valeur, sans le zéro final).
 #ifndef MyAppVersion
-  #define MyAppVersion "1.9.0"
+  #define VerMajor
+  #define VerMinor
+  #define VerRev
+  #define VerBuild
+  #expr GetVersionComponents(Build + "dm42editor\dm42editor.exe", VerMajor, VerMinor, VerRev, VerBuild)
+  #if VerRev == 0
+    #define MyAppVersion Str(VerMajor) + "." + Str(VerMinor)
+  #else
+    #define MyAppVersion Str(VerMajor) + "." + Str(VerMinor) + "." + Str(VerRev)
+  #endif
 #endif
 #define MyAppPublisher "germain PHILIPPE"
 #define MyAppExeName "DM42editor.exe"
 #define PyExeName "Py42.exe"
 #define DoubleAmp(Value) StringChange(Value, "&", "&&")
-
-; chemins relatifs à ce fichier (dm42editor\) : rien n'est lié à la lettre G:
-#define Root AddBackslash(SourcePath) + "..\"
-#define Build Root + "_build\"
 
 [Setup]
 ; AppId inchangé : l'installation met à jour une version précédente
@@ -105,7 +116,7 @@ Source: "{#Build}Py42\*"; DestDir: "{app}\Py42"; Excludes: "*.pdb"; Components: 
 
 ; --- documentation
 Source: "{#Root}dm42editor\data\*.pdf"; DestDir: "{app}\doc"; Components: doc; Flags: ignoreversion
-Source: "{#Root}Py42\LISEZMOI.md"; DestDir: "{app}\doc"; DestName: "Py42 - LISEZMOI.txt"; Components: doc; Flags: ignoreversion
+Source: "{#Root}Py42\README.md"; DestDir: "{app}\doc"; DestName: "Py42 - LISEZMOI.txt"; Components: doc; Flags: ignoreversion
 
 ; --- exemples (.raw à la racine de exemples, Python dans exemples\python)
 Source: "{#Root}exemples\*"; DestDir: "{app}\exemples"; Components: exemples; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
