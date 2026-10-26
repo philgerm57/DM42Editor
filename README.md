@@ -22,7 +22,7 @@
 
 Prérequis : Windows, [SDK .NET 10](https://dotnet.microsoft.com/download), runtime WebView2 (fourni avec Windows 11).
 
-Le projet s'appuie sur deux projets voisins, attendus dans le même dossier parent :
+Le projet s'appuie sur deux dépôts voisins, attendus dans le même dossier parent :
 
 ```
 dm42_editor/
@@ -31,9 +31,30 @@ dm42_editor/
 └── dm42dll/      ← encodeur / décodeur .raw (.NET Framework 4.7.2)
 ```
 
-```bash
-dotnet build dm42editor.slnx -c Release
-```
+1. Cloner les trois dépôts côte à côte (`Py42` avec une majuscule, nom attendu par le projet) :
+
+   ```bash
+   mkdir dm42_editor && cd dm42_editor
+   git clone https://github.com/philgerm57/DM42Editor.git dm42editor
+   git clone https://github.com/philgerm57/py42.git Py42
+   git clone https://github.com/philgerm57/dm42dll.git dm42dll
+   ```
+
+2. Compiler **d'abord dm42dll** : dm42editor utilise `..\dm42dll\bin\Debug\dm42dll.dll`.
+   Il faut le [pack de développement .NET Framework 4.7.2](https://dotnet.microsoft.com/download/dotnet-framework/net472) (ou Visual Studio avec la charge de travail .NET desktop).
+
+   ```bash
+   dotnet build dm42dll/dm42dll.csproj -c Debug
+   ```
+
+3. Compiler l'éditeur (Py42.Core est compilé au passage) :
+
+   ```bash
+   dotnet build dm42editor/dm42editor.slnx -c Release
+   ```
+
+Les manuels PDF (DM42, HP-42S) ne sont pas fournis : téléchargez-les sur les sites de SwissMicros et de HP,
+puis placez-les dans `dm42editor/data/` (`dm42_user_manual.pdf`, `42s manuel utilisation.pdf`, `Quick Reference Guide.pdf`).
 
 Un profil de publication en fichier unique est fourni : `dotnet publish -p:PublishProfile=FolderProfile`.
 
