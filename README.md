@@ -58,6 +58,10 @@ puis placez-les dans `dm42editor/data/` (`dm42_user_manual.pdf`, `42s manuel uti
 
 Un profil de publication en fichier unique est fourni : `dotnet publish -p:PublishProfile=FolderProfile`.
 
+## Langue
+
+L'interface existe en français et en anglais : Fichier → Paramètres → Langue (par défaut, la langue de Windows). Le changement s'applique au démarrage suivant. Les traductions sont dans `resources/lang_en.txt`, sous la forme `français TAB anglais`.
+
 ## Licence
 
 GNU GPLv3. L'encodeur / décodeur `dm42dll` est une adaptation en C# du code TypeScript de J. Heilingbrunner

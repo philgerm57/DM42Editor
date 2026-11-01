@@ -32,7 +32,7 @@ namespace dm42editor
         }
 
         /// <summary>Nom affiché : « Free42Decimal », « Plus42 »… ou « l'émulateur ».</summary>
-        public static string DisplayName => ExePath.Length > 0 ? Path.GetFileNameWithoutExtension(ExePath) : "l'émulateur";
+        public static string DisplayName => ExePath.Length > 0 ? Path.GetFileNameWithoutExtension(ExePath) : Lang.T("l'émulateur");
 
         static void Load()
         {
@@ -84,8 +84,8 @@ namespace dm42editor
         {
             using (var dlg = new OpenFileDialog
             {
-                Title = "Choisir l'émulateur (Free42, Plus42…)",
-                Filter = "Émulateurs HP-42S|Free42*.exe;Plus42*.exe|Programmes (*.exe)|*.exe",
+                Title = Lang.T("Choisir l'émulateur (Free42, Plus42…)"),
+                Filter = Lang.T("Émulateurs HP-42S|Free42*.exe;Plus42*.exe|Programmes (*.exe)|*.exe"),
                 FilterIndex = ExePath.Length == 0 || KnownNames.Any(n => DisplayName.Equals(n, StringComparison.OrdinalIgnoreCase)) ? 1 : 2
             })
             {
@@ -111,7 +111,7 @@ namespace dm42editor
         public static string Send(IWin32Window owner, string listing, int steps)
         {
             try { Clipboard.SetText(listing); }
-            catch (Exception ex) { return "Presse-papiers indisponible : " + ex.Message; }
+            catch (Exception ex) { return Lang.T("Presse-papiers indisponible : ") + ex.Message; }
 
             // émulateur réglé déjà ouvert ? sinon, sans réglage, n'importe quel Free42 / Plus42 ouvert
             Process proc = null;
@@ -124,7 +124,7 @@ namespace dm42editor
             {
                 if (exe.Length == 0 || !File.Exists(exe))
                 {
-                    if (!Choose(owner)) return "Listing copié. Ouvrez l'émulateur, passez en mode PRGM puis Ctrl+V.";
+                    if (!Choose(owner)) return Lang.T("Listing copié. Ouvrez l'émulateur, passez en mode PRGM puis Ctrl+V.");
                     exe = ExePath;
                 }
                 try
@@ -134,9 +134,9 @@ namespace dm42editor
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(owner, "Impossible de lancer " + exe + " :\n" + ex.Message + "\n\nChoisissez l'émulateur dans Fichier → Paramètres.",
-                                    "Émulateur", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return "Listing copié, mais l'émulateur n'a pas pu être lancé.";
+                    MessageBox.Show(owner, Lang.F("Impossible de lancer {0} :\n{1}\n\nChoisissez l'émulateur dans Fichier → Paramètres.", exe, ex.Message),
+                                    Lang.T("Émulateur"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return Lang.T("Listing copié, mais l'émulateur n'a pas pu être lancé.");
                 }
             }
             else
@@ -145,7 +145,7 @@ namespace dm42editor
                 if (IsIconic(h)) ShowWindow(h, 9);   // SW_RESTORE
                 SetForegroundWindow(h);
             }
-            return $"Listing de {steps} pas copié. Dans {DisplayName} : mode PRGM (⇧ R/S) puis Ctrl+V — le programme est ajouté à la fin de la mémoire.";
+            return Lang.F("Listing de {0} pas copié. Dans {1} : mode PRGM (⇧ R/S) puis Ctrl+V — le programme est ajouté à la fin de la mémoire.", steps, DisplayName);
         }
 
         /// <summary>Texte d'un onglet prêt à coller : sans commentaires ni lignes vides ; renvoie aussi le nombre de pas.</summary>

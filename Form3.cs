@@ -33,6 +33,7 @@ namespace dm42editor
         public FrmPDF(string aPdfPath)
         {
             InitializeComponent();
+            Lang.Apply(this);
             pdfPath = aPdfPath;
             Load += FrmPDF_Load;
         }
@@ -41,7 +42,7 @@ namespace dm42editor
         {
             if (!File.Exists(pdfPath))
             {
-                MessageBox.Show("Fichier PDF introuvable :\n" + pdfPath, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Lang.T("Fichier PDF introuvable :\n") + pdfPath, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -56,7 +57,7 @@ namespace dm42editor
             }
             catch (WebView2RuntimeNotFoundException)
             {
-                MessageBox.Show("Le runtime Microsoft Edge WebView2 n'est pas installé.\nTéléchargez-le sur https://developer.microsoft.com/microsoft-edge/webview2/", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Lang.T("Le runtime Microsoft Edge WebView2 n'est pas installé.\nTéléchargez-le sur https://developer.microsoft.com/microsoft-edge/webview2/"), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

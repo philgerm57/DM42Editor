@@ -68,11 +68,12 @@ namespace Dm42.Editor
             {
                 if (e.KeyCode == Keys.F3) { FindNext(e.Shift); e.Handled = true; }
             };
+            Lang.Apply(this);
         }
 
         public void ShowFor(bool replace, string initial)
         {
-            Text = replace ? "Remplacer" : "Rechercher";
+            Text = Lang.T(replace ? "Remplacer" : "Rechercher");
             replaceLabel.Visible = replaceBox.Visible = replaceButton.Visible = replaceAllButton.Visible = replace;
             if (!string.IsNullOrEmpty(initial)) findBox.Text = initial;
             info.Text = "";
@@ -94,7 +95,7 @@ namespace Dm42.Editor
             if (wholeWord.Checked) pattern = @"\b" + pattern + @"\b";
             var opt = matchCase.Checked ? RegexOptions.None : RegexOptions.IgnoreCase;
             try { return new Regex(pattern, opt); }
-            catch (ArgumentException ex) { info.Text = "Expression invalide : " + ex.Message; return null; }
+            catch (ArgumentException ex) { info.Text = Lang.T("Expression invalide : ") + ex.Message; return null; }
         }
 
         /// <summary>Cherche après (ou avant) le curseur, en reprenant au début du texte si besoin.</summary>
@@ -104,7 +105,7 @@ namespace Dm42.Editor
             var re = BuildRegex();
             if (re == null) return false;
             var all = new System.Collections.Generic.List<TextRange>(tb.Range.GetRanges(re));
-            if (all.Count == 0) { info.Text = "Introuvable."; return false; }
+            if (all.Count == 0) { info.Text = Lang.T("Introuvable."); return false; }
             TextRange found = null;
             if (!backward)
             {
@@ -118,7 +119,7 @@ namespace Dm42.Editor
             }
             tb.Selection = new TextRange(tb, found.To, found.From);
             tb.DoRangeVisible(found);
-            info.Text = $"{all.Count} occurrence(s)";
+            info.Text = Lang.F("{0} occurrence(s)", all.Count);
             return true;
         }
 
@@ -141,11 +142,11 @@ namespace Dm42.Editor
             if (re == null) return;
             string text = tb.Text;
             int count = re.Matches(text).Count;
-            if (count == 0) { info.Text = "Introuvable."; return; }
+            if (count == 0) { info.Text = Lang.T("Introuvable."); return; }
             string result = useRegex.Checked ? re.Replace(text, replaceBox.Text) : re.Replace(text, _ => replaceBox.Text);
             tb.SelectAll();
             tb.InsertText(result);
-            info.Text = $"{count} remplacement(s)";
+            info.Text = Lang.F("{0} remplacement(s)", count);
         }
     }
 }

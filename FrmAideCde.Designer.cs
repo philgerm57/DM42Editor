@@ -134,17 +134,17 @@
             // 
             // columnHeader1
             // 
-            this.columnHeader1.Text = "Name";
+            this.columnHeader1.Text = "Nom";
             this.columnHeader1.Width = 120;
             // 
             // columnHeader2
             // 
-            this.columnHeader2.Text = "Description";
+            this.columnHeader2.Text = "Désignation";
             this.columnHeader2.Width = 240;
             // 
             // columnHeader3
             // 
-            this.columnHeader3.Text = "Key";
+            this.columnHeader3.Text = "Touche";
             this.columnHeader3.Width = 100;
             // 
             // columnHeader4
@@ -166,7 +166,7 @@
             this.Controls.Add(this.listBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "FrmAideCde";
-            this.Text = "Fonctions/equivalence";
+            this.Text = "Fonctions/équivalences";
             this.ResumeLayout(false);
 
         }

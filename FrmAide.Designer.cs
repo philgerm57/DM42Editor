@@ -44,7 +44,7 @@
             button1.Name = "button1";
             button1.Size = new System.Drawing.Size(176, 60);
             button1.TabIndex = 0;
-            button1.Text = "Close";
+            button1.Text = "Fermer";
             button1.UseVisualStyleBackColor = true;
             button1.Click += button1_Click;
             // 
@@ -70,7 +70,7 @@
             label2.Name = "label2";
             label2.Size = new System.Drawing.Size(592, 25);
             label2.TabIndex = 3;
-            label2.Text = "Import Export programs  from/to dm42, Free42 and Py2dm42";
+            label2.Text = "Importer et exporter des programmes depuis et vers la DM42, Free42 et Python";
             label2.Click += label2_Click;
             // 
             // label4

@@ -56,7 +56,7 @@ namespace dm42editor
             var tb = CurrentTB;
             if (tb == null) return;
             var lines = ProgramLines(tb);
-            if (lines.Count == 0) { MessageBox.Show(this, "Aucune ligne de programme dans cet onglet.", "Goto"); return; }
+            if (lines.Count == 0) { MessageBox.Show(this, Lang.T("Aucune ligne de programme dans cet onglet."), "Goto"); return; }
 
             int min = int.MaxValue, max = 0, current = lines[0].Key;
             foreach (var kv in lines)
@@ -68,7 +68,7 @@ namespace dm42editor
 
             using (var dlg = new Form
             {
-                Text = "Aller à la ligne de programme",
+                Text = Lang.T("Aller à la ligne de programme"),
                 FormBorderStyle = FormBorderStyle.FixedDialog,
                 StartPosition = FormStartPosition.CenterParent,
                 MinimizeBox = false,
@@ -78,10 +78,10 @@ namespace dm42editor
                 Font = Font
             })
             {
-                var label = new Label { Text = $"Numéro de ligne ({min} à {max}) :", AutoSize = true, Location = new Point(12, 15) };
+                var label = new Label { Text = Lang.F("Numéro de ligne ({0} à {1}) :", min, max), AutoSize = true, Location = new Point(12, 15) };
                 var num = new NumericUpDown { Minimum = min, Maximum = max, Value = Math.Max(min, Math.Min(max, current)), Location = new Point(15, 40), Width = 270 };
                 var ok = new Button { Text = "OK", DialogResult = DialogResult.OK, Location = new Point(129, 75), Width = 75 };
-                var cancel = new Button { Text = "Annuler", DialogResult = DialogResult.Cancel, Location = new Point(210, 75), Width = 75 };
+                var cancel = new Button { Text = Lang.T("Annuler"), DialogResult = DialogResult.Cancel, Location = new Point(210, 75), Width = 75 };
                 dlg.Controls.AddRange(new Control[] { label, num, ok, cancel });
                 dlg.AcceptButton = ok;
                 dlg.CancelButton = cancel;
@@ -94,7 +94,7 @@ namespace dm42editor
                 {
                     if (kv.Key == wanted) { GotoTextLine(tb, kv.Value); return; }
                 }
-                MessageBox.Show(this, $"La ligne {wanted} n'existe pas dans ce programme.", "Goto");
+                MessageBox.Show(this, Lang.F("La ligne {0} n'existe pas dans ce programme.", wanted), "Goto");
             }
         }
 
@@ -103,7 +103,7 @@ namespace dm42editor
         {
             gotoButton.DropDownItems.Clear();
 
-            var line = new ToolStripMenuItem("Aller à la ligne de programme…", MenuIcon("goto"), (s, e) => GotoProgramLine())
+            var line = new ToolStripMenuItem(Lang.T("Aller à la ligne de programme…"), MenuIcon("goto"), (s, e) => GotoProgramLine())
             { ShortcutKeyDisplayString = "Ctrl+G" };
             gotoButton.DropDownItems.Add(line);
 

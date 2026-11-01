@@ -19,6 +19,7 @@ namespace dm42editor
         public RawViewer()
         {
             InitializeComponent();
+            Lang.Apply(this);
         }
 
 

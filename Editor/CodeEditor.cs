@@ -99,6 +99,9 @@ namespace Dm42.Editor
         public bool ShowLineNumbers { get => showLineNumbers; set { showLineNumbers = value; UpdateScrollSize(); Invalidate(); } }
         bool showLineNumbers = true;
         public Color LineNumberColor { get; set; } = Color.Teal;
+        /// <summary>Numéro affiché pour la première ligne (0 pour un listing RPN dont la ligne { } est la ligne 0).</summary>
+        public int LineNumberStart { get => lineNumberStart; set { lineNumberStart = value; UpdateScrollSize(); Invalidate(); } }
+        int lineNumberStart = 1;
         /// <summary>Fond de la marge des numéros de ligne.</summary>
         public Color IndentBackColor { get; set; } = Color.WhiteSmoke;
         /// <summary>Trait qui sépare la marge du texte.</summary>
@@ -470,7 +473,7 @@ namespace Dm42.Editor
             if (iLine < 0 || iLine >= lines.Count || lines[iLine].BookmarkName != null) return;
             string t = lines[iLine].Text.Trim();
             if (t.Length > 30) t = t.Substring(0, 30) + "…";
-            lines[iLine].BookmarkName = $"Ligne {iLine + 1} : {t}";
+            lines[iLine].BookmarkName = Lang.F("Ligne {0} : {1}", iLine + lineNumberStart, t);
             UpdateScrollSize();
             Invalidate();
         }
@@ -650,7 +653,7 @@ namespace Dm42.Editor
                 {
                     int y = i * lineHeight - sy;
                     if (showLineNumbers)
-                        TextRenderer.DrawText(g, (i + 1).ToString(), Font, new Rectangle(0, y, gutter - 8, lineHeight), LineNumberColor,
+                        TextRenderer.DrawText(g, (i + lineNumberStart).ToString(), Font, new Rectangle(0, y, gutter - 8, lineHeight), LineNumberColor,
                                               TextFormatFlags.Right | TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
                     if (lines[i].Changed && ChangedLineColor.A > 0)
                         using (var b = new SolidBrush(ChangedLineColor)) g.FillRectangle(b, gutter - 5, y, 3, lineHeight);

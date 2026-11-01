@@ -16,8 +16,9 @@ namespace dm42editor
         public FrmAideCde()
         {
             InitializeComponent();
+            Lang.Apply(this);
 
-            ReadCsvFct("liste_fonctions.csv", listView1); 
+            ReadCsvFct(Lang.DataFile("liste_fonctions.csv"), listView1); 
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)

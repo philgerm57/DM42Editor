@@ -17,8 +17,8 @@ namespace dm42editor
     /// </summary>
     public partial class frmParam : Form
     {
-        static readonly string[] SchemaNames = { "Noir", "Blanc", "Personnalisé 1", "Personnalisé 2" };
-        static readonly string[] RowNames = { "Fond de page", "Instructions (mots-clés)", "Nombres", "Textes \"…\"", "Commentaires", "Tests (X<Y?, FS?…)", "Ligne du curseur" };
+        static readonly string[] SchemaNames = { Lang.T("Noir"), Lang.T("Blanc"), Lang.T("Personnalisé 1"), Lang.T("Personnalisé 2") };
+        static readonly string[] RowNames = { Lang.T("Fond de page"), Lang.T("Instructions (mots-clés)"), Lang.T("Nombres"), Lang.T("Textes \"…\""), Lang.T("Commentaires"), Lang.T("Tests (X<Y?, FS?…)"), Lang.T("Ligne du curseur") };
 
         clParam Param = new clParam();
         clParam.pram work = new clParam().parameters;     // copie modifiée dans la fenêtre
@@ -90,6 +90,14 @@ namespace dm42editor
             void Span(Control c) { grid.Controls.Add(c, 0, r++); grid.SetColumnSpan(c, 3); }
             Span(L("Apparence", true));
             Span(darkBox);
+            grid.Controls.Add(L("Langue"), 0, r);
+            var langBox = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 240, Anchor = AnchorStyles.Left };
+            string[] langCodes = { "auto", "fr", "en" };
+            langBox.Items.AddRange(new object[] { Lang.T("Automatique (langue de Windows)"), "Français", "English" });
+            langBox.SelectedIndex = Array.IndexOf(langCodes, Lang.Setting);
+            grid.Controls.Add(langBox, 1, r);
+            grid.SetColumnSpan(langBox, 2);
+            r++;
 
             Span(L("Couleurs du code RPN", true));
             grid.Controls.Add(L("Schéma"), 0, r);
@@ -131,18 +139,18 @@ namespace dm42editor
             var browse = new Button { Text = "Parcourir…", AutoSize = true };
             var detect = new Button { Text = "Détecter", AutoSize = true };
             var tip = new ToolTip();
-            tip.SetToolTip(emulatorBox, "Exécutable de l'émulateur : Free42Decimal.exe, Free42Binary.exe, Plus42Decimal.exe…");
-            tip.SetToolTip(detect, "Reprend l'émulateur Free42 / Plus42 actuellement ouvert");
+            tip.SetToolTip(emulatorBox, Lang.T("Exécutable de l'émulateur : Free42Decimal.exe, Free42Binary.exe, Plus42Decimal.exe…"));
+            tip.SetToolTip(detect, Lang.T("Reprend l'émulateur Free42 / Plus42 actuellement ouvert"));
             // chemin long : on montre la fin (nom de l'exécutable), le chemin complet en info-bulle
-            void ShowEnd() { emulatorBox.Select(emulatorBox.Text.Length, 0); emulatorBox.ScrollToCaret(); tip.SetToolTip(emulatorBox, emulatorBox.Text.Length > 0 ? emulatorBox.Text : "Exécutable de l'émulateur : Free42Decimal.exe, Free42Binary.exe, Plus42Decimal.exe…"); }
+            void ShowEnd() { emulatorBox.Select(emulatorBox.Text.Length, 0); emulatorBox.ScrollToCaret(); tip.SetToolTip(emulatorBox, emulatorBox.Text.Length > 0 ? emulatorBox.Text : Lang.T("Exécutable de l'émulateur : Free42Decimal.exe, Free42Binary.exe, Plus42Decimal.exe…")); }
             emulatorBox.TextChanged += (s, e) => ShowEnd();
             Shown += (s, e) => ShowEnd();
             browse.Click += (s, e) =>
             {
                 using (var dlg = new OpenFileDialog
                 {
-                    Title = "Choisir l'émulateur (Free42, Plus42…)",
-                    Filter = "Émulateurs HP-42S|Free42*.exe;Plus42*.exe|Programmes (*.exe)|*.exe"
+                    Title = Lang.T("Choisir l'émulateur (Free42, Plus42…)"),
+                    Filter = Lang.T("Émulateurs HP-42S|Free42*.exe;Plus42*.exe|Programmes (*.exe)|*.exe")
                 })
                 {
                     string cur = emulatorBox.Text.Trim();
@@ -158,8 +166,8 @@ namespace dm42editor
             {
                 string found = Emulator.DetectRunning();
                 if (found != null) emulatorBox.Text = found;
-                else MessageBox.Show(this, "Aucun Free42 ni Plus42 ouvert. Lancez l'émulateur puis cliquez de nouveau sur « Détecter », ou utilisez « Parcourir… ».",
-                                     "Émulateur", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                else MessageBox.Show(this, Lang.T("Aucun Free42 ni Plus42 ouvert. Lancez l'émulateur puis cliquez de nouveau sur « Détecter », ou utilisez « Parcourir… »."),
+                                     Lang.T("Émulateur"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             };
             var emuButtons = new FlowLayoutPanel { AutoSize = true, Margin = new Padding(0), WrapContents = false };
             emuButtons.Controls.Add(browse);
@@ -189,6 +197,11 @@ namespace dm42editor
                 Param.parameters = Copy(work);
                 Param.SaveParam();
                 if (emulatorBox.Text.Trim() != Emulator.ExePath) Emulator.ExePath = emulatorBox.Text;
+                if (langCodes[langBox.SelectedIndex] != Lang.Setting)
+                {
+                    Lang.Setting = langCodes[langBox.SelectedIndex];
+                    MessageBox.Show(this, Lang.T("La nouvelle langue sera appliquée au prochain démarrage de l'application."), Lang.T("Langue"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             };
             var buttons = new FlowLayoutPanel { FlowDirection = FlowDirection.RightToLeft, AutoSize = true, Dock = DockStyle.Fill, Margin = new Padding(0, 16, 0, 0) };
             buttons.Controls.Add(cancel);
@@ -202,6 +215,7 @@ namespace dm42editor
             AcceptButton = ok;
             CancelButton = cancel;
             if (AppTheme.Dark) AppTheme.Apply(this);
+            Lang.Apply(this);
         }
 
         void LoadUi()

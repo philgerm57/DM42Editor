@@ -153,7 +153,7 @@ namespace dm42editor.Flowchart
                 float commentW = 0;
                 foreach (var nd in nodes) foreach (var l in nd.Lines) if (!string.IsNullOrEmpty(l.Comment)) commentW = Math.Max(commentW, M(l.Comment, CommentFont).Width);
                 hasComments = commentW > 0;
-                if (hasComments) commentW = Math.Max(commentW, M("Commentaires", HeaderFont).Width);
+                if (hasComments) commentW = Math.Max(commentW, M(Lang.T("Commentaires"), HeaderFont).Width);
                 size = new SizeF(hasComments ? commentX + commentW + 12 + Pad : commentX - 30, Math.Max(y, 100));
             }
             UpdateScroll();
@@ -223,7 +223,7 @@ namespace dm42editor.Flowchart
                 using (var sep = new Pen(Color.FromArgb(205, 205, 205)))
                     g.DrawLine(sep, sepX, 8, sepX, size.Height - 8);
                 using (var hb = new SolidBrush(StepInk))
-                    g.DrawString("Commentaires", HeaderFont, hb, commentX - 6, 10, Fmt);
+                    g.DrawString(Lang.T("Commentaires"), HeaderFont, hb, commentX - 6, 10, Fmt);
             }
             using (var pen = new Pen(Ink, 1.3f))
             using (var jumpPen = new Pen(JumpInk, 1.3f))

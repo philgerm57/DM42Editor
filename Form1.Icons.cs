@@ -84,7 +84,7 @@ namespace dm42editor
         {
             if (!(item is ToolStripMenuItem mi)) return;
             bool topLevel = mi.Owner is MenuStrip;
-            if (!topLevel && MenuIcons.TryGetValue(mi.Text, out string name)) SetIcon(mi, name, MenuIconSize);
+            if (!topLevel && MenuIcons.TryGetValue(Lang.Source(mi.Text), out string name)) SetIcon(mi, name, MenuIconSize);
             foreach (ToolStripItem sub in mi.DropDownItems) MenuItemIcons(sub);
         }
 

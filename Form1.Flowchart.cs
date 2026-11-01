@@ -62,8 +62,8 @@ namespace dm42editor
         private void ShowFlowchart()
         {
             var tb = CurrentTB;
-            if (tb == null) { MessageBox.Show(this, "Ouvrez d'abord un programme RPN.", "Logigramme"); return; }
-            string title = tsFiles.SelectedItem?.Title ?? "Programme";
+            if (tb == null) { MessageBox.Show(this, Lang.T("Ouvrez d'abord un programme RPN."), Lang.T("Logigramme")); return; }
+            string title = tsFiles.SelectedItem?.Title ?? Lang.T("Programme");
             var f = new FrmFlowchart(() => tb.IsDisposed ? "" : tb.Text, title, line =>
             {
                 if (tb.IsDisposed) return;

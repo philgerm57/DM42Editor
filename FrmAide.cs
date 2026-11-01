@@ -17,6 +17,7 @@ namespace dm42editor
         public FrmAide()
         {
             InitializeComponent();
+            Lang.Apply(this);
 
             // Centre la fenetre
 

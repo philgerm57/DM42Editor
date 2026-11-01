@@ -11,38 +11,38 @@ namespace dm42editor
     {
         private void InitHp41Menu()
         {
-            var item = new ToolStripMenuItem("Convertir la syntaxe HP-41 → DM42…", null, (s, e) => ConvertHp41())
+            var item = new ToolStripMenuItem(Lang.T("Convertir la syntaxe HP-41 → DM42…"), null, (s, e) => ConvertHp41())
             { ShortcutKeys = Keys.Control | Keys.Shift | Keys.H };
             int at = fileToolStripMenuItem.DropDownItems.IndexOf(toolStripMenuItem2);   // avant « Encoder et enregistrer en .raw »
             fileToolStripMenuItem.DropDownItems.Insert(at < 0 ? fileToolStripMenuItem.DropDownItems.Count : at, item);
-            cmMain.Items.Add(new ToolStripMenuItem("Convertir la syntaxe HP-41 → DM42…", null, (s, e) => ConvertHp41()) { ShortcutKeyDisplayString = "Ctrl+Maj+H" });
+            cmMain.Items.Add(new ToolStripMenuItem(Lang.T("Convertir la syntaxe HP-41 → DM42…"), null, (s, e) => ConvertHp41()) { ShortcutKeyDisplayString = "Ctrl+Maj+H" });
 
             // envoi vers l'émulateur réglé dans Paramètres (Free42, Plus42…)
-            var send = new ToolStripMenuItem("Envoyer vers l'émulateur", null, (s, e) => SendToEmulator()) { ShortcutKeys = Keys.F7 };
+            var send = new ToolStripMenuItem(Lang.T("Envoyer vers l'émulateur"), null, (s, e) => SendToEmulator()) { ShortcutKeys = Keys.F7 };
             int p = fileToolStripMenuItem.DropDownItems.IndexOf(toolStripMenuItem2);
             fileToolStripMenuItem.DropDownItems.Insert(p < 0 ? fileToolStripMenuItem.DropDownItems.Count : p + 1, send);
-            cmMain.Items.Add(new ToolStripMenuItem("Envoyer vers l'émulateur", null, (s, e) => SendToEmulator()) { ShortcutKeyDisplayString = "F7" });
+            cmMain.Items.Add(new ToolStripMenuItem(Lang.T("Envoyer vers l'émulateur"), null, (s, e) => SendToEmulator()) { ShortcutKeyDisplayString = "F7" });
         }
 
         /// <summary>Copie le programme de l'onglet (sans commentaires) et affiche l'émulateur : mode PRGM puis Ctrl+V.</summary>
         private void SendToEmulator()
         {
             var tb = CurrentTB;
-            if (tb == null) { MessageBox.Show(this, "Ouvrez d'abord un programme.", "Émulateur"); return; }
+            if (tb == null) { MessageBox.Show(this, Lang.T("Ouvrez d'abord un programme."), Lang.T("Émulateur")); return; }
             string listing = Emulator.CleanListing(tb.Text, out int steps);
-            if (steps == 0) { lbWordUnderMouse.Text = "Rien à envoyer : l'onglet ne contient pas d'instruction."; return; }
+            if (steps == 0) { lbWordUnderMouse.Text = Lang.T("Rien à envoyer : l'onglet ne contient pas d'instruction."); return; }
             lbWordUnderMouse.Text = Emulator.Send(this, listing, steps);
         }
 
         private void ConvertHp41()
         {
             var tb = CurrentTB;
-            if (tb == null) { MessageBox.Show(this, "Ouvrez d'abord un programme.", "Conversion HP-41"); return; }
+            if (tb == null) { MessageBox.Show(this, Lang.T("Ouvrez d'abord un programme."), Lang.T("Conversion HP-41")); return; }
             var changes = new List<Hp41Converter.Change>();
             string converted = Hp41Converter.Convert(tb.Text, changes);
             if (changes.Count == 0)
             {
-                MessageBox.Show(this, "Aucune écriture HP-41 à convertir dans ce programme.", "Conversion HP-41", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, Lang.T("Aucune écriture HP-41 à convertir dans ce programme."), Lang.T("Conversion HP-41"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
             if (!ShowHp41Preview(changes)) return;
@@ -61,7 +61,7 @@ namespace dm42editor
             int edits = changes.Count(c => !c.Warning), warnings = changes.Count(c => c.Warning);
             using (var f = new Form
             {
-                Text = "Conversion HP-41 → DM42",
+                Text = Lang.T("Conversion HP-41 → DM42"),
                 Size = new Size(860, 520),
                 StartPosition = FormStartPosition.CenterParent,
                 MinimizeBox = false,
@@ -83,13 +83,13 @@ namespace dm42editor
                     BorderStyle = BorderStyle.None
                 };
                 var mono = new Font("Consolas", 10f);
-                grid.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ligne", FillWeight = 10 });
+                grid.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = Lang.T("Ligne"), FillWeight = 10 });
                 grid.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "HP-41", FillWeight = 30, DefaultCellStyle = { Font = mono } });
                 grid.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "DM42", FillWeight = 30, DefaultCellStyle = { Font = mono } });
-                grid.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Remarque", FillWeight = 40 });
+                grid.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = Lang.T("Remarque"), FillWeight = 40 });
                 foreach (var c in changes)
                 {
-                    int r = grid.Rows.Add((c.Line + 1).ToString(), c.Before, c.Warning ? "⚠ inchangé" : c.After, c.Note);
+                    int r = grid.Rows.Add((c.Line + 1).ToString(), c.Before, c.Warning ? Lang.T("⚠ inchangé") : c.After, c.Note);
                     if (c.Warning) grid.Rows[r].DefaultCellStyle.ForeColor = Color.FromArgb(190, 60, 20);
                 }
 
@@ -98,11 +98,11 @@ namespace dm42editor
                     Dock = DockStyle.Top,
                     Height = 36,
                     Padding = new Padding(8, 8, 8, 0),
-                    Text = $"{edits} ligne(s) à convertir" + (warnings > 0 ? $", {warnings} instruction(s) sans équivalent à revoir à la main" : "") +
-                           ".   Ctrl+Z dans l'éditeur annule la conversion."
+                    Text = Lang.F("{0} ligne(s) à convertir", edits) + (warnings > 0 ? Lang.F(", {0} instruction(s) sans équivalent à revoir à la main", warnings) : "") +
+                           Lang.T(".   Ctrl+Z dans l'éditeur annule la conversion.")
                 };
-                var ok = new Button { Text = edits > 0 ? "Appliquer" : "Fermer", DialogResult = DialogResult.OK, AutoSize = true, MinimumSize = new Size(100, 0) };
-                var cancel = new Button { Text = "Annuler", DialogResult = DialogResult.Cancel, AutoSize = true, MinimumSize = new Size(100, 0) };
+                var ok = new Button { Text = edits > 0 ? Lang.T("Appliquer") : Lang.T("Fermer"), DialogResult = DialogResult.OK, AutoSize = true, MinimumSize = new Size(100, 0) };
+                var cancel = new Button { Text = Lang.T("Annuler"), DialogResult = DialogResult.Cancel, AutoSize = true, MinimumSize = new Size(100, 0) };
                 var buttons = new FlowLayoutPanel { Dock = DockStyle.Bottom, FlowDirection = FlowDirection.RightToLeft, AutoSize = true, Padding = new Padding(8) };
                 buttons.Controls.Add(cancel);
                 buttons.Controls.Add(ok);
@@ -120,6 +120,7 @@ namespace dm42editor
                 f.AcceptButton = ok;
                 f.CancelButton = cancel;
                 if (AppTheme.Dark) AppTheme.Apply(f);
+                Lang.Apply(f);
                 return f.ShowDialog(this) == DialogResult.OK && edits > 0;
             }
         }

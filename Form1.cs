@@ -444,6 +444,7 @@ namespace dm42editor
 
             ApplyTheme(Parameter.parameters.DarkMode);
             ApplyEditorParams(Parameter.parameters.Params[Parameter.parameters.current]);
+            Lang.Apply(this);
 
         }
 
@@ -488,7 +489,7 @@ namespace dm42editor
                 Parser.parse();
                 if (CurrentTB.Parent.Tag == null)
                 {
-                    MessageBox.Show("You must save the file before !");
+                    MessageBox.Show(Lang.T("Vous devez d'abord enregistrer le fichier !"));
                     return;
                 }
 
@@ -532,7 +533,7 @@ namespace dm42editor
                         }
                         else
                         {
-                            tb.Add(lLine.docCode, "", lLine.error != null ? lLine.error.Message : "Erreur !", textLine);
+                            tb.Add(lLine.docCode, "", lLine.error != null ? lLine.error.Message : Lang.T("Erreur !"), textLine);
                         }
                     }
 
@@ -554,7 +555,7 @@ namespace dm42editor
         private void OpenPrgmToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
-            ofdMain.Filter = "free42 file(*.free42)| *.free42|dm42 file(*.s42)|*.s42|HP42s file(*.hp42s)|*.hp42s|Raw file(*.raw)|*.raw|all files(*.*) | *.*";
+            ofdMain.Filter = Lang.T("Fichier free42 (*.free42)| *.free42|Fichier dm42 (*.s42)|*.s42|Fichier HP42s (*.hp42s)|*.hp42s|Fichier raw (*.raw)|*.raw|Tous les fichiers (*.*) | *.*");
             // ouverture d'un programme 
             if (ofdMain.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
@@ -660,7 +661,7 @@ namespace dm42editor
                 {
                     if (Parser.programs[lIdx].getErrors().Count > 0)
                     {
-                        MessageBox.Show("Error to convert RPN Code !\n\n" + string.Join("\n", Parser.programs[lIdx].getErrors().Select(er => er.ToString(false))));
+                        MessageBox.Show(Lang.T("Erreur de conversion du code RPN !\n\n") + string.Join("\n", Parser.programs[lIdx].getErrors().Select(er => er.ToString(false))));
                         return;
                     }
 
@@ -668,12 +669,12 @@ namespace dm42editor
 
                 // Sauvegarde 
 
-                sfdMain.Title = "Save to Raw file ";
+                sfdMain.Title = Lang.T("Enregistrer en fichier .raw");
 
                 titre = Path.ChangeExtension(titre, "raw");
                 sfdMain.InitialDirectory = Path.GetDirectoryName(titre);
                 sfdMain.FileName = Path.GetFileName(titre);
-                sfdMain.Filter = "RAW file (*.raw)|*.raw";
+                sfdMain.Filter = Lang.T("Fichier RAW (*.raw)|*.raw");
                 sfdMain.FilterIndex = 1;
                 sfdMain.DefaultExt = ".raw";
 
@@ -685,7 +686,7 @@ namespace dm42editor
 
                         if (Parser.programs.Count == 0)
                         {
-                            MessageBox.Show("No program !");
+                            MessageBox.Show(Lang.T("Aucun programme !"));
                             return;
                         }
 
@@ -701,7 +702,7 @@ namespace dm42editor
                                 if (lLine.hasError())
                                 {
                                     // toRaw peut détecter des erreurs (chaîne trop longue...) après le contrôle de parse()
-                                    MessageBox.Show("Error to convert RPN Code !\n\n" + lLine.error.ToString(false));
+                                    MessageBox.Show(Lang.T("Erreur de conversion du code RPN !\n\n") + lLine.error.ToString(false));
                                     return;
                                 }
                                 if (!string.IsNullOrEmpty(lLine.raw))
@@ -716,7 +717,7 @@ namespace dm42editor
                         {
                             if (!byte.TryParse(str, System.Globalization.NumberStyles.HexNumber, null, out byte b))
                             {
-                                MessageBox.Show("Invalid raw byte '" + str + "' : conversion aborted.");
+                                MessageBox.Show(Lang.F("Octet raw invalide « {0} » : conversion abandonnée.", str));
                                 return;
                             }
                             lByteList.Add(b);
@@ -729,7 +730,7 @@ namespace dm42editor
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show("Unable to write " + sfdMain.FileName + "\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show(Lang.F("Impossible d'écrire {0}\n{1}", sfdMain.FileName, ex.Message), Lang.T("Erreur"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
 
@@ -773,6 +774,7 @@ namespace dm42editor
                 tb.Dock = DockStyle.Fill;
                 tb.BorderStyle = BorderStyle.Fixed3D;
                 tb.LeftPadding = 17;
+                tb.LineNumberStart = 0;   // la ligne { } est la ligne 0, comme dans le listing
 
                 tb.Tag = new TbInfo();
 
@@ -794,7 +796,7 @@ namespace dm42editor
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);//== System.Windows.Forms.DialogResult.Retry;
+                MessageBox.Show(ex.Message, Lang.T("Erreur"), MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);//== System.Windows.Forms.DialogResult.Retry;
 
                 return null;
             }
@@ -832,7 +834,7 @@ namespace dm42editor
         private void InitFctList()
         {
 
-            ReadCsvFct("liste_fonctions.csv", ListViewFct);
+            ReadCsvFct(Lang.DataFile("liste_fonctions.csv"), ListViewFct);
 
           
         }
@@ -979,7 +981,7 @@ namespace dm42editor
 
                 if (EditorOf(e.Item).IsChanged)
                 {
-                    switch (MessageBox.Show("Do you want save " + e.Item.Title + " ?", "Save", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information))
+                    switch (MessageBox.Show(Lang.F("Enregistrer {0} ?", e.Item.Title), Lang.T("Enregistrer"), MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information))
                     {
                         case System.Windows.Forms.DialogResult.Yes:
                             if (!Save(e.Item))
@@ -1357,10 +1359,10 @@ namespace dm42editor
             if (tab.Tag == null)
             {
 
-                sfdMain.Title = "Save free42 file";
+                sfdMain.Title = Lang.T("Enregistrer le fichier free42");
 
                 //  sfdMain.FileName = Path.GetFileName(titre);
-                sfdMain.Filter = "free2 file (*.free42)|*.free42| dm42 file (*.s42)|*.s42";
+                sfdMain.Filter = Lang.T("Fichier free42 (*.free42)|*.free42|Fichier dm42 (*.s42)|*.s42");
                 sfdMain.FilterIndex = 1;
                 sfdMain.DefaultExt = ".free42";
 
@@ -1377,7 +1379,7 @@ namespace dm42editor
             }
             catch (Exception ex)
             {
-                if (MessageBox.Show(ex.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == DialogResult.Retry)
+                if (MessageBox.Show(ex.Message, Lang.T("Erreur"), MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == DialogResult.Retry)
                     return Save(tab);
                 else
                     return false;

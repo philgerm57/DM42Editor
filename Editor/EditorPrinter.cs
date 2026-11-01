@@ -28,7 +28,7 @@ namespace Dm42.Editor
                     page++;
                     g.DrawString(doc.DocumentName, head, Brushes.Black, m.Left, m.Top - head.Height - 10);
                     g.DrawLine(Pens.Gray, m.Left, m.Top - 6, m.Right, m.Top - 6);
-                    string foot = "Page " + page;
+                    string foot = Lang.T("Page") + " " + page;
                     var fs = g.MeasureString(foot, head);
                     g.DrawString(foot, head, Brushes.Gray, m.Right - fs.Width, m.Bottom + 8);
 
@@ -40,7 +40,7 @@ namespace Dm42.Editor
                     float y = m.Top;
                     while (nextLine < tb.LinesCount && y + lineH <= m.Bottom)
                     {
-                        g.DrawString((nextLine + 1).ToString().PadLeft(digits), font, Brushes.Gray, m.Left, y, fmt);
+                        g.DrawString((nextLine + tb.LineNumberStart).ToString().PadLeft(digits), font, Brushes.Gray, m.Left, y, fmt);
                         string text = tb.GetLineText(nextLine);
                         for (int c = 0; c < text.Length; c++)
                         {
@@ -64,7 +64,7 @@ namespace Dm42.Editor
                     try { doc.Print(); }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(tb.FindForm(), ex.Message, "Impression impossible", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show(tb.FindForm(), ex.Message, Lang.T("Impression impossible"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
             }

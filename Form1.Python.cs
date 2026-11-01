@@ -32,7 +32,7 @@ namespace dm42editor
             for (int i = 0; i < Py42.Core.Examples.All.Count; i++)
             {
                 int idx = i;
-                exemples.DropDownItems.Add(Py42.Core.Examples.All[i].Title, null, (s, e) => ShowPython(null).LoadExample(idx));
+                exemples.DropDownItems.Add(Py42.Core.Tr.T(Py42.Core.Examples.All[i].Title), null, (s, e) => ShowPython(null).LoadExample(idx));
             }
 
             var aide = new ToolStripMenuItem("Aide Python → RPN", null, (s, e) => FrmPython.ShowHelp(this));

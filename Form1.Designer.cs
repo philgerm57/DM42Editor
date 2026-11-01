@@ -381,7 +381,7 @@
             this.btHighlightCurrentLine.Name = "btHighlightCurrentLine";
             this.btHighlightCurrentLine.Size = new System.Drawing.Size(23, 22);
             this.btHighlightCurrentLine.Text = "Surligner la ligne du curseur";
-            this.btHighlightCurrentLine.ToolTipText = "Highlight current line";
+            this.btHighlightCurrentLine.ToolTipText = "Surligner la ligne du curseur";
             this.btHighlightCurrentLine.Click += new System.EventHandler(this.btHighlightCurrentLine_Click);
             // 
             // undoStripButton

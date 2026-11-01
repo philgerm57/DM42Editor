@@ -51,7 +51,7 @@ namespace dm42editor
 
             public static readonly (string Name, Func<RpnColors> Make)[] Presets =
             {
-                ("Écran LCD (défaut)", Lcd), ("Sombre", Dark), ("Papier", Paper), ("Contraste", Free42)
+                (Lang.T("Écran LCD (défaut)"), Lcd), (Lang.T("Sombre"), Dark), (Lang.T("Papier"), Paper), (Lang.T("Contraste"), Free42)
             };
         }
 
@@ -199,13 +199,13 @@ namespace dm42editor
             var items = selectedOnly
                 ? (messages.SelectedItem != null ? new[] { messages.SelectedItem } : Array.Empty<object>())
                 : messages.Items.Cast<object>().ToArray();
-            if (items.Length == 0) { status.Text = "Aucun message à copier."; return; }
+            if (items.Length == 0) { status.Text = Lang.T("Aucun message à copier."); return; }
             try
             {
                 Clipboard.SetText(string.Join(Environment.NewLine, items.Select(i => i.ToString())));
-                status.Text = items.Length == 1 ? "Message copié dans le presse-papiers." : $"{items.Length} messages copiés dans le presse-papiers.";
+                status.Text = items.Length == 1 ? Lang.T("Message copié dans le presse-papiers.") : Lang.F("{0} messages copiés dans le presse-papiers.", items.Length);
             }
-            catch (Exception ex) { status.Text = "Presse-papiers indisponible : " + ex.Message; }
+            catch (Exception ex) { status.Text = Lang.T("Presse-papiers indisponible : ") + ex.Message; }
         }
 
         ContextMenuStrip BuildRpnMenu()
@@ -236,7 +236,7 @@ namespace dm42editor
             for (int i = 0; i < Py42.Core.Examples.All.Count; i++)
             {
                 int idx = i;
-                examples.DropDownItems.Add(Item(Py42.Core.Examples.All[i].Title, null, (s, e) => { if (ConfirmDiscard()) LoadExample(idx); }));
+                examples.DropDownItems.Add(Item(Py42.Core.Tr.T(Py42.Core.Examples.All[i].Title), null, (s, e) => { if (ConfirmDiscard()) LoadExample(idx); }));
             }
             examples.DropDown.Renderer = tools.Renderer;
             examples.DropDown.BackColor = Color.FromArgb(44, 44, 41);
@@ -265,7 +265,7 @@ namespace dm42editor
         /// <summary>Logigramme du listing RPN ; double-clic sur une forme : ligne Python d'origine.</summary>
         void ShowFlowchart()
         {
-            if (last == null) { status.Text = "Rien à représenter : corrigez d'abord les erreurs."; return; }
+            if (last == null) { status.Text = Lang.T("Rien à représenter : corrigez d'abord les erreurs."); return; }
             var f = new Flowchart.FrmFlowchart(() => rpnBox.IsDisposed ? "" : rpnBox.Text,
                 Path.GetFileNameWithoutExtension(PrintTitle()), line =>
                 {
@@ -297,8 +297,8 @@ namespace dm42editor
 
         void PrintRpn()
         {
-            if (last == null) { status.Text = "Rien à imprimer : corrigez d'abord les erreurs."; return; }
-            rpnBox.Print(Path.GetFileNameWithoutExtension(PrintTitle()) + " — listing RPN");
+            if (last == null) { status.Text = Lang.T("Rien à imprimer : corrigez d'abord les erreurs."); return; }
+            rpnBox.Print(Path.GetFileNameWithoutExtension(PrintTitle()) + Lang.T(" — listing RPN"));
         }
 
         /// <summary>
@@ -308,8 +308,8 @@ namespace dm42editor
         bool ConfirmDiscard()
         {
             if (!pyBox.IsChanged) return true;
-            string name = currentFile != null ? Path.GetFileName(currentFile) : "ce programme";
-            var r = MessageBox.Show(this, "Enregistrer les modifications de " + name + " ?", "Python → RPN",
+            string name = currentFile != null ? Path.GetFileName(currentFile) : Lang.T("ce programme");
+            var r = MessageBox.Show(this, Lang.F("Enregistrer les modifications de {0} ?", name), "Python → RPN",
                                     MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
             if (r == DialogResult.Cancel) return false;
             if (r == DialogResult.Yes) { SavePython(false); return !pyBox.IsChanged; }
@@ -351,7 +351,7 @@ namespace dm42editor
         void ClearPage()
         {
             if (pyBox.TextLength == 0) return;
-            if (MessageBox.Show(this, "Effacer tout le code Python de la page ?\n(Ctrl+Z permet d'annuler.)", "Effacer la page",
+            if (MessageBox.Show(this, Lang.T("Effacer tout le code Python de la page ?\n(Ctrl+Z permet d'annuler.)"), Lang.T("Effacer la page"),
                                 MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
             pyBox.SelectAll();
             pyBox.ClearSelected();     // passe par l'historique : Ctrl+Z rétablit le code
@@ -446,13 +446,13 @@ namespace dm42editor
             var work = rpnColors.Clone();
             var rows = new (string Label, Func<Color> Get, Action<Color> Set)[]
             {
-                ("Fond de page",          () => work.Back,   c => work.Back = c),
-                ("Texte (instructions)",  () => work.Text,   c => work.Text = c),
-                ("Numéros de ligne",      () => work.LineNo, c => work.LineNo = c),
-                ("LBL (labels)",          () => work.Label,  c => work.Label = c),
+                (Lang.T("Fond de page"),          () => work.Back,   c => work.Back = c),
+                (Lang.T("Texte (instructions)"),  () => work.Text,   c => work.Text = c),
+                (Lang.T("Numéros de ligne"),      () => work.LineNo, c => work.LineNo = c),
+                (Lang.T("LBL (labels)"),          () => work.Label,  c => work.Label = c),
                 ("GTO, XEQ, RTN, END",    () => work.Flow,   c => work.Flow = c),
-                ("Tests (X<Y?, FS?…)",    () => work.Test,   c => work.Test = c),
-                ("Textes \"…\"",           () => work.Alpha,  c => work.Alpha = c),
+                (Lang.T("Tests (X<Y?, FS?…)"),    () => work.Test,   c => work.Test = c),
+                (Lang.T("Textes \"…\""),           () => work.Alpha,  c => work.Alpha = c),
             };
 
             using (var f = new Form
@@ -509,6 +509,7 @@ namespace dm42editor
                 f.CancelButton = cancel;
                 Refresh();
 
+                Lang.Apply(f);
                 if (f.ShowDialog(this) == DialogResult.OK) { rpnColors = work.Clone(); SaveViewSettings(); }
                 else rpnColors = backup;
                 ApplyRpnColors();
@@ -523,12 +524,12 @@ namespace dm42editor
 
         void SaveRaw()
         {
-            if (last == null) { status.Text = "Rien à encoder : corrigez d'abord les erreurs."; return; }
+            if (last == null) { status.Text = Lang.T("Rien à encoder : corrigez d'abord les erreurs."); return; }
             var bytes = Py42.Raw.RawExport.Encode(last, out var errors);
             if (bytes == null)
             {
-                MessageBox.Show(this, "Le listing n'a pas pu être encodé :\n\n" + string.Join("\n", errors.Distinct().Take(15)),
-                                "Générer .raw", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, Lang.T("Le listing n'a pas pu être encodé :\n\n") + string.Join("\n", errors.Distinct().Take(15)),
+                                Lang.T("Générer .raw"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             string name = currentFile != null ? Path.GetFileNameWithoutExtension(currentFile)
@@ -537,8 +538,8 @@ namespace dm42editor
                         : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
             using (var dlg = new SaveFileDialog
             {
-                Title = "Enregistrer le programme pour la DM42 / Free42",
-                Filter = "Programme HP-42S (*.raw)|*.raw",
+                Title = Lang.T("Enregistrer le programme pour la DM42 / Free42"),
+                Filter = Lang.T("Programme HP-42S (*.raw)|*.raw"),
                 DefaultExt = ".raw",
                 FileName = name + ".raw",
                 InitialDirectory = dir
@@ -549,11 +550,11 @@ namespace dm42editor
                 {
                     File.WriteAllBytes(dlg.FileName, bytes);
                     lastRawDir = Path.GetDirectoryName(dlg.FileName);
-                    status.Text = $"{Path.GetFileName(dlg.FileName)} : {bytes.Length} octets, {last.Code.Count} pas. DM42 : copiez-le sur son disque USB puis Load Program ; Free42 : File → Import Programs.";
+                    status.Text = Lang.F("{0} : {1} octets, {2} pas. DM42 : copiez-le sur son disque USB puis Load Program ; Free42 : File → Import Programs.", Path.GetFileName(dlg.FileName), bytes.Length, last.Code.Count);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(this, ex.Message, "Écriture impossible", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(this, ex.Message, Lang.T("Écriture impossible"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -563,7 +564,7 @@ namespace dm42editor
         // ==================================================================
         void SendToFree42()
         {
-            if (last == null) { status.Text = "Rien à envoyer : corrigez d'abord les erreurs."; return; }
+            if (last == null) { status.Text = Lang.T("Rien à envoyer : corrigez d'abord les erreurs."); return; }
             status.Text = Emulator.Send(this, last.Listing(true, header: true), last.Code.Count);
         }
     }

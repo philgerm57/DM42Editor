@@ -53,7 +53,7 @@ namespace dm42editor
         /// Tests HP-42S (X&lt;Y?, X=0?, X≤Y?, FS? 01, FC?C 12, BIT?…) et leur argument : partagé avec l'éditeur RPN.
         /// </summary>
         internal const string RpnTestPattern =
-            @"(?<!\S)(X(=|≠|<|>|≤|≥|<=|>=|!=)(0|Y)\?|F[SC]\?C?|BIT\?|MAT\?|CPX\?|REAL\?|STR\?)(?!\S)([ \t]+(IND[ \t]+)?(ST[ \t]+[XYZTL]|\d+|""[^""]*""))?";   // argument sur la même ligne seulement
+            @"(?<!\S)(X(<>|<=|>=|!=|=|≠|<|>|≤|≥|#)(0|Y)\?|F[SC]\?C?|BIT\?|MAT\?|CPX\?|REAL\?|STR\?)(?!\S)([ \t]+(IND[ \t]+)?(ST[ \t]+[XYZTL]|\d+|""[^""]*""))?";   // argument sur la même ligne seulement
         static readonly Regex RpnTestRegex = new Regex(RpnTestPattern, RegexOptions.Compiled);
         readonly TextStyle rpAlpha = new TextStyle(new SolidBrush(Color.FromArgb(85, 107, 20)), null, FontStyle.Regular);
 
@@ -89,6 +89,7 @@ namespace dm42editor
         {
             this.sendToEditor = sendToEditor;
             BuildUi();
+            Lang.Apply(this);
             NewProgram();
         }
 
@@ -292,8 +293,8 @@ namespace dm42editor
             stackBox = new TextBox { Dock = DockStyle.Fill, BackColor = Color.FromArgb(51, 50, 47), ForeColor = Ink, BorderStyle = BorderStyle.FixedSingle, Font = new Font("Consolas", 10f) };
             inputsBox = new TextBox { Dock = DockStyle.Fill, BackColor = Color.FromArgb(51, 50, 47), ForeColor = Ink, BorderStyle = BorderStyle.FixedSingle, Font = new Font("Consolas", 10f) };
             var tip = new ToolTip();
-            tip.SetToolTip(stackBox, "Valeurs mises sur la pile avant l'appel, la dernière va dans X (ex. : 12 18)");
-            tip.SetToolTip(inputsBox, "Réponses dans l'ordre : INPUT, prompt(), VARMENU (une par variable), menu() (n° de touche, 0 = EXIT), GETKEY");
+            tip.SetToolTip(stackBox, Lang.T("Valeurs mises sur la pile avant l'appel, la dernière va dans X (ex. : 12 18)"));
+            tip.SetToolTip(inputsBox, Lang.T("Réponses dans l'ordre : INPUT, prompt(), VARMENU (une par variable), menu() (n° de touche, 0 = EXIT), GETKEY"));
 
             simOut = new TextBox
             {
@@ -424,8 +425,8 @@ namespace dm42editor
                 rpnBox.ForeColor = RpnFore;
                 HighlightRpn();
                 foreach (var w in last.Warnings) messages.Items.Add(new Msg { Text = "⚠  " + w, Line = LineIn(w) });
-                if (last.Warnings.Count == 0) messages.Items.Add(new Msg { Text = "✓  Conversion réussie" });
-                status.Text = $"{last.Code.Count} pas   ·   {last.LocalLabels}/99 labels locaux   ·   pile max {last.MaxStack}/4   ·   {last.Variables.Count} variable(s) : {string.Join(" ", last.Variables)}";
+                if (last.Warnings.Count == 0) messages.Items.Add(new Msg { Text = Lang.T("✓  Conversion réussie") });
+                status.Text = Lang.F("{0} pas   ·   {1}/99 labels locaux   ·   pile max {2}/4   ·   {3} variable(s) : {4}", last.Code.Count, last.LocalLabels, last.MaxStack, last.Variables.Count, string.Join(" ", last.Variables));
 
                 string keep = entryBox.SelectedItem as string ?? preferredEntry;
                 entryBox.Items.Clear();
@@ -436,10 +437,10 @@ namespace dm42editor
             catch (Py.CompileError ex)
             {
                 last = null;
-                messages.Items.Add(new Msg { Text = ex.Line > 0 ? $"✖  Ligne {ex.Line} : {ex.Message}" : "✖  " + ex.Message, Line = ex.Line });
+                messages.Items.Add(new Msg { Text = ex.Line > 0 ? Lang.F("✖  Ligne {0} : {1}", ex.Line, ex.Message) : "✖  " + ex.Message, Line = ex.Line });
                 if (ex.Line > 0 && ex.Line <= pyBox.LinesCount) new Range(pyBox, ex.Line - 1).SetStyle(errorMark);
                 rpnBox.ForeColor = Color.FromArgb(130, RpnFore);
-                status.Text = "Erreur : le listing grisé est celui de la dernière conversion réussie.";
+                status.Text = Lang.T("Erreur : le listing grisé est celui de la dernière conversion réussie.");
             }
             messages.EndUpdate();
             pyBox.Invalidate();
@@ -527,11 +528,11 @@ namespace dm42editor
 
         void RunSimulation()
         {
-            if (last == null) { simOut.Text = "Corrigez d'abord les erreurs signalées dans les messages."; return; }
-            if (!(entryBox.SelectedItem is string entry)) { simOut.Text = "Aucun label à lancer."; return; }
+            if (last == null) { simOut.Text = Lang.T("Corrigez d'abord les erreurs signalées dans les messages."); return; }
+            if (!(entryBox.SelectedItem is string entry)) { simOut.Text = Lang.T("Aucun label à lancer."); return; }
             double[] stack, inputs;
             try { stack = Nums(stackBox.Text); inputs = Nums(inputsBox.Text); }
-            catch (FormatException) { simOut.Text = "Valeur invalide : séparez les nombres par des espaces ou des points-virgules."; return; }
+            catch (FormatException) { simOut.Text = Lang.T("Valeur invalide : séparez les nombres par des espaces ou des points-virgules."); return; }
 
             var r = Py.Simulator.Run(last.Code, entry, stack, inputs);
             var sb = new StringBuilder();
@@ -565,9 +566,9 @@ namespace dm42editor
             sb.AppendLine($"Y: {Py.Simulator.Fmt(r.Y)}");
             sb.AppendLine($"X: {Py.Simulator.Fmt(r.X)}");
             sb.AppendLine();
-            sb.Append($"{r.Steps} pas exécutés");
-            if (r.MaxCallDepth > 0) sb.Append($", {r.MaxCallDepth} niveau(x) d'appel XEQ");
-            if (r.MaxCallDepth > 8) sb.Append(" (attention : la HP-42S d'origine n'a que 8 niveaux de retour)");
+            sb.Append(Lang.F("{0} pas exécutés", r.Steps));
+            if (r.MaxCallDepth > 0) sb.Append(Lang.F(", {0} niveau(x) d'appel XEQ", r.MaxCallDepth));
+            if (r.MaxCallDepth > 8) sb.Append(Lang.T(" (attention : la HP-42S d'origine n'a que 8 niveaux de retour)"));
             simOut.Text = sb.ToString().Replace("\n", Environment.NewLine).Replace("\r\r", "\r");
         }
 
@@ -625,7 +626,7 @@ namespace dm42editor
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, ex.Message, "Ouverture impossible", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, ex.Message, Lang.T("Ouverture impossible"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -643,34 +644,34 @@ namespace dm42editor
             {
                 File.WriteAllText(currentFile, pyBox.Text, new UTF8Encoding(false));
                 pyBox.IsChanged = false;
-                status.Text = "Enregistré : " + currentFile;
+                status.Text = Lang.T("Enregistré : ") + currentFile;
                 UpdateTitle();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, ex.Message, "Enregistrement impossible", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, ex.Message, Lang.T("Enregistrement impossible"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
         void SendToEditor()
         {
-            if (last == null) { status.Text = "Rien à envoyer : corrigez d'abord les erreurs."; return; }
+            if (last == null) { status.Text = Lang.T("Rien à envoyer : corrigez d'abord les erreurs."); return; }
             string baseName = currentFile != null ? Path.GetFileNameWithoutExtension(currentFile)
                             : (progName.Text.Trim().Length > 0 ? progName.Text.Trim() : "MAIN");
             string path = currentFile != null ? Path.ChangeExtension(currentFile, ".free42") : null;
             sendToEditor?.Invoke(last.Listing(numButton.Checked, header: true), baseName + ".free42", path);
-            status.Text = $"RPN envoyé dans l'onglet « {baseName}.free42 ». Utilisez « Encoder et enregistrer en .raw » pour la DM42.";
+            status.Text = Lang.F("RPN envoyé dans l'onglet « {0}.free42 ». Utilisez « Encoder et enregistrer en .raw » pour la DM42.", baseName);
         }
 
         void CopyRpn()
         {
-            if (last == null) { status.Text = "Rien à copier : corrigez d'abord les erreurs."; return; }
+            if (last == null) { status.Text = Lang.T("Rien à copier : corrigez d'abord les erreurs."); return; }
             try
             {
                 Clipboard.SetText(last.Listing(numButton.Checked, header: true));
-                status.Text = "Listing copié. Dans Free42 : Edit → Paste Program.";
+                status.Text = Lang.T("Listing copié. Dans Free42 : Edit → Paste Program.");
             }
-            catch (Exception ex) { status.Text = "Presse-papiers indisponible : " + ex.Message; }
+            catch (Exception ex) { status.Text = Lang.T("Presse-papiers indisponible : ") + ex.Message; }
         }
 
         void UpdateTitle() =>
@@ -796,9 +797,31 @@ namespace dm42editor
         // ==================================================================
         //  Aide
         // ==================================================================
+        /// <summary>Texte à insérer pour une ligne d'aide « SIN(x) : sinus » ou « if FS(n): ... test ».</summary>
+        static string HelpSnippet(string help)
+        {
+            int i = help.IndexOf(" : ", StringComparison.Ordinal);
+            string s = i > 0 ? help.Substring(0, i) : help;
+            int j = s.IndexOf(": ...", StringComparison.Ordinal);
+            return j > 0 ? s.Substring(0, j + 1) : s;
+        }
+
+        /// <summary>Insère un appel choisi dans l'aide à l'emplacement du curseur.</summary>
+        void InsertFromHelp(string text)
+        {
+            pyBox.InsertText(text);
+            pyBox.Invalidate();
+        }
+
         public static void ShowHelp(IWin32Window owner)
         {
             var sb = new StringBuilder();
+            var snippets = new Dictionary<string, string>();   // ligne affichée -> texte inséré au double-clic
+            void Fn(string help)
+            {
+                sb.AppendLine("  " + help);
+                snippets["  " + help] = HelpSnippet(Lang.T(help));
+            }
             sb.AppendLine("PYTHON ACCEPTÉ");
             sb.AppendLine("  Nombres, variables, + - * / ** % //, parenthèses, comparaisons (chaînées), and / or / not");
             sb.AppendLine("  if / elif / else, while (+ else), for i in range(...) (+ else), break, continue, pass");
@@ -810,6 +833,25 @@ namespace dm42editor
             sb.AppendLine("  import math : sqrt sin cos tan asin acos atan atan2 sinh cosh tanh exp log log10");
             sb.AppendLine("                hypot pow max min abs int floor ceil factorial gamma radians degrees pi e");
             sb.AppendLine("  round(x, n) : arrondi à n décimales (n constant, 0 à 11) ; les demis s'éloignent de zéro, comme RND");
+            sb.AppendLine();
+            sb.AppendLine("FONCTIONS PYTHON (double-clic : insère l'appel dans le code)");
+            Fn("x = float(input(\"X ?\")) : demande une valeur → INPUT");
+            Fn("print(\"texte\", x) : affiche du texte et une valeur → ALPHA + AVIEW");
+            Fn("round(x, 2) : arrondi à n décimales, affiché en FIX n");
+            foreach (var m in new[]
+            {
+                "sqrt(x) : racine carrée → SQRT", "exp(x) : exponentielle → E↑X", "log(x) : logarithme népérien → LN",
+                "log10(x) : logarithme décimal → LOG", "sin(x) : sinus en radians", "cos(x) : cosinus en radians", "tan(x) : tangente en radians",
+                "asin(x) : arc sinus en radians", "acos(x) : arc cosinus en radians", "atan(x) : arc tangente en radians",
+                "atan2(y, x) : angle de (x, y) en radians", "hypot(x, y) : hypoténuse", "pow(x, y) : x puissance y → Y↑X",
+                "max(a, b) : le plus grand", "min(a, b) : le plus petit", "abs(x) : valeur absolue → ABS", "int(x) : partie entière → IP",
+                "floor(x) : entier inférieur", "ceil(x) : entier supérieur", "factorial(n) : factorielle → N!", "gamma(x) : fonction gamma → GAMMA",
+                "radians(x) : degrés vers radians → →RAD", "degrees(x) : radians vers degrés → →DEG",
+                "inv(A) : inverse d'une matrice", "det(A) : déterminant", "solve(A, b) : résout A·x = b", "norm(A) : norme",
+                "dot(u, v) : produit scalaire", "cross(u, v) : produit vectoriel", "rows(A) : nombre de lignes", "cols(A) : nombre de colonnes",
+                "len(v) : nombre d'éléments", "zeros(l, c) : matrice nulle → NEWMAT",
+                "varmenu(a, b, c) : menu de variables → MVAR + VARMENU", "choix = menu(\"ADD\", \"SUB\") : menu de touches, renvoie 1 à 6, 0 pour EXIT"
+            }) Fn(m);
             sb.AppendLine();
             sb.AppendLine("EXPRESSIONS");
             sb.AppendLine("  Parenthèses imbriquées sans limite : ce qui dépasse la pile à 4 niveaux est calculé");
@@ -845,9 +887,11 @@ namespace dm42editor
             sb.AppendLine("  math.sin(x) travaille toujours en radians.");
             sb.AppendLine("  Deux résultats : a, b = MEAN()  → a reçoit Y, b reçoit X (ordre de la pile).");
             sb.AppendLine("  Date JJ.MMAAAA : j, m, a = dmy(d)  → 12.052024 donne 12, 5, 2024.");
+            sb.AppendLine("  Date du jour : DMY() puis d = DATE() ; le format réglé reste actif après le programme.");
+            sb.AppendLine("  Heure : h = toHR(TIME())  → heures décimales.");
             sb.AppendLine("  Exemple : print(\"sine of\", myvar, \"is\", SIN(myvar))");
             foreach (var h in Py.Hp42.AllHelp().OrderBy(k => k.Name, StringComparer.OrdinalIgnoreCase))
-                sb.AppendLine("  " + h.Help);
+                Fn(h.Help);
             sb.AppendLine();
             sb.AppendLine("LIMITES");
             sb.AppendLine("  Pile de 4 niveaux · variables globales (les locales en conflit sont renommées) · pas de récursivité");
@@ -863,27 +907,74 @@ namespace dm42editor
 
             var f = new Form
             {
-                Text = "Aide Python → RPN",
+                Text = Lang.T("Aide Python → RPN"),
                 Size = new Size(860, 720),
                 StartPosition = FormStartPosition.CenterParent,
                 BackColor = Body,
                 ShowInTaskbar = false
             };
-            var box = new TextBox
+            var hint = new Label
             {
-                Multiline = true,
-                ReadOnly = true,
+                Dock = DockStyle.Bottom,
+                Height = 24,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(6, 0, 0, 0),
+                ForeColor = Paper,
+                Text = Lang.T("Double-clic ou Entrée sur une ligne en noir : insère l'appel à l'emplacement du curseur · Ctrl+C : copie la ligne")
+            };
+            var box = new ListBox
+            {
                 Dock = DockStyle.Fill,
-                ScrollBars = ScrollBars.Both,
-                WordWrap = false,
+                IntegralHeight = false,
+                HorizontalScrollbar = true,
+                DrawMode = DrawMode.OwnerDrawFixed,
                 Font = new Font("Consolas", 10f),
                 BackColor = Paper,
                 ForeColor = Color.FromArgb(31, 30, 27),
-                BorderStyle = BorderStyle.None,
-                Text = sb.ToString()
+                BorderStyle = BorderStyle.None
+            };
+            box.ItemHeight = box.Font.Height + 2;
+            box.Items.AddRange(sb.ToString().Split(new[] { "\r\n" }, StringSplitOptions.None).Cast<object>().ToArray());
+            // le retrait des lignes ne fait pas partie du texte traduit
+            string Shown(string line)
+            {
+                string t = line.TrimStart();
+                return line.Substring(0, line.Length - t.Length) + Lang.T(t);
+            }
+            int widest = 0;
+            foreach (object o in box.Items) widest = Math.Max(widest, TextRenderer.MeasureText(Shown((string)o), box.Font).Width);
+            box.HorizontalExtent = widest + 12;
+            // lignes insérables en noir, explications en gris, titres en gras
+            var title = new Font(box.Font, FontStyle.Bold);
+            f.FormClosed += (s, e) => title.Dispose();
+            box.DrawItem += (s, e) =>
+            {
+                if (e.Index < 0) return;
+                string line = (string)box.Items[e.Index];
+                bool selected = (e.State & DrawItemState.Selected) != 0;
+                bool head = line.Length > 0 && line[0] != ' ';
+                using (var back = new SolidBrush(selected ? Color.FromArgb(214, 226, 240) : box.BackColor))
+                    e.Graphics.FillRectangle(back, e.Bounds);
+                Color fore = head || snippets.ContainsKey(line) ? box.ForeColor : Color.FromArgb(110, 108, 100);
+                TextRenderer.DrawText(e.Graphics, Shown(line), head ? title : box.Font, e.Bounds, fore,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+            };
+            void Insert()
+            {
+                if (!(box.SelectedItem is string line) || !snippets.TryGetValue(line, out string text)) return;
+                var target = Application.OpenForms.OfType<FrmPython>().FirstOrDefault();
+                if (target == null) { hint.Text = Lang.T("Ouvrez d'abord la fenêtre Python pour insérer : ") + text; return; }
+                target.InsertFromHelp(text);
+                hint.Text = Lang.T("Inséré : ") + text;
+            }
+            box.DoubleClick += (s, e) => Insert();
+            box.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode == Keys.Enter) { Insert(); e.SuppressKeyPress = true; }
+                else if (e.Control && e.KeyCode == Keys.C && box.SelectedItem is string line && line.Length > 0) Clipboard.SetText(Lang.T(line.Trim()));
             };
             f.Controls.Add(box);
-            f.Shown += (s, e) => box.Select(0, 0);
+            f.Controls.Add(hint);
             f.Show(owner);
         }
     }

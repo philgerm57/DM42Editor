@@ -14,6 +14,7 @@ namespace dm42editor
         [STAThread]
         static void Main()
         {
+            Lang.Init();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());

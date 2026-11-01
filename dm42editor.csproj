@@ -11,7 +11,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Product>dm42editor</Product>
     <Copyright>Copyright © 2020</Copyright>
-    <Version>2.2</Version>
+    <Version>2.3</Version>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>false</SelfContained>
   </PropertyGroup>
@@ -53,6 +53,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="resources\lang_en.txt" LogicalName="lang_en.txt" />
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

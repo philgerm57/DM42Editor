@@ -25,8 +25,8 @@ namespace dm42editor.Flowchart
         public FrmFlowchart(Func<string> source, string title, Action<int> gotoLine)
         {
             this.source = source;
-            this.title = string.IsNullOrEmpty(title) ? "Programme" : title;
-            Text = "Logigramme — " + this.title;
+            this.title = string.IsNullOrEmpty(title) ? Lang.T("Programme") : title;
+            Text = Lang.T("Logigramme — ") + this.title;
             Size = new Size(1000, 800);
             StartPosition = FormStartPosition.CenterParent;
             KeyPreview = true;
@@ -73,6 +73,7 @@ namespace dm42editor.Flowchart
             if (AppTheme.Dark) AppTheme.Apply(this);
             Reload();
             UpdateZoomLabel();
+            Lang.Apply(this);
         }
 
         /// <summary>Relit le programme (aussi appelé pendant la frappe dans l'éditeur).</summary>
@@ -81,8 +82,8 @@ namespace dm42editor.Flowchart
             var g = FlowGraph.Parse(source?.Invoke() ?? "");
             view.Graph = g;
             int jumps = g.Edges.FindAll(e => e.Kind == EdgeKind.Jump).Count;
-            status.Text = $"{g.Count(NodeKind.Block)} blocs · {g.Count(NodeKind.Test)} tests · {g.Count(NodeKind.Call)} appels XEQ · {g.Count(NodeKind.IO)} entrées/sorties · {jumps} sauts   —   " +
-                          "O : condition vraie, ligne suivante exécutée · N : fausse, ligne suivante sautée · double-clic : aller à la ligne";
+            status.Text = Lang.F("{0} blocs · {1} tests · {2} appels XEQ · {3} entrées/sorties · {4} sauts   —   ", g.Count(NodeKind.Block), g.Count(NodeKind.Test), g.Count(NodeKind.Call), g.Count(NodeKind.IO), jumps) +
+                          Lang.T("O : condition vraie, ligne suivante exécutée · N : fausse, ligne suivante sautée · double-clic : aller à la ligne");
         }
 
         void SetZoom(float z)
@@ -118,9 +119,9 @@ namespace dm42editor.Flowchart
             try
             {
                 using (var bmp = Render(1.5f)) Clipboard.SetImage(bmp);
-                status.Text = "Logigramme copié dans le presse-papiers.";
+                status.Text = Lang.T("Logigramme copié dans le presse-papiers.");
             }
-            catch (Exception ex) { status.Text = "Copie impossible : " + ex.Message; }
+            catch (Exception ex) { status.Text = Lang.T("Copie impossible : ") + ex.Message; }
         }
 
         void ExportPng()
@@ -131,9 +132,9 @@ namespace dm42editor.Flowchart
                 try
                 {
                     using (var bmp = Render(2f)) bmp.Save(dlg.FileName, ImageFormat.Png);
-                    status.Text = "Enregistré : " + dlg.FileName;
+                    status.Text = Lang.T("Enregistré : ") + dlg.FileName;
                 }
-                catch (Exception ex) { MessageBox.Show(this, ex.Message, "Export impossible", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+                catch (Exception ex) { MessageBox.Show(this, ex.Message, Lang.T("Export impossible"), MessageBoxButtons.OK, MessageBoxIcon.Warning); }
             }
         }
 
@@ -164,7 +165,7 @@ namespace dm42editor.Flowchart
                     page++;
                     var g = e.Graphics;
                     using (var f = new Font("Segoe UI", 8.5f))
-                        g.DrawString($"{title} — logigramme, page {page}", f, Brushes.Gray, m.Left, m.Top);
+                        g.DrawString(Lang.F("{0} — logigramme, page {1}", title, page), f, Brushes.Gray, m.Left, m.Top);
                     var state = g.Save();
                     g.SetClip(new RectangleF(m.Left, m.Top + 20, m.Width, (cut - pageTop) * scale + 2));
                     g.TranslateTransform(m.Left, m.Top + 20);
@@ -179,7 +180,7 @@ namespace dm42editor.Flowchart
                 {
                     if (dlg.ShowDialog(this) != DialogResult.OK) return;
                     try { doc.Print(); }
-                    catch (Exception ex) { MessageBox.Show(this, ex.Message, "Impression impossible", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+                    catch (Exception ex) { MessageBox.Show(this, ex.Message, Lang.T("Impression impossible"), MessageBoxButtons.OK, MessageBoxIcon.Warning); }
                 }
             }
         }
