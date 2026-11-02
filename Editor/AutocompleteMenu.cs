@@ -14,6 +14,11 @@ namespace Dm42.Editor
         public string Text { get; }
         public string ToolTipTitle { get; set; }
         public string ToolTipText { get; set; }
+        /// <summary>Description courte, affichée en gris sur la ligne de la proposition.</summary>
+        public string Description { get; set; }
+        /// <summary>Autres écritures qui retrouvent la proposition (x<>y pour x⇄y, ABS pour |x|) ; Text est inséré.</summary>
+        public string[] Aliases { get; set; }
+        internal IEnumerable<string> Searchable => Aliases == null ? new[] { Text } : Aliases.Prepend(Text);
         public AutocompleteItem(string text) { Text = text; }
         public override string ToString() => Text;
     }
@@ -116,8 +121,15 @@ namespace Dm42.Editor
 
         bool Filter(string frag, bool forced)
         {
-            shown = items.Where(i => i.Text.StartsWith(frag, StringComparison.OrdinalIgnoreCase))
-                         .OrderBy(i => i.Text, StringComparer.OrdinalIgnoreCase).ToList();
+            // d'abord les noms qui commencent par le texte tapé, puis (dès 3 caractères) ceux qui le contiennent
+            // le nom ou une autre écriture (Aliases) commence par le texte tapé, puis (dès 3 caractères) le contient
+            bool Starts(AutocompleteItem i) => i.Searchable.Any(k => k.StartsWith(frag, StringComparison.OrdinalIgnoreCase));
+            // une écriture identique au texte tapé (pi → π) passe en tête
+            shown = items.Where(Starts).OrderBy(i => i.Searchable.Any(k => string.Equals(k, frag, StringComparison.OrdinalIgnoreCase)) ? 0 : 1)
+                         .ThenBy(i => i.Text, StringComparer.OrdinalIgnoreCase).ToList();
+            if (frag.Length >= 3)
+                shown.AddRange(items.Where(i => !Starts(i) && i.Searchable.Any(k => k.IndexOf(frag, 1, StringComparison.OrdinalIgnoreCase) > 0))
+                                    .OrderBy(i => i.Text, StringComparer.OrdinalIgnoreCase));
             if (shown.Count == 0) return false;
             if (!forced && shown.Count == 1 && string.Equals(shown[0].Text, frag, StringComparison.Ordinal)) return false;
             selected = 0;
@@ -182,7 +194,7 @@ namespace Dm42.Editor
         sealed class PopupForm : Form
         {
             readonly AutocompleteMenu menu;
-            int itemHeight, listHeight;
+            int itemHeight, listHeight, nameWidth;
             Color back, fore;
 
             public PopupForm(AutocompleteMenu menu)
@@ -223,7 +235,11 @@ namespace Dm42.Editor
                 int visible = Math.Min(MaxVisible, menu.shown.Count);
                 listHeight = visible * itemHeight + 2;
                 int longest = menu.shown.Count == 0 ? 10 : menu.shown.Max(i => i.Text.Length);
-                int width = Math.Max(220, Math.Min(520, (longest + 4) * tb.CharWidth));
+                // largeur dessinée réelle : ⇄, →, ² viennent d'une police de secours plus large que la police fixe
+                int drawn = menu.shown.Count == 0 ? 0 : menu.shown.Max(i => TextRenderer.MeasureText(i.Text, tb.Font, Size.Empty, TextFormatFlags.NoPrefix).Width);
+                nameWidth = Math.Min(drawn + 2 * tb.CharWidth, 26 * tb.CharWidth);
+                bool described = menu.shown.Any(i => !string.IsNullOrEmpty(i.Description));
+                int width = described ? Math.Max(420, Math.Min(760, nameWidth + 380)) : Math.Max(220, Math.Min(520, (longest + 4) * tb.CharWidth));
                 int helpHeight = 0;
                 var cur = Current;
                 if (cur != null && !string.IsNullOrEmpty(cur.ToolTipText))
@@ -247,8 +263,15 @@ namespace Dm42.Editor
                     var r = new Rectangle(1, 1 + i * itemHeight, Width - 2, itemHeight);
                     bool sel = index == menu.selected;
                     if (sel) using (var b = new SolidBrush(selBack)) g.FillRectangle(b, r);
-                    TextRenderer.DrawText(g, menu.shown[index].Text, Font, new Rectangle(r.X + 6, r.Y, r.Width - 8, r.Height), sel ? selFore : fore,
+                    var item = menu.shown[index];
+                    bool described = !string.IsNullOrEmpty(item.Description);
+                    TextRenderer.DrawText(g, item.Text, Font, new Rectangle(r.X + 6, r.Y, (described ? nameWidth : r.Width) - 8, r.Height), sel ? selFore : fore,
                                           TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
+                    if (described)
+                        using (var small = new Font("Segoe UI", 8.5f))
+                            TextRenderer.DrawText(g, item.Description, small, new Rectangle(r.X + 6 + nameWidth, r.Y, r.Width - nameWidth - 14, r.Height),
+                                                  sel ? selFore : Color.FromArgb((fore.R * 3 + back.R * 2) / 5, (fore.G * 3 + back.G * 2) / 5, (fore.B * 3 + back.B * 2) / 5),
+                                                  TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
                 }
                 if (menu.shown.Count > MaxVisible)
                 {

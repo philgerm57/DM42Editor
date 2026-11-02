@@ -12,15 +12,21 @@ dotnet run --project C47.Cli -- test G:/c47/c43
 
 La syntaxe suit les listings `.p47u` de `rejig` et les exports `XPORTP` :
 
-- `LBL ‘NOM’`, `STO 01`, `RCL →X`, `XEQ IND 05`, `FS? .01` ; plusieurs pas possibles par ligne (`5 3 +`).
-- Nombres : `5` (entier long), `1.5e3` (réel), `111#2` ou `3₁₆` (entier court), `1.5°` (angle).
+- `LBL ‘NOM’`, `STO R01`, `RCL R.02`, `RCL →R05`, `XEQ IND 05`, `FS? F01`, `TONE 08` ; plusieurs pas possibles par ligne (`5 3 +`).
+  Le décodeur écrit comme les listings `.p47u` récents (`R07`, `F01`, deux chiffres au moins) ; l'encodeur accepte aussi
+  la forme de l'écran de la calculatrice (`STO 07`, `FS? 01`, `TONE 8`).
+- Nombres : `5` (entier long), `1.5e3` (réel), `3₁₆` ou `111#2` (entier court), `1.5°` (angle). Comme le firmware actuel,
+  `₁₆` range un entier de 8 caractères ou plus en binaire ; `#16` le garde en texte, comme les programmes plus anciens.
 - Chaîne : `‘TEXTE’`, `"TEXTE"` ou `'TEXTE'`.
-- `# texte` reste dans le programme (pas `REM`) ; `@ texte` et `; texte` sont ignorés.
+- `# texte` reste dans le programme (pas `REM`, que le décodeur écrit aussi `# texte`) ; `@ texte` et `; texte` sont ignorés.
 - Les noms de `items.c` (`x≠ ?`) et les noms courants (`X≠0?`, `X<>Y`, `SQRT`) sont acceptés : voir `C47.Core/c47_alias.tsv`.
 - Les glyphes propres à la police C47 s'écrivent en clair : indices et exposants sans caractère Unicode en `_abc` / `^abc`
   (`kⓑ` → `k_B`, `STOⓜ` → `STO_M`), `⧰` en `yˣ`, sans les espaces fines (`iℝ`, `RWDOT⋅`). Quand `c47_alias.tsv`
   donne l'orthographe des listings `.p47u`, elle l'emporte (`Draw_y^x`, `FORyˣ`, `∫^x_y`, `CLLCDxy`).
   Le décodeur et l'aide utilisent ces noms ; les codes de la police restent acceptés.
+- Écriture au clavier : `x<>y`, `->R05` ou `-> R05`, `X^2`, `Y^X`, `1/X`, `STO*`, `STO/`, `X<=Y?`, `X!=0?`, `R^`, `Rv`
+  donnent `x⇄y`, `→R05`, `x²`, `yˣ`, `1/x`, `STO×`, `STO÷`, `x≤? Y`, `x≠? 0.`, `R↑`, `R↓` ; la casse est ignorée quand une
+  seule instruction correspond (`abs`, `sqrt`, `lastx`). L'autocomplétion de l'éditeur reconnaît aussi ces écritures.
 - `IF`, `ELSE`, `DO`, etc. sont numérotés automatiquement comme le fait `VALID`.
 - `⟦hex⟧` insère des octets bruts : le décodeur s'en sert pour les littéraux binaires.
 - `ITM:n` désigne une instruction par son numéro quand plusieurs partagent un nom.

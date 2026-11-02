@@ -16,7 +16,18 @@ namespace dm42editor
         internal static IEnumerable<Item> Listed() =>
             Items.Programmable.Where(i => i.Kind != ParamKind.Literal && i.Name.Trim() != "" && !i.Name.StartsWith(">"));
 
+        /// <summary>Paramètre accepté en indirect : →R05 (adresse dans un registre) ou →‘nom’ (dans une variable), comme decodeOp.</summary>
+        internal static bool AcceptsIndirect(Item i) => i.Kind is ParamKind.Label or ParamKind.Register or ParamKind.Compare or ParamKind.Flag
+            or ParamKind.Number8 or ParamKind.Number8_16 or ParamKind.Number16 or ParamKind.KeyGKeyX or ParamKind.Menu;
+
+        /// <summary>Nature du paramètre, suivie de « ou →indirect » quand l'instruction accepte l'indirection.</summary>
         internal static string ParamHint(Item i)
+        {
+            string hint = ParamKindHint(i);
+            return hint != "" && AcceptsIndirect(i) ? hint + Lang.T(", ou →indirect") : hint;
+        }
+
+        static string ParamKindHint(Item i)
         {
             switch (i.Kind)
             {
@@ -59,7 +70,8 @@ namespace dm42editor
             string text = Items.Describe(i);
             return i.Shown + (hint != "" ? "   [" + hint + "]" : "") + "   ·   " + Lang.T(h.Category) + "\r\n"
                  + (text != "" ? text : Lang.T("Pas de description."))
-                 + (text != h.Description && h.Description != "" ? "\r\n\r\nEN : " + h.Description : "");
+                 + (text != h.Description && h.Description != "" ? "\r\n\r\nEN : " + h.Description : "")
+                 + (AcceptsIndirect(i) ? "\r\n\r\n" + Lang.F("Indirection : {0} →R05 prend l'adresse dans le registre 05, {0} →‘nom’ dans la variable nom (IND 05 est aussi accepté).", i.Shown) : "");
         }
 
         /// <summary>Ouvre la liste ; insert reçoit le texte à insérer dans l'onglet C47 courant.</summary>

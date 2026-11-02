@@ -12,6 +12,10 @@
 - **Conversion HP-41C → DM42** de la syntaxe (registres de pile, arguments à deux chiffres, etc.).
 - **Python → RPN** (Py42) : écrire le programme en Python, obtenir le listing HP-42S et le simuler avant de l'envoyer.
 - **RPN C47** : des onglets C47 dans le même éditeur (Fichier > Nouveau programme C47, ou ouverture d'un `.p47` / `.p47u`) ; coloration, erreurs signalées pendant la saisie, liste des instructions par domaine (aussi dans Aide > Instructions C47), « Encoder et enregistrer en .p47 » et visualisation des octets (voir [C47/README.md](C47/README.md)).
+- **Aide à la saisie** : infobulle sur le mot survolé (instruction, registre `R07`, indicateur `F01`, nombre, remarque…),
+  autocomplétion dès deux lettres avec une courte description, et recherche par nom ou description au-dessus de la liste des fonctions.
+  Pour la C47 : barre de symboles (→ ⇄ ≤ ≥ ≠ × ÷ ² ˣ √ π…), remplacement pendant la frappe (`->` → `→`, `<>` → `⇄`, `<=` → `≤`,
+  `^2` → `²`, sauf dans les textes et commentaires), et écritures au clavier acceptées (`x<>y`, `abs`, `STO*`).
 - **Envoi vers l'émulateur** Free42 / Plus42 (F7), dont le chemin se règle dans les paramètres.
 - Aide intégrée : liste des fonctions HP-42S et documentation PDF dans une visionneuse WebView2.
 

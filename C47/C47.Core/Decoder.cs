@@ -61,7 +61,10 @@ public static class Decoder
             case ParamKind.Rem:
             {
                 if (d[i++] != Lbl) throw new NotSupportedException();
-                return Items.Unique(item) + " ‘" + Str(d, ref i) + "’";
+                string text = Str(d, ref i);
+                // « # texte » comme les listings .p47u, sauf si l'encodeur ne le relirait pas à l'identique
+                if (Items.Unique(item) == "REM" && text == text.Trim() && !text.Contains('\n')) return text == "" ? "#" : "# " + text;
+                return Items.Unique(item) + " ‘" + text + "’";
             }
             case ParamKind.KeyGKeyX:
             {
@@ -83,16 +86,17 @@ public static class Decoder
 
     internal static string Register(int p)
     {
-        if (p < 100) return p.ToString("00");
+        if (p < 100) return "R" + p.ToString("00");
         if (p <= 111) return Lettered1[p - 100].ToString();
-        if (p <= 210) return "." + (p - 112).ToString("00");
+        if (p <= 210) return "R." + (p - 112).ToString("00");
         if (p <= 224) return Lettered2[p - 211].ToString();
         throw new NotSupportedException();
     }
 
     static string LabelValue(int p) => p <= 99 ? p.ToString("00") : p <= 111 ? ((char)('A' + p - 100)).ToString() : ((char)('a' + p - 112)).ToString();
 
-    static string Width(int v, int max) => v.ToString(max <= 9 ? "0" : max <= 99 ? "00" : max <= 999 ? "000" : "0000");
+    // deux chiffres au moins, comme les listings .p47u (TONE 08) ; la calculatrice affiche TONE 8
+    static string Width(int v, int max) => v.ToString(max <= 99 ? "00" : max <= 999 ? "000" : "0000");
 
     static string Param(byte[] d, ref int i, Item item, ParamKind kind)
     {
@@ -116,9 +120,9 @@ public static class Decoder
                 if (p == Val1) return "1.";
                 return Indirect(d, ref i, p);
             case ParamKind.Flag:
-                if (p < 100) return p.ToString("00");
+                if (p < 100) return "F" + p.ToString("00");
                 if (p <= 111) return Lettered1[p - 100].ToString();
-                if (p <= 143) return "." + (p - 112).ToString("00");
+                if (p <= 143) return "F." + (p - 112).ToString("00");
                 if (p >= 211 && p <= 224) return Lettered2[p - 211].ToString();
                 if (p == SysFlag)
                 {
@@ -157,6 +161,9 @@ public static class Decoder
     internal static bool IsOldParam16(int op) =>
         op == Items.Const("ITM_BESTF_OLD") || op == Items.Const("ITM_RNG_OLD") || op == Items.Const("ITM_YY_DFLT_OLD") || op == Items.Const("ITM_DENMAX2_OLD");
 
+    /// <summary>Base en indices, comme les listings .p47u (3₁₆).</summary>
+    static string Subscript(int b) => string.Concat(b.ToString().Select(c => (char)('₀' + c - '0')));
+
     static string Literal(byte[] d, ref int i, int start)
     {
         int t = d[i++];
@@ -165,7 +172,19 @@ public static class Decoder
             case 7:
             {
                 int b = d[i++];
-                return Str(d, ref i) + "#" + b;
+                string s = Str(d, ref i);
+                // 8 caractères ou plus rangés en texte (firmware ancien) : # pour que l'encodeur garde cette forme
+                return s.Length >= 8 && s[0] != '-' ? s + "#" + b : s + Subscript(b);
+            }
+            case 1 when d[i] is >= 2 and <= 16:
+            {
+                // entier court binaire : base puis valeur sur 8 octets ; écrit 00000123₁₆ pour être réencodé en binaire
+                int b = d[i++];
+                ulong v = BitConverter.ToUInt64(d, i);
+                i += 8;
+                var digits = new StringBuilder();
+                do { digits.Insert(0, "0123456789ABCDEF"[(int)(v % (ulong)b)]); v /= (ulong)b; } while (v > 0);
+                return digits.ToString().PadLeft(8, '0') + Subscript(b);
             }
             case 8:
             case 9:

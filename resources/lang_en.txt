@@ -425,3 +425,50 @@ Envoi annulé.	Sending cancelled.
 Nouveau programme HP42	New HP42 program
 Tout ouvrir	Expand all
 Tout fermer	Collapse all
+Remarque : reste dans le programme (pas REM).	Remark: kept in the program (not REM).
+Paramètre de {0}	Parameter of {0}
+Comparaison avec la valeur {0}	Comparison with the value {0}
+Étiquette globale {0}	Global label {0}
+Étiquette locale {0}	Local label {0}
+Adressage indirect : l'adresse est dans la variable {0}	Indirect addressing: the address is in variable {0}
+Adressage indirect : l'adresse est dans le registre {0}	Indirect addressing: the address is in register {0}
+Indicateur système {0}	System flag {0}
+Variable nommée {0}	Named variable {0}
+Indicateur local {0}	Local flag {0}
+Indicateur {0}	Flag {0}
+Registre local {0} (créé par LocR)	Local register {0} (created by LocR)
+Registre {0}	Register {0}
+Registre {0} de la pile	Stack register {0}
+Registre L (LASTx)	Register L (LASTx)
+Registre lettré {0}	Lettered register {0}
+Entier court en base {0}	Short integer in base {0}
+Entier long	Long integer
+Nombre réel	Real number
+Angle	Angle
+Rechercher une fonction : nom ou description…	Search a function: name or description…
+Calculatrice par défaut	Default calculator
+Fichier > Ouvrir présente d'abord les fichiers DM42 (*.s42) ou les programmes C47 (*.p47, *.p47u)	File > Open shows DM42 files (*.s42) or C47 programs (*.p47, *.p47u) first
+, ou →indirect	, or →indirect
+Indirection : {0} →R05 prend l'adresse dans le registre 05, {0} →‘nom’ dans la variable nom (IND 05 est aussi accepté).	Indirection: {0} →R05 takes the address from register 05, {0} →‘name’ from variable name (IND 05 is also accepted).
+Indirection : le paramètre qui suit (R05, ‘nom’) contient l'adresse réelle.	Indirection: the following parameter (R05, ‘name’) holds the actual address.
+Symboles C47 :	C47 symbols:
+Au clavier : {0}	Keyboard: {0}
+Indirection (RCL →R05), conversions (→POLAR)	Indirection (RCL →R05), conversions (→POLAR)
+Échange (x⇄y, x⇄ R05)	Exchange (x⇄y, x⇄ R05)
+Test inférieur ou égal (x≤?)	Less or equal test (x≤?)
+Test supérieur ou égal (x≥?)	Greater or equal test (x≥?)
+Test différent (x≠?)	Not equal test (x≠?)
+Multiplication (STO×, RCL×)	Multiplication (STO×, RCL×)
+Division (STO÷, RCL÷)	Division (STO÷, RCL÷)
+Carré (x²)	Square (x²)
+Cube (x³)	Cube (x³)
+Puissance (yˣ, 10ˣ)	Power (yˣ, 10ˣ)
+Racine (√x)	Root (√x)
+Pi	Pi
+Constante e (ⅇˣ)	Constant e (ⅇˣ)
+Valeur absolue	Absolute value
+Vers le haut (R↑)	Up (R↑)
+Vers le bas (R↓)	Down (R↓)
+Somme (Σ+, Σ-)	Sum (Σ+, Σ-)
+Texte ou nom : ‘LBL’ (le curseur se place entre les guillemets)	Text or name: ‘LBL’ (the cursor goes between the quotes)
+Impossible d'enregistrer les paramètres dans {0}\n{1}	Unable to save the settings to {0}\n{1}

@@ -155,7 +155,7 @@ public static partial class Encoder
             throw new Fail($"Instruction inconnue : {tok}");
         }
         // X≠0? : le test sur 0 ou Y porte son paramètre dans le nom
-        if (used == 1 && Items.AliasParam.TryGetValue(Items.Normalize(tok), out var implied))
+        if (used == 1 && Items.ImpliedParam(tok) is { } implied)
         {
             Op(o, item.Number);
             k++;
@@ -222,12 +222,13 @@ public static partial class Encoder
         }
     }
 
-    /// <summary>Paramètre suivant ; la forme HP-42S « IND 05 » devient →05.</summary>
+    /// <summary>Paramètre suivant ; la forme HP-42S « IND 05 » et la flèche détachée « → R05 » deviennent →05.</summary>
     static string Need(List<string> t, ref int k, Item item)
     {
         if (k >= t.Count) throw new Fail($"{item.Shown} : paramètre manquant");
         string p = t[k++];
-        if (p == "IND" && k < t.Count) return "→" + t[k++];
+        if (p.StartsWith("->")) p = "→" + p[2..];   // flèche tapée au clavier
+        if ((p == "IND" || p == "→") && k < t.Count) return "→" + t[k++];
         return p;
     }
 
@@ -413,7 +414,7 @@ public static partial class Encoder
 
     static string Trim0(string v) => v.EndsWith('.') ? v[..^1] : v;
 
-    static bool IsNumber(string t) => Regex.IsMatch(t, @"^-?\d+$") || Regex.IsMatch(t, @"^-?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$") || Regex.IsMatch(t, @"^-?[0-9A-F]+#\d+$");
+    static bool IsNumber(string t) => Regex.IsMatch(t, @"^-?\d+$") || Regex.IsMatch(t, @"^-?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$") || Regex.IsMatch(t, @"^-?[0-9A-F]+(#\d+|[₀-₉]+)$");
 
     /// <summary>Type puis contenu d'un littéral (decodeLiteral) ; null si ce n'est pas un littéral.</summary>
     static byte[]? LiteralBytes(string t)
@@ -425,6 +426,18 @@ public static partial class Encoder
         {
             int b = int.Parse(m.Groups[2].Success ? m.Groups[2].Value : string.Concat(m.Groups[3].Value.Select(c => (char)('0' + c - '₀'))));
             if (b < 2 || b > 16) throw new Fail($"Base invalide : {b}");
+            string digits = m.Groups[1].Value;
+            // 123₁₆ (listings .p47u) suit le firmware actuel : 8 caractères ou plus sont rangés en binaire
+            // (BINARY_SHORT_INTEGER, manage.c) ; 123#16 reste en texte, comme dans les programmes plus anciens
+            if (m.Groups[3].Success && digits.Length >= 8 && digits[0] != '-')
+            {
+                ulong v = 0;
+                foreach (char c in digits) v = unchecked(v * (ulong)b + (ulong)Convert.ToInt32(c.ToString(), 16));
+                o.Add(1);
+                o.Add((byte)b);
+                o.AddRange(BitConverter.GetBytes(v));
+                return o.ToArray();
+            }
             o.Add(7);
             o.Add((byte)b);
             PutStr(o, m.Groups[1].Value);

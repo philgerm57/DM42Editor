@@ -558,6 +558,7 @@ namespace dm42editor
         {
 
             ofdMain.Filter = Lang.T("Fichier free42 (*.free42)| *.free42|Fichier dm42 (*.s42)|*.s42|Fichier HP42s (*.hp42s)|*.hp42s|Fichier raw (*.raw)|*.raw|Programmes C47 (*.p47;*.p47u)|*.p47;*.p47u|Tous les fichiers (*.*) | *.*");
+            ofdMain.FilterIndex = Emulator.DefaultC47 ? 5 : 2;   // calculatrice par défaut (Paramètres) : programmes C47 ou fichiers dm42 (*.s42)
             // ouverture d'un programme
             if (ofdMain.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
@@ -793,10 +794,14 @@ namespace dm42editor
 
                 tb.KeyDown += new KeyEventHandler(tb_KeyDown);
                 tb.MouseMove += new MouseEventHandler(tb_MouseMove);
+                tb.MouseLeave += (s, e) => HideHint();
+                tb.KeyDown += (s, e) => HideHint();
+                tb.TextChanged += (s, e) => HideHint();
                 ApplyEditorColors(tb);
                 //create autocomplete popup menu
                 AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
                 popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
+                tb.KeyPressed += (s, e) => AutoReplaceSymbol(tb, e.KeyChar);   // -> devient → (Form1.Symbols.cs)
                 if (c47) BuildC47Autocomplete(popupMenu);
                 else BuildAutocompleteMenu(popupMenu);
                 (tb.Tag as TbInfo).popupMenu = popupMenu;
@@ -860,6 +865,7 @@ namespace dm42editor
             var tb = sender as CodeEditor;
             var place = tb.PointToPlace(e.Location);
             var r = new Range(tb, place, place);
+            UpdateHint(tb, e.Location);   // infobulle du mot survolé (Form1.Hints.cs)
             if (IsC47(tb)) { lbWordUnderMouse.Text = C47Status(tb, place.iLine); return; }   // erreur de la ligne survolée
             string text = r.GetFragment("[a-zA-Z]").Text;
             lbWordUnderMouse.Text = text;
@@ -1358,7 +1364,11 @@ namespace dm42editor
             List<AutocompleteItem> items = new List<AutocompleteItem>();
 
             foreach (var item in keywords)
-                items.Add(new AutocompleteItem(item));
+            {
+                // description de liste_fonctions.csv, d'après le premier mot (ARCL IND ST -> ARCL)
+                Dm42Functions.TryGetValue(item.Split(' ')[0], out var f);
+                items.Add(new AutocompleteItem(item) { Description = f.Description, ToolTipText = f.Description });
+            }
 
             //set as autocomplete source
             popupMenu.SetItems(items);

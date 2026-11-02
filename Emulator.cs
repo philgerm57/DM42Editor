@@ -23,7 +23,15 @@ namespace dm42editor
 
         static string path;
         static string c47Path;
+        static bool c47First;
         static bool loaded;
+
+        /// <summary>Calculatrice par défaut : le dialogue Ouvrir présente d'abord les programmes C47 plutôt que les fichiers DM42 (*.s42).</summary>
+        public static bool DefaultC47
+        {
+            get { Load(); return c47First; }
+            set { Load(); c47First = value; Save(); }
+        }
 
         /// <summary>Émulateur C47 / R47 (c47.exe, r47.exe ou un lanceur .cmd) : reçoit les .p47 dans son dossier PROGRAMS.</summary>
         public static string C47Path
@@ -54,6 +62,7 @@ namespace dm42editor
                     {
                         if (l.StartsWith("Chemin=")) path = l.Substring(7).Trim();
                         else if (l.StartsWith("C47=")) c47Path = l.Substring(4).Trim();
+                        else if (l.StartsWith("Defaut=")) c47First = l.Substring(7).Trim() == "C47";
                     }
                 }
                 else
@@ -75,7 +84,7 @@ namespace dm42editor
             try
             {
                 Directory.CreateDirectory(folder);
-                File.WriteAllLines(SettingsFile, new[] { "Chemin=" + (path ?? ""), "C47=" + (c47Path ?? "") });
+                File.WriteAllLines(SettingsFile, new[] { "Chemin=" + (path ?? ""), "C47=" + (c47Path ?? ""), "Defaut=" + (c47First ? "C47" : "DM42") });
             }
             catch (Exception) { /* dossier inaccessible : réglage non mémorisé */ }
         }

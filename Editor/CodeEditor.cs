@@ -499,6 +499,16 @@ namespace Dm42.Editor
             return Clamp(new Place(ch, line));
         }
 
+        /// <summary>Caractère sous le point (infobulles), ou null hors du texte.</summary>
+        public Place? CharAt(Point p)
+        {
+            int line = (p.Y + ScrollY) / lineHeight;
+            int x = p.X + ScrollX - TextLeft;
+            if (p.Y < 0 || x < 0 || line >= lines.Count) return null;
+            int ch = x / charWidth;
+            return ch < lines[line].Text.Length ? new Place(ch, line) : (Place?)null;
+        }
+
         Point PlaceToPoint(Place p) => new Point(TextLeft + p.iChar * charWidth - ScrollX, p.iLine * lineHeight - ScrollY);
 
         /// <summary>Position du curseur dans le contrôle (haut de la ligne).</summary>

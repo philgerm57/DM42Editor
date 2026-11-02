@@ -9,13 +9,16 @@ namespace dm42editor
     /// <summary>Fichier → « Convertir la syntaxe HP-41 → DM42… » : aperçu des changements, puis application (Ctrl+Z annule).</summary>
     public partial class Form1
     {
+        /// <summary>Conversion HP-41 → DM42 du menu Fichier et du menu contextuel : grisée sur un onglet C47 (SyncWithTabType).</summary>
+        ToolStripMenuItem hp41Menu, hp41Popup;
+
         private void InitHp41Menu()
         {
-            var item = new ToolStripMenuItem(Lang.T("Convertir la syntaxe HP-41 → DM42…"), null, (s, e) => ConvertHp41())
+            var item = hp41Menu = new ToolStripMenuItem(Lang.T("Convertir la syntaxe HP-41 → DM42…"), null, (s, e) => ConvertHp41())
             { ShortcutKeys = Keys.Control | Keys.Shift | Keys.H };
             int at = fileToolStripMenuItem.DropDownItems.IndexOf(toolStripMenuItem2);   // avant « Encoder et enregistrer en .raw »
             fileToolStripMenuItem.DropDownItems.Insert(at < 0 ? fileToolStripMenuItem.DropDownItems.Count : at, item);
-            cmMain.Items.Add(new ToolStripMenuItem(Lang.T("Convertir la syntaxe HP-41 → DM42…"), null, (s, e) => ConvertHp41()) { ShortcutKeyDisplayString = "Ctrl+Maj+H" });
+            cmMain.Items.Add(hp41Popup = new ToolStripMenuItem(Lang.T("Convertir la syntaxe HP-41 → DM42…"), null, (s, e) => ConvertHp41()) { ShortcutKeyDisplayString = "Ctrl+Maj+H" });
 
             // envoi vers l'émulateur réglé dans Paramètres (Free42, Plus42…)
             var send = new ToolStripMenuItem(Lang.T("Envoyer vers l'émulateur"), null, (s, e) => SendToEmulator()) { ShortcutKeys = Keys.F7 };
@@ -39,6 +42,7 @@ namespace dm42editor
         {
             var tb = CurrentTB;
             if (tb == null) { MessageBox.Show(this, Lang.T("Ouvrez d'abord un programme."), Lang.T("Conversion HP-41")); return; }
+            if (IsC47(tb)) return;   // syntaxe HP-42S seulement : la C47 a ses propres noms
             var changes = new List<Hp41Converter.Change>();
             string converted = Hp41Converter.Convert(tb.Text, changes);
             if (changes.Count == 0)

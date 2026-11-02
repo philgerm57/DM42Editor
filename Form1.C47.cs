@@ -25,7 +25,7 @@ namespace dm42editor
                                   "LBL ‘CARRE’\r\n" +
                                   "  # calcule x² et le range en R00\r\n" +
                                   "  ENTER ×\r\n" +
-                                  "  STO 00\r\n" +
+                                  "  STO R00\r\n" +
                                   "  RTN\r\n" +
                                   "END\r\n";
 
@@ -51,6 +51,9 @@ namespace dm42editor
             helpToolStripMenuItem.DropDownItems.Insert(at + 1, new ToolStripMenuItem("Instructions C47", null, (s, e) => C47Help.Show(this, InsertInC47Tab)));
 
             InitFunctionListMenu();
+            InitFunctionFilter();
+            InitHints();
+            InitSymbolBar();
             SyncWithTabType();   // liste HP-42S rangée en sections dès le démarrage
         }
 
@@ -143,10 +146,15 @@ namespace dm42editor
 
         void BuildC47Autocomplete(AutocompleteMenu popupMenu)
         {
-            popupMenu.SetItems(C47Help.Listed().Where(i => i.Shown.Length > 1).GroupBy(i => i.Shown).Select(g => g.First())
+            popupMenu.SetItems(C47Help.Listed().Where(i => i.Shown.Length > 1 || Items.TypedForms(i).Any()).GroupBy(i => i.Shown).Select(g => g.First())
                                       .OrderBy(i => i.Shown, StringComparer.OrdinalIgnoreCase)
-                                      .Select(i => new AutocompleteItem(i.Shown) { ToolTipText = Items.Describe(i) }));
-            popupMenu.SearchPattern = @"[\w\.\?→]";
+                                      .Select(i => new AutocompleteItem(i.Shown)
+                                      {
+                                          Description = C47Help.Short(i, 60), ToolTipText = Items.Describe(i),
+                                          Aliases = Items.TypedForms(i).ToArray(),   // x<>y, ABS, ->POLAR… retrouvent x⇄y, |x|, →POLAR
+                                      }));
+            // tout sauf les blancs, textes et commentaires : x<>, ->, |x|, STO* font partie du mot tapé
+            popupMenu.SearchPattern = @"[^\s‘’""'@;]";
         }
 
         // ------------------------------------------------------------------
@@ -290,6 +298,8 @@ namespace dm42editor
             toolStripMenuItem2.Text = encodeAndSaveRAWToolStripMenuItem.Text = encode;
             viewRawDataToolStripMenuItem.Text = Lang.T(c47 ? "Voir les octets .p47" : "Voir les octets .raw");
             viewCodeLineToolStripMenuItem.Enabled = toolStripMenuItem8.Enabled = !c47;   // numérotation des pas HP-42S
+            if (symbolBar != null) symbolBar.Visible = c47;                               // barre de symboles C47
+            if (hp41Menu != null) hp41Menu.Enabled = hp41Popup.Enabled = !c47;          // conversion HP-41 → DM42
             if (listShowsC47 == c47) return;
 
             if (dm42Functions == null) dm42Functions = GroupDm42Functions(out dm42Groups);
@@ -300,12 +310,15 @@ namespace dm42editor
             // mêmes objets de section à chaque retour : une section ouverte le reste
             ListViewFct.Groups.AddRange(c47 ? c47Groups : dm42Groups);
             ListViewFct.ShowGroups = true;
-            ListViewFct.Items.AddRange(c47 ? c47Functions : dm42Functions);
             ListViewFct.EndUpdate();
             listShowsC47 = c47;
+            FillFunctionList();   // en gardant le texte cherché (Form1.Hints.cs)
         }
 
         ListViewGroup[] dm42Groups, c47Groups;
+
+        /// <summary>Section de chaque fonction : la liste l'oublie quand un élément la quitte (filtre), FillFunctionList la remet.</summary>
+        static readonly Dictionary<ListViewItem, ListViewGroup> itemGroups = new Dictionary<ListViewItem, ListViewGroup>();
 
         /// <summary>Sections repliables, fermées au départ ; le titre donne le nombre d'instructions.</summary>
         static ListViewGroup[] MakeGroups(IEnumerable<ListViewItem> items, Func<ListViewItem, string> category)
@@ -317,7 +330,7 @@ namespace dm42editor
                 if (members.Count == 0) continue;
                 var g = new ListViewGroup(c, "") { Tag = Lang.T(c) + "  (" + members.Count + ")" };
                 SetGroupState(g, true);
-                foreach (var it in members) it.Group = g;
+                foreach (var it in members) it.Group = itemGroups[it] = g;
                 groups.Add(g);
             }
             return groups.ToArray();

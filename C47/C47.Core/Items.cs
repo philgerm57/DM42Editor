@@ -77,6 +77,7 @@ public static class Items
             if (!byName.TryGetValue(Normalize(param ? parts[0] : f[1]), out var target)) throw new InvalidDataException("c47_alias.tsv : cible inconnue " + f[1]);
             if (byName.TryAdd(Normalize(f[0]), target) && param) AliasParam[Normalize(f[0])] = parts[1];
             else if (!param) rejig.TryAdd(target.Number, C47Text.Plain(f[0]));
+            if (!param) (aliases.TryGetValue(target.Number, out var l) ? l : aliases[target.Number] = new()).Add(C47Text.Plain(f[0]));
         }
         // nom en clair accepté par l'encodeur ; s'il désigne déjà une autre instruction, on garde le glyphe
         foreach (var item in ByNumber.Values.OrderBy(i => i.Number))
@@ -114,10 +115,92 @@ public static class Items
             if (l.Length > 0) yield return l;
     }
 
+    /// <summary>
+    /// Instruction d'après son nom ; à défaut, d'après son écriture au clavier (x<>y, ->, X^2, STO*, R^)
+    /// puis sans tenir compte des majuscules quand une seule instruction correspond (abs, lastx).
+    /// </summary>
     public static Item? Find(string name)
     {
         if (name.StartsWith("ITM:") && int.TryParse(name[4..], out int n)) return ByNumber.GetValueOrDefault(n);
-        return byName.TryGetValue(Normalize(name), out var i) ? i : null;
+        if (byName.TryGetValue(Normalize(name), out var i)) return i;
+        var spellings = Spellings(name).ToList();
+        foreach (var s in spellings)
+            if (byName.TryGetValue(Normalize(s), out i)) return i;
+        foreach (var s in spellings.Prepend(name))
+            if (ByLower.TryGetValue(Normalize(s).ToLowerInvariant(), out i) && i != null) return i;
+        return null;
+    }
+
+    /// <summary>Paramètre implicite d'un test HP-42S (X≠0? → x≠? 0.), y compris écrit au clavier (X#0?, x<=0?).</summary>
+    public static string? ImpliedParam(string name)
+    {
+        if (AliasParam.TryGetValue(Normalize(name), out var exact)) return exact;
+        if (byName.ContainsKey(Normalize(name))) return null;   // nom d'instruction exact : pas de paramètre implicite
+        foreach (var s in Spellings(name))
+            if (AliasParam.TryGetValue(Normalize(s), out var p)) return p;
+        foreach (var s in Spellings(name))
+            foreach (var kv in AliasParam)
+                if (kv.Key.ToLowerInvariant() == Normalize(s).ToLowerInvariant()) return kv.Value;
+        return null;
+    }
+
+    static readonly Dictionary<int, List<string>> aliases = new();
+
+    /// <summary>
+    /// Écritures au clavier d'une instruction, pour l'autocomplétion : alias de c47_alias.tsv (ABS, X<>Y, SQRT)
+    /// et nom affiché en ASCII (x<>y, ->POLAR, STO*, x^2).
+    /// </summary>
+    public static IEnumerable<string> TypedForms(Item i)
+    {
+        var forms = new List<string>(aliases.GetValueOrDefault(i.Number) ?? []);
+        string a = i.Shown;
+        foreach (var (ascii, symbol) in asciiSymbols) if (ascii != "^x") a = a.Replace(symbol, ascii);
+        a = a.Replace("÷", "/").Replace("√", "sqrt").Replace("π", "pi").Replace("ⅇ", "e").Replace("↑", "^");
+        if (a != i.Shown) forms.Add(a);
+        forms.AddRange(asciiNames.Where(kv => Find(kv.Value) == i).Select(kv => kv.Key));   // R^, RDN…
+        return forms.Where(f => f != i.Shown).Distinct();
+    }
+
+    /// <summary>Suites de caractères ASCII et leur symbole C47, dans l'ordre d'essai.</summary>
+    static readonly (string Ascii, string Symbol)[] asciiSymbols =
+    [
+        ("<->", "↔"), ("->", "→"), ("<-", "←"), ("<>", "⇄"), ("<=", "≤"), (">=", "≥"), ("!=", "≠"),
+        ("^-1", "⁻¹"), ("^2", "²"), ("^3", "³"), ("^X", "ˣ"), ("^x", "ˣ"), ("*", "×"),
+    ];
+
+    /// <summary>Noms HP-42S écrits en ASCII qui n'ont pas d'équivalent par simple substitution.</summary>
+    static readonly Dictionary<string, string> asciiNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["R^"] = "R↑", ["RUP"] = "R↑", ["RV"] = "R↓", ["RDN"] = "R↓", ["/"] = "÷", ["E^X-1"] = "eˣ-1",
+    };
+
+    /// <summary>Écritures de remplacement d'un nom tapé au clavier : symboles ASCII remplacés, / final en ÷ (STO/).</summary>
+    public static IEnumerable<string> Spellings(string name)
+    {
+        if (asciiNames.TryGetValue(name, out var direct)) yield return direct;
+        string s = name;
+        foreach (var (a, b) in asciiSymbols) s = s.Replace(a, b);
+        if (s != name) yield return s;
+        if (s.Length > 1 && s.EndsWith('/')) yield return s[..^1] + "÷";
+    }
+
+    static Dictionary<string, Item?>? byLower;
+
+    /// <summary>Noms en minuscules ; null quand plusieurs instructions ne diffèrent que par la casse (sinh / SINH…).</summary>
+    static Dictionary<string, Item?> ByLower
+    {
+        get
+        {
+            if (byLower != null) return byLower;
+            var d = new Dictionary<string, Item?>();
+            foreach (var (key, item) in byName)
+            {
+                string k = key.ToLowerInvariant();
+                if (d.TryGetValue(k, out var other) && other != item) d[k] = null;
+                else d.TryAdd(k, item);
+            }
+            return byLower = d;
+        }
     }
 
     static Dictionary<int, (string Category, string Description, string French)>? help;

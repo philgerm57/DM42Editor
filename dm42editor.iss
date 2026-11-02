@@ -111,7 +111,8 @@ Name: "desktopicon_py"; Description: "{cm:PyDesktop}"; GroupDescription: "{cm:Ad
 
 [Files]
 ; --- DM42editor (dossier principal). Les PDF vont dans doc\ ; liste_fonctions.csv reste à côté de l'exe.
-Source: "{#Build}dm42editor\*"; DestDir: "{app}"; Excludes: "*.pdf,*.pdb"; Components: main; Flags: ignoreversion recursesubdirs createallsubdirs
+; param.json n'est pas livré : les réglages vivent dans %LOCALAPPDATA%\dm42editor (Program Files n'est pas modifiable).
+Source: "{#Build}dm42editor\*"; DestDir: "{app}"; Excludes: "*.pdf,*.pdb,param.json"; Components: main; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; --- Py42 dans un sous-dossier séparé
 Source: "{#Build}Py42\*"; DestDir: "{app}\Py42"; Excludes: "*.pdb"; Components: py42; Flags: ignoreversion recursesubdirs createallsubdirs

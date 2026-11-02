@@ -100,6 +100,16 @@ namespace dm42editor
             grid.SetColumnSpan(langBox, 2);
             r++;
 
+            // type de programme présenté d'abord par Fichier > Ouvrir
+            grid.Controls.Add(L("Calculatrice par défaut"), 0, r);
+            var calcBox = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 240, Anchor = AnchorStyles.Left };
+            calcBox.Items.AddRange(new object[] { "DM42 / HP-42S", "C47 / R47" });
+            calcBox.SelectedIndex = Emulator.DefaultC47 ? 1 : 0;
+            new ToolTip().SetToolTip(calcBox, Lang.T("Fichier > Ouvrir présente d'abord les fichiers DM42 (*.s42) ou les programmes C47 (*.p47, *.p47u)"));
+            grid.Controls.Add(calcBox, 1, r);
+            grid.SetColumnSpan(calcBox, 2);
+            r++;
+
             Span(L("Couleurs du code RPN", true));
             grid.Controls.Add(L("Schéma"), 0, r);
             schemaBox.Items.AddRange(SchemaNames);
@@ -224,6 +234,7 @@ namespace dm42editor
                 Param.SaveParam();
                 if (emulatorBox.Text.Trim() != Emulator.ExePath) Emulator.ExePath = emulatorBox.Text;
                 if (c47Box.Text.Trim() != Emulator.C47Path) Emulator.C47Path = c47Box.Text;
+                if ((calcBox.SelectedIndex == 1) != Emulator.DefaultC47) Emulator.DefaultC47 = calcBox.SelectedIndex == 1;
                 if (langCodes[langBox.SelectedIndex] != Lang.Setting)
                 {
                     Lang.Setting = langCodes[langBox.SelectedIndex];
@@ -433,9 +444,17 @@ namespace dm42editor
 
         }
 
+        /// <summary>
+        /// param.json dans %LOCALAPPDATA%\dm42editor, avec langue.ini et emulateur.ini : le dossier d'installation
+        /// (Program Files) n'est pas modifiable sans droits administrateur.
+        /// </summary>
+        static string ParamFile => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "dm42editor", "param.json");
+
         public void LoadParam()
         {
-            DeserializeParam(ref parameters, "param.json");
+            // reprise du param.json des versions précédentes, rangé à côté de l'exe
+            string old = Path.Combine(Application.StartupPath, "param.json");
+            DeserializeParam(ref parameters, File.Exists(ParamFile) ? ParamFile : old);
             // param.json d'une version sans couleur des tests : couleur par défaut selon le fond
             for (int i = 0; i < parameters.Params.Count; i++)
             {
@@ -446,7 +465,15 @@ namespace dm42editor
 
         public void SaveParam()
         {
-            SerializeParam(parameters, "param.json");
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(ParamFile));
+                SerializeParam(parameters, ParamFile);
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                MessageBox.Show(Lang.F("Impossible d'enregistrer les paramètres dans {0}\n{1}", ParamFile, ex.Message), Lang.T("Erreur"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         // BinaryFormatter n'existe plus en .NET 9+ : les paramètres sont sauvés en JSON
