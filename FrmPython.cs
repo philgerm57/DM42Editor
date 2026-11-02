@@ -706,7 +706,7 @@ namespace dm42editor
         /// Rendu sombre : le rendu Windows standard surligne en bleu ciel, sur lequel le texte blanc
         /// de la barre d'outils devient illisible.
         /// </summary>
-        sealed class HpRenderer : ToolStripProfessionalRenderer
+        internal sealed class HpRenderer : ToolStripProfessionalRenderer
         {
             public const string ShiftKey = "shift";
 

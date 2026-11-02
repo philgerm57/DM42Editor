@@ -29,6 +29,7 @@ namespace dm42editor
         {
             var tb = CurrentTB;
             if (tb == null) { MessageBox.Show(this, Lang.T("Ouvrez d'abord un programme."), Lang.T("Émulateur")); return; }
+            if (IsC47(tb)) { SendC47ToSimulator(tb); return; }   // Form1.C47.cs
             string listing = Emulator.CleanListing(tb.Text, out int steps);
             if (steps == 0) { lbWordUnderMouse.Text = Lang.T("Rien à envoyer : l'onglet ne contient pas d'instruction."); return; }
             lbWordUnderMouse.Text = Emulator.Send(this, listing, steps);

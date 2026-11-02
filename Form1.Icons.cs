@@ -15,6 +15,7 @@ namespace dm42editor
         {
             // Fichier
             ["Nouveau programme"] = "new",
+            ["Nouveau programme HP42"] = "new",
             ["Ouvrir un programme…"] = "open",
             ["Enregistrer"] = "save",
             ["Enregistrer sous…"] = "save",
@@ -32,6 +33,9 @@ namespace dm42editor
             ["Afficher l'éditeur Python"] = "window",
             ["Exemples"] = "examples",
             ["Aide Python → RPN"] = "help",
+            // C47 (Fichier et Aide)
+            ["Nouveau programme C47"] = "new",
+            ["Instructions C47"] = "list",
             // Aide
             ["Équivalences"] = "list",
             ["Aide PDF"] = "pdf",

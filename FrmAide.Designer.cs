@@ -58,7 +58,7 @@
             label1.Name = "label1";
             label1.Size = new System.Drawing.Size(236, 39);
             label1.TabIndex = 2;
-            label1.Text = "Free42 Editor";
+            label1.Text = "DM42 / C47 Editor";
             // 
             // label2
             // 

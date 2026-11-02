@@ -14,7 +14,7 @@ namespace dm42editor
     public partial class Form1
     {
         static readonly Regex ProgLineNo = new Regex(@"^\s*(\d+)(?:▸|▶|>|\s+)");
-        static readonly Regex LblRegex = new Regex(@"\bLBL\s+(""[^""]*""|\d{2}|[A-Ja-e])(?=\s|$)");
+        static readonly Regex LblRegex = new Regex(@"\bLBL\s+(""[^""]*""|‘[^’]*’|\d{2}|[A-Ja-e])(?=\s|$)");   // ‘…’ : étiquettes C47
 
         /// <summary>
         /// Lignes de code du programme : (numéro de pas, ligne de texte 0-based).

@@ -22,7 +22,15 @@ namespace dm42editor
         static string SettingsFile => Path.Combine(folder, "emulateur.ini");
 
         static string path;
+        static string c47Path;
         static bool loaded;
+
+        /// <summary>Émulateur C47 / R47 (c47.exe, r47.exe ou un lanceur .cmd) : reçoit les .p47 dans son dossier PROGRAMS.</summary>
+        public static string C47Path
+        {
+            get { Load(); return c47Path ?? ""; }
+            set { Load(); c47Path = string.IsNullOrWhiteSpace(value) ? null : value.Trim(); Save(); }
+        }
 
         /// <summary>Chemin complet de l'exécutable de l'émulateur (vide : pas encore choisi).</summary>
         public static string ExePath
@@ -43,7 +51,10 @@ namespace dm42editor
                 if (File.Exists(SettingsFile))
                 {
                     foreach (var l in File.ReadAllLines(SettingsFile))
+                    {
                         if (l.StartsWith("Chemin=")) path = l.Substring(7).Trim();
+                        else if (l.StartsWith("C47=")) c47Path = l.Substring(4).Trim();
+                    }
                 }
                 else
                 {
@@ -54,6 +65,7 @@ namespace dm42editor
                             if (l.StartsWith("Free42=") && l.Length > 7) path = l.Substring(7).Trim();
                 }
                 if (string.IsNullOrEmpty(path)) path = null;
+                if (string.IsNullOrEmpty(c47Path)) c47Path = null;
             }
             catch (Exception) { /* réglage illisible : pas d'émulateur */ }
         }
@@ -63,7 +75,7 @@ namespace dm42editor
             try
             {
                 Directory.CreateDirectory(folder);
-                File.WriteAllLines(SettingsFile, new[] { "Chemin=" + (path ?? "") });
+                File.WriteAllLines(SettingsFile, new[] { "Chemin=" + (path ?? ""), "C47=" + (c47Path ?? "") });
             }
             catch (Exception) { /* dossier inaccessible : réglage non mémorisé */ }
         }
@@ -146,6 +158,90 @@ namespace dm42editor
                 SetForegroundWindow(h);
             }
             return Lang.F("Listing de {0} pas copié. Dans {1} : mode PRGM (⇧ R/S) puis Ctrl+V — le programme est ajouté à la fin de la mémoire.", steps, DisplayName);
+        }
+
+        /// <summary>Filtre du choix de l'émulateur C47, partagé avec les paramètres.</summary>
+        public static string C47Filter => Lang.T("Émulateur C47 / R47|c47*.exe;r47*.exe;*.cmd|Programmes (*.exe;*.cmd)|*.exe;*.cmd");
+
+        /// <summary>Demande l'émulateur C47 ; true si un fichier a été choisi.</summary>
+        public static bool ChooseC47(IWin32Window owner)
+        {
+            using (var dlg = new OpenFileDialog { Title = Lang.T("Choisir l'émulateur C47 (c47.exe, r47.exe ou lancer_c47.cmd)"), Filter = C47Filter })
+            {
+                if (C47Path.Length > 0 && Directory.Exists(Path.GetDirectoryName(C47Path)))
+                {
+                    dlg.InitialDirectory = Path.GetDirectoryName(C47Path);
+                    dlg.FileName = Path.GetFileName(C47Path);
+                }
+                if (dlg.ShowDialog(owner) != DialogResult.OK) return false;
+                C47Path = dlg.FileName;
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Range le programme dans le dossier PROGRAMS de l'émulateur C47 puis l'affiche (le lance s'il n'est pas ouvert).
+        /// L'émulateur C47 ne charge pas de programme au démarrage : il reste READP à faire. Renvoie un message pour la barre d'état.
+        /// </summary>
+        public static string SendC47(IWin32Window owner, byte[] p47File, string name)
+        {
+            string sim = C47Path;
+            if (sim.Length == 0 || !File.Exists(sim))
+            {
+                if (!ChooseC47(owner)) return Lang.T("Aucun émulateur C47 choisi (Fichier → Paramètres).");
+                sim = C47Path;
+            }
+            string folder = Path.GetDirectoryName(sim);
+            string target = Path.Combine(folder, "PROGRAMS", name + ".p47");
+            // le dossier PROGRAMS contient souvent les programmes d'exemple : pas d'écrasement sans accord
+            try
+            {
+                if (File.Exists(target) && !File.ReadAllBytes(target).AsSpan().SequenceEqual(p47File)
+                    && MessageBox.Show(owner, Lang.F("Remplacer {0} ?\n\nCe fichier existe déjà dans le dossier PROGRAMS de l'émulateur C47.", target),
+                                       Lang.T("Émulateur"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                    return Lang.T("Envoi annulé.");
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException) { /* illisible : l'écriture dira pourquoi */ }
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(target));
+                File.WriteAllBytes(target, p47File);
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                MessageBox.Show(owner, Lang.F("Impossible d'écrire {0}\n{1}", target, ex.Message), Lang.T("Émulateur"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return Lang.T("Programme non copié.");
+            }
+
+            // émulateur de ce dossier déjà ouvert ? (le lanceur .cmd démarre c47.exe ou r47.exe à côté de lui)
+            var running = new[] { "c47", "r47" }.SelectMany(Process.GetProcessesByName).FirstOrDefault(p =>
+            {
+                try { return p.MainWindowHandle != IntPtr.Zero && string.Equals(Path.GetDirectoryName(p.MainModule?.FileName), folder, StringComparison.OrdinalIgnoreCase); }
+                catch (Exception) { return false; }
+            });
+            if (running != null)
+            {
+                IntPtr h = running.MainWindowHandle;
+                if (IsIconic(h)) ShowWindow(h, 9);   // SW_RESTORE
+                SetForegroundWindow(h);
+            }
+            else
+            {
+                try
+                {
+                    var start = sim.EndsWith(".cmd", StringComparison.OrdinalIgnoreCase) || sim.EndsWith(".bat", StringComparison.OrdinalIgnoreCase)
+                        ? new ProcessStartInfo("cmd.exe", "/c \"\"" + sim + "\"\"") { UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = folder }
+                        : new ProcessStartInfo(sim) { UseShellExecute = true, WorkingDirectory = folder };
+                    Process.Start(start);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(owner, Lang.F("Impossible de lancer {0} :\n{1}\n\nChoisissez l'émulateur C47 dans Fichier → Paramètres.", sim, ex.Message),
+                                    Lang.T("Émulateur"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return Lang.F("{0}.p47 copié dans PROGRAMS, mais l'émulateur C47 n'a pas pu être lancé.", name);
+                }
+            }
+            return Lang.F("{0}.p47 copié dans {1}. Dans l'émulateur C47 : READP puis choisissez ce fichier.", name, Path.GetDirectoryName(target));
         }
 
         /// <summary>Texte d'un onglet prêt à coller : sans commentaires ni lignes vides ; renvoie aussi le nombre de pas.</summary>

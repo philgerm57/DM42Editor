@@ -7,13 +7,15 @@
 ;  Le setup est créé dans _setup\.
 ;
 ;  Dossier installé :
-;    {app}\              DM42editor (éditeur RPN, .raw, simulateur, menu Python)
+;    {app}\              DM42editor (éditeur RPN DM42 et C47, .raw, .p47, simulateur, menu Python)
 ;    {app}\Py42\         Py42 (éditeur Python → RPN autonome)
 ;    {app}\doc\          manuels PDF + notice Py42
 ;    {app}\exemples\     programmes .raw et exemples Python
 ; ===========================================================================
 
-#define MyAppName "DM42editor"
+#define MyAppName "DM42 C47 Editor"
+; dossier d'installation et groupe du menu Démarrer inchangés : une mise à jour remplace la version précédente
+#define MyAppDir "DM42editor"
 ; chemins relatifs à ce fichier (dm42editor\) : rien n'est lié à la lettre G:
 #define Root AddBackslash(SourcePath) + "..\"
 #define Build Root + "_build\"
@@ -45,8 +47,8 @@ AppVersion={#MyAppVersion}
 AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 VersionInfoVersion={#MyAppVersion}
-DefaultDirName={autopf}\{#MyAppName}
-DefaultGroupName={#MyAppName}
+DefaultDirName={autopf}\{#MyAppDir}
+DefaultGroupName={#MyAppDir}
 DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\{#MyAppExeName}
 UninstallDisplayName={#MyAppName} {#MyAppVersion}
@@ -133,6 +135,9 @@ Name: "{autodesktop}\{cm:PyIcon}"; Filename: "{app}\Py42\{#PyExeName}"; WorkingD
 [InstallDelete]
 ; anciennes versions : les PDF étaient installés à côté de l'exe
 Type: files; Name: "{app}\*.pdf"
+; raccourcis de l'ancien nom, avant « DM42 C47 Editor »
+Type: files; Name: "{group}\DM42editor.lnk"
+Type: files; Name: "{autodesktop}\DM42editor.lnk"
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Description: "{cm:LaunchProgram,{#DoubleAmp(MyAppName)}}"; Flags: nowait postinstall skipifsilent

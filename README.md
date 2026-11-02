@@ -1,6 +1,6 @@
-# DM42 Editor
+# DM42 / C47 Editor
 
-Éditeur Windows de programmes pour calculatrices **SwissMicros DM42**, **HP-42S** et les émulateurs **Free42 / Plus42**.
+Éditeur Windows de programmes pour calculatrices **SwissMicros DM42**, **HP-42S**, les émulateurs **Free42 / Plus42**, et pour la **C47 / R47**.
 
 ![Éditeur de programme RPN](docs/editeur.png)
 
@@ -11,6 +11,7 @@
 - **Logigramme** à la manière des feuilles de programmation HP-41C : losanges pour les tests (O / N), blocs d'instructions, appels `XEQ` à double barre, entrées / sorties en parallélogramme, colonne de commentaires. Mis à jour pendant la saisie.
 - **Conversion HP-41C → DM42** de la syntaxe (registres de pile, arguments à deux chiffres, etc.).
 - **Python → RPN** (Py42) : écrire le programme en Python, obtenir le listing HP-42S et le simuler avant de l'envoyer.
+- **RPN C47** : des onglets C47 dans le même éditeur (Fichier > Nouveau programme C47, ou ouverture d'un `.p47` / `.p47u`) ; coloration, erreurs signalées pendant la saisie, liste des instructions par domaine (aussi dans Aide > Instructions C47), « Encoder et enregistrer en .p47 » et visualisation des octets (voir [C47/README.md](C47/README.md)).
 - **Envoi vers l'émulateur** Free42 / Plus42 (F7), dont le chemin se règle dans les paramètres.
 - Aide intégrée : liste des fonctions HP-42S et documentation PDF dans une visionneuse WebView2.
 

@@ -26,6 +26,7 @@ namespace dm42editor
         readonly ComboBox schemaBox = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 200 };
         readonly CheckBox darkBox = new CheckBox { Text = "Thème sombre (menus, panneaux et fenêtres)", AutoSize = true };
         readonly TextBox emulatorBox = new TextBox { Width = 200 };
+        readonly TextBox c47Box = new TextBox { Width = 200 };
         readonly List<Button> swatches = new List<Button>();
         readonly List<CheckBox> bolds = new List<CheckBox>();
         bool loading;
@@ -132,8 +133,8 @@ namespace dm42editor
             }
 
             // émulateur qui reçoit les programmes (F7) : Free42, Plus42 ou autre
-            Span(L("Émulateur (F7 : envoyer le programme)", true));
-            grid.Controls.Add(L("Programme"), 0, r);
+            Span(L("Émulateurs (F7 : envoyer le programme)", true));
+            grid.Controls.Add(L("Émulateur HP42"), 0, r);
             emulatorBox.Text = Emulator.ExePath;
             grid.Controls.Add(emulatorBox, 1, r);
             var browse = new Button { Text = "Parcourir…", AutoSize = true };
@@ -174,6 +175,31 @@ namespace dm42editor
             emuButtons.Controls.Add(detect);
             grid.Controls.Add(emuButtons, 2, r++);
 
+            // émulateur C47 / R47 : reçoit les .p47 des onglets C47 (F7) dans son dossier PROGRAMS
+            grid.Controls.Add(L("Émulateur C47"), 0, r);
+            c47Box.Text = Emulator.C47Path;
+            grid.Controls.Add(c47Box, 1, r);
+            string c47Tip = Lang.T("c47.exe, r47.exe ou le lanceur lancer_c47.cmd ; F7 copie le .p47 dans son dossier PROGRAMS puis l'affiche");
+            void ShowC47End() { c47Box.Select(c47Box.Text.Length, 0); c47Box.ScrollToCaret(); tip.SetToolTip(c47Box, c47Box.Text.Length > 0 ? c47Box.Text : c47Tip); }
+            c47Box.TextChanged += (s, e) => ShowC47End();
+            Shown += (s, e) => ShowC47End();
+            var browseC47 = new Button { Text = "Parcourir…", AutoSize = true };
+            tip.SetToolTip(browseC47, c47Tip);
+            browseC47.Click += (s, e) =>
+            {
+                using (var dlg = new OpenFileDialog { Title = Lang.T("Choisir l'émulateur C47 (c47.exe, r47.exe ou lancer_c47.cmd)"), Filter = Emulator.C47Filter })
+                {
+                    string cur = c47Box.Text.Trim();
+                    if (cur.Length > 0 && Directory.Exists(Path.GetDirectoryName(cur)))
+                    {
+                        dlg.InitialDirectory = Path.GetDirectoryName(cur);
+                        dlg.FileName = Path.GetFileName(cur);
+                    }
+                    if (dlg.ShowDialog(this) == DialogResult.OK) c47Box.Text = dlg.FileName;
+                }
+            };
+            grid.Controls.Add(browseC47, 2, r++);
+
             schemaBox.SelectedIndexChanged += (s, e) =>
             {
                 if (loading) return;
@@ -197,6 +223,7 @@ namespace dm42editor
                 Param.parameters = Copy(work);
                 Param.SaveParam();
                 if (emulatorBox.Text.Trim() != Emulator.ExePath) Emulator.ExePath = emulatorBox.Text;
+                if (c47Box.Text.Trim() != Emulator.C47Path) Emulator.C47Path = c47Box.Text;
                 if (langCodes[langBox.SelectedIndex] != Lang.Setting)
                 {
                     Lang.Setting = langCodes[langBox.SelectedIndex];

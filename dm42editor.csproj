@@ -9,9 +9,9 @@
     <ApplicationIcon>Projet1.ico</ApplicationIcon>
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
-    <Product>dm42editor</Product>
+    <Product>DM42 / C47 Editor</Product>
     <Copyright>Copyright © 2020</Copyright>
-    <Version>2.3</Version>
+    <Version>2.4</Version>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>false</SelfContained>
   </PropertyGroup>
@@ -27,6 +27,13 @@
     </ItemGroup>
   </Target>
 
+  <!-- projets C47 compilés à part : leurs sources ne font pas partie de l'éditeur -->
+  <ItemGroup>
+    <Compile Remove="C47\**" />
+    <EmbeddedResource Remove="C47\**" />
+    <None Remove="C47\**" />
+  </ItemGroup>
+
   <!-- librairies tierces compilées pour .NET Framework -->
   <ItemGroup>
     <Reference Include="TabStrip">
@@ -40,6 +47,7 @@
   <!-- Python -> RPN (menu Python) -->
   <ItemGroup>
     <ProjectReference Include="..\Py42\Py42.Core\Py42.Core.csproj" />
+    <ProjectReference Include="C47\C47.Core\C47.Core.csproj" />
   </ItemGroup>
 
   <!-- fichiers de données copiés à côté de l'exe -->
@@ -77,7 +85,7 @@
   <!-- fichiers partiels de Form1 et fenêtre Python construite en code : ouverts en code, pas dans le Concepteur
        (sinon Visual Studio crée un .resx en double, ex. Form1.Goto.resx → erreur MSB3577) -->
   <ItemGroup>
-    <Compile Update="Form1.Goto.cs;Form1.Python.cs;Form1.Flowchart.cs;Form1.Hp41.cs;Form1.Icons.cs;FrmPython.cs;FrmPython.Extras.cs">
+    <Compile Update="Form1.Goto.cs;Form1.Python.cs;Form1.Flowchart.cs;Form1.Hp41.cs;Form1.Icons.cs;FrmPython.cs;FrmPython.Extras.cs;Form1.C47.cs;C47Help.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

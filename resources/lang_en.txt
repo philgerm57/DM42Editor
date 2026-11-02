@@ -1,0 +1,427 @@
+Fichier	File
+Nouveau programme	New program
+Ouvrir un programme…	Open a program…
+Enregistrer	Save
+Enregistrer sous…	Save as…
+Tout enregistrer	Save all
+Paramètres…	Settings…
+Encoder et enregistrer en .raw…	Encode and save as .raw…
+Imprimer le code…	Print the code…
+Quitter	Quit
+Aide	Help
+Équivalences	Equivalences
+Aide PDF	PDF help
+À propos	About
+&Nouveau	&New
+&Ouvrir	&Open
+&Enregistrer	&Save
+&Imprimer	&Print
+Co&uper	C&ut
+&Copier	&Copy
+C&oller	&Paste
+Surligner la ligne du curseur	Highlight the cursor line
+Annuler (Ctrl+Z)	Undo (Ctrl+Z)
+Rétablir (Ctrl+Y)	Redo (Ctrl+Y)
+Position précédente (Ctrl+ -)	Previous position (Ctrl+ -)
+Position suivante (Ctrl+Maj+ -)	Next position (Ctrl+Shift+ -)
+Ajouter un signet (Ctrl+B)	Add a bookmark (Ctrl+B)
+Retirer le signet (Ctrl+Maj+B)	Remove the bookmark (Ctrl+Shift+B)
+Rechercher : 	Find: 
+Afficher les numéros de pas	Show step numbers
+Masquer les numéros de pas	Hide step numbers
+Aller à…	Go to…
+Couper	Cut
+Copier	Copy
+Copier sans les commentaires	Copy without comments
+Coller	Paste
+Tout sélectionner	Select all
+Annuler	Cancel
+Rétablir	Redo
+Rechercher…	Find…
+Remplacer…	Replace…
+Voir les octets .raw	View .raw bytes
+Repère	Marker
+Ligne	Line
+Fonction	Function
+Désignation	Description
+Touche	Key
+Page d'aide	Help page
+Groupe	Group
+Nom	Name
+Page	Page
+Fonctions/équivalences	Functions/equivalences
+Fermer	Close
+Importer et exporter des programmes depuis et vers la DM42, Free42 et Python	Import and export programs from/to DM42, Free42 and Python
+Commentaire	Comment
+Code RPN	RPN code
+Octets .raw	.raw bytes
+Erreur	Error
+Erreur !	Error!
+Vous devez d'abord enregistrer le fichier !	You must save the file first!
+Fichier free42 (*.free42)| *.free42|Fichier dm42 (*.s42)|*.s42|Fichier HP42s (*.hp42s)|*.hp42s|Fichier raw (*.raw)|*.raw|Tous les fichiers (*.*) | *.*	free42 file (*.free42)| *.free42|dm42 file (*.s42)|*.s42|HP42s file (*.hp42s)|*.hp42s|Raw file (*.raw)|*.raw|All files (*.*) | *.*
+Erreur de conversion du code RPN !\n\n	Error converting the RPN code!\n\n
+Enregistrer en fichier .raw	Save as .raw file
+Fichier RAW (*.raw)|*.raw	RAW file (*.raw)|*.raw
+Aucun programme !	No program!
+Octet raw invalide « {0} » : conversion abandonnée.	Invalid raw byte "{0}": conversion aborted.
+Impossible d'écrire {0}\n{1}	Unable to write {0}\n{1}
+Enregistrer {0} ?	Save {0}?
+Enregistrer le fichier free42	Save free42 file
+Fichier free42 (*.free42)|*.free42|Fichier dm42 (*.s42)|*.s42	free42 file (*.free42)|*.free42|dm42 file (*.s42)|*.s42
+Aucune ligne de programme dans cet onglet.	No program line in this tab.
+Aller à la ligne de programme	Go to program line
+Numéro de ligne ({0} à {1}) :	Line number ({0} to {1}):
+La ligne {0} n'existe pas dans ce programme.	Line {0} does not exist in this program.
+Aller à la ligne de programme…	Go to program line…
+Convertir la syntaxe HP-41 → DM42…	Convert HP-41 syntax → DM42…
+Envoyer vers l'émulateur	Send to the emulator
+Ouvrez d'abord un programme.	Open a program first.
+Émulateur	Emulator
+Rien à envoyer : l'onglet ne contient pas d'instruction.	Nothing to send: the tab has no instruction.
+Conversion HP-41	HP-41 conversion
+Aucune écriture HP-41 à convertir dans ce programme.	No HP-41 syntax to convert in this program.
+Conversion HP-41 → DM42	HP-41 → DM42 conversion
+Remarque	Note
+⚠ inchangé	⚠ unchanged
+{0} ligne(s) à convertir	{0} line(s) to convert
+, {0} instruction(s) sans équivalent à revoir à la main	, {0} instruction(s) with no equivalent to review by hand
+.   Ctrl+Z dans l'éditeur annule la conversion.	.   Ctrl+Z in the editor undoes the conversion.
+Appliquer	Apply
+Logigramme du programme…	Program flowchart…
+Aligner les commentaires	Align comments
+Ouvrez d'abord un programme RPN.	Open an RPN program first.
+Logigramme	Flowchart
+Programme	Program
+Nouveau programme Python	New Python program
+Ouvrir un fichier Python…	Open a Python file…
+Afficher l'éditeur Python	Show the Python editor
+Exemples	Examples
+Aide Python → RPN	Python → RPN help
+Noir	Black
+Blanc	White
+Personnalisé 1	Custom 1
+Personnalisé 2	Custom 2
+Fond de page	Page background
+Instructions (mots-clés)	Instructions (keywords)
+Nombres	Numbers
+Textes "…"	Text "…"
+Commentaires	Comments
+Tests (X<Y?, FS?…)	Tests (X<Y?, FS?…)
+Ligne du curseur	Cursor line
+Thème sombre (menus, panneaux et fenêtres)	Dark theme (menus, panels and windows)
+Paramètres	Settings
+Apparence	Appearance
+Couleurs du code RPN	RPN code colours
+Schéma	Scheme
+Valeurs par défaut	Defaults
+Gras	Bold
+Émulateurs (F7 : envoyer le programme)	Emulators (F7: send the program)
+Parcourir…	Browse…
+Détecter	Detect
+Exécutable de l'émulateur : Free42Decimal.exe, Free42Binary.exe, Plus42Decimal.exe…	Emulator executable: Free42Decimal.exe, Free42Binary.exe, Plus42Decimal.exe…
+Reprend l'émulateur Free42 / Plus42 actuellement ouvert	Uses the Free42 / Plus42 emulator currently open
+Choisir l'émulateur (Free42, Plus42…)	Choose the emulator (Free42, Plus42…)
+Émulateurs HP-42S|Free42*.exe;Plus42*.exe|Programmes (*.exe)|*.exe	HP-42S emulators|Free42*.exe;Plus42*.exe|Programs (*.exe)|*.exe
+Aucun Free42 ni Plus42 ouvert. Lancez l'émulateur puis cliquez de nouveau sur « Détecter », ou utilisez « Parcourir… ».	No Free42 or Plus42 open. Start the emulator and click "Detect" again, or use "Browse…".
+L'éditeur se met à jour en direct.	The editor updates live.
+Langue	Language
+Automatique (langue de Windows)	Automatic (Windows language)
+La nouvelle langue sera appliquée au prochain démarrage de l'application.	The new language will apply the next time the application starts.
+Fichier PDF introuvable :\n	PDF file not found:\n
+Le runtime Microsoft Edge WebView2 n'est pas installé.\nTéléchargez-le sur https://developer.microsoft.com/microsoft-edge/webview2/	The Microsoft Edge WebView2 runtime is not installed.\nDownload it from https://developer.microsoft.com/microsoft-edge/webview2/
+l'émulateur	the emulator
+Presse-papiers indisponible : 	Clipboard unavailable: 
+Listing copié. Ouvrez l'émulateur, passez en mode PRGM puis Ctrl+V.	Listing copied. Open the emulator, switch to PRGM mode, then Ctrl+V.
+Impossible de lancer {0} :\n{1}\n\nChoisissez l'émulateur dans Fichier → Paramètres.	Unable to start {0}:\n{1}\n\nChoose the emulator in File → Settings.
+Listing copié, mais l'émulateur n'a pas pu être lancé.	Listing copied, but the emulator could not be started.
+Listing de {0} pas copié. Dans {1} : mode PRGM (⇧ R/S) puis Ctrl+V — le programme est ajouté à la fin de la mémoire.	Listing of {0} steps copied. In {1}: PRGM mode (⇧ R/S) then Ctrl+V — the program is added at the end of memory.
+Impression impossible	Printing failed
+Ligne {0} : {1}	Line {0}: {1}
+Respecter la casse	Match case
+Mot entier	Whole word
+Remplacer par	Replace with
+Remplacer	Replace
+Tout remplacer	Replace all
+Rechercher	Find
+Suivant	Next
+Précédent	Previous
+Expression invalide : 	Invalid expression: 
+Introuvable.	Not found.
+{0} occurrence(s)	{0} occurrence(s)
+{0} remplacement(s)	{0} replacement(s)
+Logigramme — 	Flowchart — 
+Actualiser	Refresh
+Relire le programme (F5)	Reload the program (F5)
+Réduire (Ctrl+molette)	Zoom out (Ctrl+wheel)
+Agrandir (Ctrl+molette)	Zoom in (Ctrl+wheel)
+Taille réelle	Actual size
+Largeur	Width
+Ajuster à la largeur de la fenêtre	Fit to window width
+Copier l'image	Copy image
+Copier le logigramme dans le presse-papiers	Copy the flowchart to the clipboard
+Exporter PNG…	Export PNG…
+Enregistrer le logigramme en image	Save the flowchart as an image
+Imprimer…	Print…
+Imprimer le logigramme (Ctrl+P)	Print the flowchart (Ctrl+P)
+{0} blocs · {1} tests · {2} appels XEQ · {3} entrées/sorties · {4} sauts   —   	{0} blocks · {1} tests · {2} XEQ calls · {3} inputs/outputs · {4} jumps   — 
+O : condition vraie, ligne suivante exécutée · N : fausse, ligne suivante sautée · double-clic : aller à la ligne	O: condition true, next line executed · N: false, next line skipped · double-click: go to the line
+Logigramme copié dans le presse-papiers.	Flowchart copied to the clipboard.
+Copie impossible : 	Copy failed: 
+Enregistré : 	Saved: 
+Export impossible	Export failed
+{0} — logigramme, page {1}	{0} — flowchart, page {1}
+Effacer	Clear
+Efface toute la page Python (Ctrl+Z pour annuler)	Clears the whole Python page (Ctrl+Z to undo)
+Label global du programme principal (7 caractères max)	Global label of the main program (7 characters max)
+Ajoute RAD au début si le programme utilise la trigonométrie (Python calcule en radians)	Adds RAD at the start if the program uses trigonometry (Python works in radians)
+Noms de variables et de labels en majuscules	Variable and label names in upper case
+N° ligne	Line no.
+Numéros de ligne dans le listing	Line numbers in the listing
+Émulateur  F7	Emulator  F7
+Python accepté et commandes HP42S	Accepted Python and HP42S commands
+Valeurs mises sur la pile avant l'appel, la dernière va dans X (ex. : 12 18)	Values put on the stack before the call, the last goes in X (e.g. 12 18)
+Réponses dans l'ordre : INPUT, prompt(), VARMENU (une par variable), menu() (n° de touche, 0 = EXIT), GETKEY	Answers in order: INPUT, prompt(), VARMENU (one per variable), menu() (key number, 0 = EXIT), GETKEY
+Lancer	Run
+Pile	Stack
+✓  Conversion réussie	✓  Conversion succeeded
+{0} pas   ·   {1}/99 labels locaux   ·   pile max {2}/4   ·   {3} variable(s) : {4}	{0} steps   ·   {1}/99 local labels   ·   max stack {2}/4   ·   {3} variable(s): {4}
+✖  Ligne {0} : {1}	✖  Line {0}: {1}
+Erreur : le listing grisé est celui de la dernière conversion réussie.	Error: the greyed listing is from the last successful conversion.
+Corrigez d'abord les erreurs signalées dans les messages.	First fix the errors shown in the messages.
+Aucun label à lancer.	No label to run.
+Valeur invalide : séparez les nombres par des espaces ou des points-virgules.	Invalid value: separate numbers with spaces or semicolons.
+{0} pas exécutés	{0} steps executed
+, {0} niveau(x) d'appel XEQ	, {0} XEQ call level(s)
+ (attention : la HP-42S d'origine n'a que 8 niveaux de retour)	 (warning: the original HP-42S only has 8 return levels)
+Ouverture impossible	Open failed
+Enregistrement impossible	Save failed
+Rien à envoyer : corrigez d'abord les erreurs.	Nothing to send: fix the errors first.
+RPN envoyé dans l'onglet « {0}.free42 ». Utilisez « Encoder et enregistrer en .raw » pour la DM42.	RPN sent to tab "{0}.free42". Use "Encode and save as .raw" for the DM42.
+Rien à copier : corrigez d'abord les erreurs.	Nothing to copy: fix the errors first.
+Listing copié. Dans Free42 : Edit → Paste Program.	Listing copied. In Free42: Edit → Paste Program.
+Écran LCD (défaut)	LCD screen (default)
+Sombre	Dark
+Papier	Paper
+Contraste	Contrast
+Effacer la sélection	Clear selection
+Commenter / décommenter	Comment / uncomment
+Effacer toute la page…	Clear the whole page…
+Copier le message	Copy the message
+Copier tous les messages	Copy all messages
+Aucun message à copier.	No message to copy.
+Message copié dans le presse-papiers.	Message copied to the clipboard.
+{0} messages copiés dans le presse-papiers.	{0} messages copied to the clipboard.
+Copier tout le listing	Copy the whole listing
+Générer le fichier .raw…	Generate the .raw file…
+Logigramme du listing…	Listing flowchart…
+Couleurs du listing…	Listing colours…
+Nouveau	New
+Ouvrir…	Open…
+Imprimer le code Python…	Print the Python code…
+Imprimer le listing RPN…	Print the RPN listing…
+Rien à représenter : corrigez d'abord les erreurs.	Nothing to draw: fix the errors first.
+Rien à imprimer : corrigez d'abord les erreurs.	Nothing to print: fix the errors first.
+ — listing RPN	 — RPN listing
+ce programme	this program
+Enregistrer les modifications de {0} ?	Save the changes to {0}?
+Affichage	View
+Code Python : thème sombre	Python code: dark theme
+Couleurs du listing RPN…	RPN listing colours…
+Listing RPN : modèle	RPN listing: preset
+Effacer tout le code Python de la page ?\n(Ctrl+Z permet d'annuler.)	Clear all the Python code on the page?\n(Ctrl+Z undoes it.)
+Effacer la page	Clear the page
+Texte (instructions)	Text (instructions)
+Numéros de ligne	Line numbers
+LBL (labels)	LBL (labels)
+Couleurs du listing RPN	RPN listing colours
+Modèle	Preset
+La fenêtre se met à jour en direct.	The window updates live.
+Rien à encoder : corrigez d'abord les erreurs.	Nothing to encode: fix the errors first.
+Le listing n'a pas pu être encodé :\n\n	The listing could not be encoded:\n\n
+Générer .raw	Generate .raw
+Enregistrer le programme pour la DM42 / Free42	Save the program for the DM42 / Free42
+Programme HP-42S (*.raw)|*.raw	HP-42S program (*.raw)|*.raw
+{0} : {1} octets, {2} pas. DM42 : copiez-le sur son disque USB puis Load Program ; Free42 : File → Import Programs.	{0}: {1} bytes, {2} steps. DM42: copy it to its USB disk then Load Program; Free42: File → Import Programs.
+Écriture impossible	Write failed
+Générer .raw  F8	Generate .raw  F8
+PYTHON ACCEPTÉ	ACCEPTED PYTHON
+Nombres, variables, + - * / ** % //, parenthèses, comparaisons (chaînées), and / or / not	Numbers, variables, + - * / ** % //, parentheses, comparisons (chained), and / or / not
+def f(a, b, ...) : 4 paramètres max ; return x ou return a, b (puis a, b = f(...))	def f(a, b, ...): 4 parameters max; return x or return a, b (then a, b = f(...))
+global, assert condition, "message"	global, assert condition, "message"
+# commentaire  ou bloc """ … """ (ou ''') en début de ligne : commentaires ignorés, absents du RPN	# comment  or block """ … """ (or ''') at the start of a line: comments ignored, absent from the RPN
+x = input("...")  → INPUT "X"        x = prompt("PRIX ?") ou PROMPT("PRIX ?")  → texte + PROMPT	x = input("...")  → INPUT "X"        x = prompt("PRICE?") or PROMPT("PRICE?")  → text + PROMPT
+print("texte", x) ou print("texte" + str(x))  → ALPHA + AVIEW    print(x) → VIEW "X"	print("text", x) or print("text" + str(x))  → ALPHA + AVIEW    print(x) → VIEW "X"
+round(x, n) : arrondi à n décimales (n constant, 0 à 11) ; les demis s'éloignent de zéro, comme RND	round(x, n): round to n decimals (constant n, 0 to 11); halves round away from zero, like RND
+FONCTIONS PYTHON (double-clic : insère l'appel dans le code)	PYTHON FUNCTIONS (double-click: inserts the call in the code)
+x = float(input("X ?")) : demande une valeur → INPUT	x = float(input("X ?")) : asks for a value → INPUT
+print("texte", x) : affiche du texte et une valeur → ALPHA + AVIEW	print("text", x) : displays a text and a value → ALPHA + AVIEW
+round(x, 2) : arrondi à n décimales, affiché en FIX n	round(x, 2) : round to n decimals, displayed in FIX n
+sqrt(x) : racine carrée → SQRT	sqrt(x) : square root → SQRT
+exp(x) : exponentielle → E↑X	exp(x) : exponential → E↑X
+log(x) : logarithme népérien → LN	log(x) : natural logarithm → LN
+log10(x) : logarithme décimal → LOG	log10(x) : common logarithm → LOG
+sin(x) : sinus en radians	sin(x) : sine in radians
+cos(x) : cosinus en radians	cos(x) : cosine in radians
+tan(x) : tangente en radians	tan(x) : tangent in radians
+asin(x) : arc sinus en radians	asin(x) : arc sine in radians
+acos(x) : arc cosinus en radians	acos(x) : arc cosine in radians
+atan(x) : arc tangente en radians	atan(x) : arc tangent in radians
+atan2(y, x) : angle de (x, y) en radians	atan2(y, x) : angle of (x, y) in radians
+hypot(x, y) : hypoténuse	hypot(x, y) : hypotenuse
+pow(x, y) : x puissance y → Y↑X	pow(x, y) : x to the power y → Y↑X
+max(a, b) : le plus grand	max(a, b) : the larger
+min(a, b) : le plus petit	min(a, b) : the smaller
+abs(x) : valeur absolue → ABS	abs(x) : absolute value → ABS
+int(x) : partie entière → IP	int(x) : integer part → IP
+floor(x) : entier inférieur	floor(x) : next lower integer
+ceil(x) : entier supérieur	ceil(x) : next higher integer
+factorial(n) : factorielle → N!	factorial(n) : factorial → N!
+gamma(x) : fonction gamma → GAMMA	gamma(x) : gamma function → GAMMA
+radians(x) : degrés vers radians → →RAD	radians(x) : degrees to radians → →RAD
+degrees(x) : radians vers degrés → →DEG	degrees(x) : radians to degrees → →DEG
+inv(A) : inverse d'une matrice	inv(A) : inverse of a matrix
+det(A) : déterminant	det(A) : determinant
+solve(A, b) : résout A·x = b	solve(A, b) : solves A·x = b
+norm(A) : norme	norm(A) : norm
+dot(u, v) : produit scalaire	dot(u, v) : dot product
+cross(u, v) : produit vectoriel	cross(u, v) : cross product
+rows(A) : nombre de lignes	rows(A) : number of rows
+cols(A) : nombre de colonnes	cols(A) : number of columns
+len(v) : nombre d'éléments	len(v) : number of elements
+zeros(l, c) : matrice nulle → NEWMAT	zeros(l, c) : zero matrix → NEWMAT
+varmenu(a, b, c) : menu de variables → MVAR + VARMENU	varmenu(a, b, c) : variable menu → MVAR + VARMENU
+choix = menu("ADD", "SUB") : menu de touches, renvoie 1 à 6, 0 pour EXIT	choice = menu("ADD", "SUB") : key menu, returns 1 to 6, 0 for EXIT
+EXPRESSIONS	EXPRESSIONS
+Parenthèses imbriquées sans limite : ce qui dépasse la pile à 4 niveaux est calculé	Nested parentheses without limit: whatever exceeds the 4-level stack is computed
+à l'avance dans des variables S1, S2... (avertissement affiché)	in advance in variables S1, S2... (warning displayed)
+MATRICES (import numpy as np, facultatif)	MATRICES (import numpy as np, optional)
+v = [1, 2, 3]                 vecteur colonne 3×1	v = [1, 2, 3]                 3×1 column vector
+m = np.zeros((l, c))  /  zeros(l, c)        matrice nulle (NEWMAT)	m = np.zeros((l, c))  /  zeros(l, c)        zero matrix (NEWMAT)
+A[i, j]  A[i][j]  v[i]        indices Python à partir de 0 (INDEX, STOIJ, RCLEL / STOEL)	A[i, j]  A[i][j]  v[i]        Python indices from 0 (INDEX, STOIJ, RCLEL / STOEL)
+A[0:2, 1:3]  A[1:, :2]        sous-matrice (GETM) ; A[0:2, 0:2] = B (PUTM)	A[0:2, 1:3]  A[1:, :2]        submatrix (GETM); A[0:2, 0:2] = B (PUTM)
+A @ B  A + B  2 * A  A.T      produit (×), somme, scalaire, transposée (TRANS)	A @ B  A + B  2 * A  A.T      product (×), sum, scalar, transpose (TRANS)
+for x in v:                   parcourt les éléments ligne par ligne	for x in v:                   goes through the elements row by row
+Différence avec numpy : une tranche ou A.T est une COPIE (pas une vue).	Difference from numpy: a slice or A.T is a COPY (not a view).
+Pas de produit élément par élément (A * B) : utilisez A @ B pour le produit matriciel.	No element-wise product (A * B): use A @ B for the matrix product.
+COMPLEXES (import cmath pour sqrt(-1), log(-1)... complexes)	COMPLEX NUMBERS (import cmath for complex sqrt(-1), log(-1)...)
++ - * / ** sqrt exp log sin cos tan sur des complexes ; RECT est ajouté au début du programme	+ - * / ** sqrt exp log sin cos tan on complex numbers; RECT is added at the start of the program
+MENUS DM42	DM42 MENUS
+varmenu(a, b, c)            MVAR + VARMENU : tapez une valeur, touche de la variable, puis R/S	varmenu(a, b, c)            MVAR + VARMENU: type a value, the variable's key, then R/S
+choix = menu("ADD", "SUB")  menu de touches (6 max) : renvoie 1 à 6, 0 pour EXIT	choice = menu("ADD", "SUB")  key menu (6 max): returns 1 to 6, 0 for EXIT
+DRAPEAUX	FLAGS
+SF(n) CF(n)                 lève / baisse le drapeau n	SF(n) CF(n)                 sets / clears flag n
+if FS(n): ...  if FC(n):    tests ; FSC(n) / FCC(n) testent puis baissent le drapeau	if FS(n): ...  if FC(n):    tests; FSC(n) / FCC(n) test then clear the flag
+COMMANDES HP42S ( majuscules ou minuscules)	HP42S COMMANDS (upper or lower case)
+Les arguments suivent l'ordre de la pile : le dernier va dans X.	Arguments follow the stack order: the last goes in X.
+SIN(x), COS(x)... utilisent le mode d'angle de la calculatrice (DEG(), RAD()) ;	SIN(x), COS(x)... use the calculator's angle mode (DEG(), RAD());
+math.sin(x) travaille toujours en radians.	math.sin(x) always works in radians.
+Deux résultats : a, b = MEAN()  → a reçoit Y, b reçoit X (ordre de la pile).	Two results: a, b = MEAN()  → a gets Y, b gets X (stack order).
+Date JJ.MMAAAA : j, m, a = dmy(d)  → 12.052024 donne 12, 5, 2024.	Date DD.MMYYYY: d, m, y = dmy(date)  → 12.052024 gives 12, 5, 2024.
+Date du jour : DMY() puis d = DATE() ; le format réglé reste actif après le programme.	Today's date: DMY() then d = DATE(); the set format stays active after the program.
+Heure : h = toHR(TIME())  → heures décimales.	Time: h = toHR(TIME())  → decimal hours.
+Exemple : print("sine of", myvar, "is", SIN(myvar))	Example: print("sine of", myvar, "is", SIN(myvar))
+LIMITES	LIMITS
+Pile de 4 niveaux · variables globales (les locales en conflit sont renommées) · pas de récursivité	4-level stack · global variables (conflicting locals are renamed) · no recursion
+Noms de 7 caractères · 99 labels locaux · pas de listes, chaînes manipulées, classes, exceptions	7-character names · 99 local labels · no lists, string manipulation, classes, exceptions
+RACCOURCIS : F5 simulation · F6 envoyer vers l'éditeur · F7 envoyer vers l'émulateur · Ctrl+K commenter · Ctrl+N nouveau · Ctrl+O ouvrir · Ctrl+S enregistrer · Ctrl+P imprimer · Ctrl+F rechercher · Ctrl+H remplacer	SHORTCUTS: F5 simulation · F6 send to the editor · F7 send to the emulator · Ctrl+K comment · Ctrl+N new · Ctrl+O open · Ctrl+S save · Ctrl+P print · Ctrl+F find · Ctrl+H replace
+Menu Fichier : nouveau, ouvrir, enregistrer (sous), exemples, imprimer le code Python ou le listing RPN, quitter.	File menu: new, open, save (as), examples, print the Python code or the RPN listing, quit.
+Clic droit dans le code : couper, copier, coller, effacer la sélection, effacer la page.	Right-click in the code: cut, copy, paste, clear the selection, clear the page.
+Clic droit ou Ctrl+C dans les messages : copier le message (Ctrl+Maj+C : tous les messages).	Right-click or Ctrl+C in the messages: copy the message (Ctrl+Shift+C: all messages).
+Menu Affichage : thème clair / sombre du Python, couleurs et fond du listing RPN.	View menu: light / dark Python theme, colours and background of the RPN listing.
+FICHIER .RAW : F8 (Générer .raw) encode directement le programme : DM42 → copiez-le sur son disque USB puis Load Program ; Free42 → File → Import Programs.	.RAW FILE: F8 (Generate .raw) encodes the program directly: DM42 → copy it to its USB disk then Load Program; Free42 → File → Import Programs.
+ÉMULATEUR : F7 copie le listing et affiche l'émulateur choisi dans Fichier → Paramètres (Free42, Plus42…) ; en mode PRGM (⇧ R/S), Ctrl+V ajoute le programme.	EMULATOR: F7 copies the listing and shows the emulator chosen in File → Settings (Free42, Plus42…); in PRGM mode (⇧ R/S), Ctrl+V adds the program.
+if / elif / else, while (+ else), for i in range(...) (+ else), break, continue, pass	if / elif / else, while (+ else), for i in range(...) (+ else), break, continue, pass
+Double-clic ou Entrée sur une ligne en noir : insère l'appel à l'emplacement du curseur · Ctrl+C : copie la ligne	Double-click or Enter on a black line: inserts the call at the cursor · Ctrl+C: copies the line
+Ouvrez d'abord la fenêtre Python pour insérer : 	Open the Python window first to insert: 
+Inséré : 	Inserted: 
+import math : sqrt sin cos tan asin acos atan atan2 sinh cosh tanh exp log log10	import math: sqrt sin cos tan asin acos atan atan2 sinh cosh tanh exp log log10
+A = [[1, 2], [3, 4]]  ou  np.array([[1, 2], [3, 4]])   NEWMAT + STOEL	A = [[1, 2], [3, 4]]  or  np.array([[1, 2], [3, 4]])   NEWMAT + STOEL
+→ Éditeur  F6	→ Editor  F6
+MAJ	UPPER
+RPN C47	C47 RPN
+@ Programme C47 : F8 génère le fichier .p47, F1 ouvre la liste des instructions	@ C47 program: F8 generates the .p47 file, F1 opens the instruction list
+Générer .p47  F8	Generate .p47  F8
+Encode le programme en fichier .p47 pour la C47 (READP)	Encodes the program as a .p47 file for the C47 (READP)
+Liste des instructions C47 : double-clic pour insérer	C47 instruction list: double-click to insert
+PROGRAMME ENCODÉ	ENCODED PROGRAM
+{0} pas, {1} octets	{0} steps, {1} bytes
+{0} erreur(s)	{0} error(s)
+Enregistrer les modifications du programme ?	Save the changes to the program?
+Ouvrir un programme C47	Open a C47 program
+Programmes C47 (*.p47;*.p47u;*.txt)|*.p47;*.p47u;*.txt|Tous les fichiers (*.*)|*.*	C47 programs (*.p47;*.p47u;*.txt)|*.p47;*.p47u;*.txt|All files (*.*)|*.*
+Enregistrer la source C47	Save the C47 source
+Source C47 (*.p47u)|*.p47u|Texte (*.txt)|*.txt	C47 source (*.p47u)|*.p47u|Text (*.txt)|*.txt
+Le programme contient {0} erreur(s) : corrigez-les avant de générer le .p47.	The program has {0} error(s): fix them before generating the .p47.
+Enregistrer le programme pour la C47	Save the program for the C47
+Programme C47 (*.p47)|*.p47	C47 program (*.p47)|*.p47
+{0} enregistré : {1} pas, {2} octets	{0} saved: {1} steps, {2} bytes
+étiquette	label
+registre	register
+registre, 0. ou 1.	register, 0. or 1.
+indicateur	flag
+nombre	number
+touche, GTO ou XEQ, étiquette	key, GTO or XEQ, label
+structure, numérotée seule	structure, numbered automatically
+nombre de pas	step count
+4 lettres x y z t	4 letters x y z t
+menu ‘NOM’	menu ‘NAME’
+texte ‘…’	text ‘…’
+Instructions C47	C47 instructions
+Filtrer…	Filter…
+Double-clic ou Entrée : insère l'instruction. Nombres : 5  1.5e3  FF#16  45°. Chaîne : ‘TEXTE’. Registres : 00  .01  X  ‘NOM’  →05. # texte reste dans le programme, @ et ; sont ignorés.	Double-click or Enter: inserts the instruction. Numbers: 5  1.5e3  FF#16  45°. String: ‘TEXT’. Registers: 00  .01  X  ‘NAME’  →05. # text stays in the program, @ and ; are ignored.
+Nouveau programme C47	New C47 program
+Ouvrir un programme C47…	Open a C47 program…
+Afficher l'éditeur C47	Show the C47 editor
+Filtrer (nom ou description)…	Filter (name or description)…
+Toutes ({0})	All ({0})
+Pas de description.	No description.
+Fonctions mathématiques	Math functions
+Trigonométrie et angles	Trigonometry and angles
+Nombres complexes	Complex numbers
+Fonctions spéciales	Special functions
+Matrices et vecteurs	Matrices and vectors
+Statistiques et probabilités	Statistics and probability
+Finances	Finance
+Solveur, intégrales, dérivées	Solver, integrals, derivatives
+Entiers, bases et bits	Integers, bases and bits
+Conversions d'unités	Unit conversions
+Constantes	Constants
+Électrotechnique	Electrical engineering
+Date, heure et chronomètre	Date, time and stopwatch
+Pile, registres et mémoire	Stack, registers and memory
+Programmation	Programming
+Tests et indicateurs	Tests and flags
+Texte (ALPHA)	Text (ALPHA)
+Affichage et modes	Display and modes
+Graphiques	Graphics
+Entrées, sorties et impression	Input, output and printing
+Compatibilité HP-42S	HP-42S compatibility
+Autres	Other
+Filtrer (nom ou description, français ou anglais)…	Filter (name or description, French or English)…
+Ouvrez d'abord un onglet C47.	Open a C47 tab first.
+{0} erreur(s) ; la première, ligne {1} : {2}	{0} error(s); the first, line {1}: {2}
+C47 : {0} pas, {1} octets	C47: {0} steps, {1} bytes
+Encoder et enregistrer en .p47…	Encode and save as .p47…
+Voir les octets .p47	View the .p47 bytes
+Programmes C47 (*.p47;*.p47u)|*.p47;*.p47u|Tous les fichiers (*.*)|*.*	C47 programs (*.p47;*.p47u)|*.p47;*.p47u|All files (*.*)|*.*
+Source C47 (*.p47u)|*.p47u	C47 source (*.p47u)|*.p47u
+Le logigramme n'est disponible que pour les programmes DM42.	The flowchart is only available for DM42 programs.
+Fichier free42 (*.free42)| *.free42|Fichier dm42 (*.s42)|*.s42|Fichier HP42s (*.hp42s)|*.hp42s|Fichier raw (*.raw)|*.raw|Programmes C47 (*.p47;*.p47u)|*.p47;*.p47u|Tous les fichiers (*.*) | *.*	free42 file (*.free42)| *.free42|dm42 file (*.s42)|*.s42|HP42s file (*.hp42s)|*.hp42s|raw file (*.raw)|*.raw|C47 programs (*.p47;*.p47u)|*.p47;*.p47u|All files (*.*) | *.*
+@ Programme C47 : Fichier > Encoder et enregistrer en .p47 génère le fichier pour READP	@ C47 program: File > Encode and save as .p47 generates the file for READP
+Octets .p47	.p47 bytes
+Émulateur C47	C47 emulator
+c47.exe, r47.exe ou le lanceur lancer_c47.cmd ; F7 copie le .p47 dans son dossier PROGRAMS puis l'affiche	c47.exe, r47.exe or the lancer_c47.cmd launcher; F7 copies the .p47 into its PROGRAMS folder and shows it
+Émulateur C47 / R47|c47*.exe;r47*.exe;*.cmd|Programmes (*.exe;*.cmd)|*.exe;*.cmd	C47 / R47 emulator|c47*.exe;r47*.exe;*.cmd|Programs (*.exe;*.cmd)|*.exe;*.cmd
+Choisir l'émulateur C47 (c47.exe, r47.exe ou lancer_c47.cmd)	Choose the C47 emulator (c47.exe, r47.exe or lancer_c47.cmd)
+Aucun émulateur C47 choisi (Fichier → Paramètres).	No C47 emulator chosen (File → Settings).
+Programme non copié.	Program not copied.
+Impossible de lancer {0} :\n{1}\n\nChoisissez l'émulateur C47 dans Fichier → Paramètres.	Cannot start {0}:\n{1}\n\nChoose the C47 emulator in File → Settings.
+{0}.p47 copié dans PROGRAMS, mais l'émulateur C47 n'a pas pu être lancé.	{0}.p47 copied into PROGRAMS, but the C47 emulator could not be started.
+{0}.p47 copié dans {1}. Dans l'émulateur C47 : READP puis choisissez ce fichier.	{0}.p47 copied into {1}. In the C47 emulator: READP, then choose this file.
+Le programme contient {0} erreur(s) : corrigez-les avant de l'envoyer.	The program has {0} error(s): fix them before sending it.
+Remplacer {0} ?\n\nCe fichier existe déjà dans le dossier PROGRAMS de l'émulateur C47.	Replace {0}?\n\nThis file already exists in the C47 emulator's PROGRAMS folder.
+Envoi annulé.	Sending cancelled.
+Émulateur HP42	HP42 emulator
+Nouveau programme HP42	New HP42 program
+Tout ouvrir	Expand all
+Tout fermer	Collapse all

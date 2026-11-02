@@ -29,6 +29,13 @@ namespace dm42editor
             set { _FL = value; }
         }
 
+        /// <summary>Titre de la colonne des octets (« Octets .raw » par défaut, « Octets .p47 » pour un onglet C47).</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string BytesTitle
+        {
+            set { columnHeader2.Text = value; }
+        }
+
         static readonly System.Text.RegularExpressions.Regex StepRx =
             new System.Text.RegularExpressions.Regex(@"^\s*(\d+)(?:▸|▶|>|\s+)(?=\S)");
         int step;   // numéro de pas quand la ligne source n'en porte pas
@@ -56,6 +63,18 @@ namespace dm42editor
 
             var item = new ListViewItem(new[] { no, code, comment ?? "", raw ?? "", ErrMsg ?? "" }) { Tag = textLine };
             listView1.Items.Add(item);
+        }
+
+        /// <summary>Recharge la liste (fill appelle Clear et Add) en gardant la ligne affichée en haut et la sélection.</summary>
+        public void Refill(Action fill)
+        {
+            int top = listView1.TopItem?.Index ?? 0;
+            int selected = listView1.SelectedIndices.Count > 0 ? listView1.SelectedIndices[0] : -1;
+            listView1.BeginUpdate();
+            fill();
+            if (selected >= 0 && selected < listView1.Items.Count) listView1.Items[selected].Selected = true;
+            listView1.EndUpdate();
+            if (top > 0 && top < listView1.Items.Count) listView1.TopItem = listView1.Items[top];
         }
 
         private void listView1_DoubleClick(object sender, EventArgs e)

@@ -1,0 +1,82 @@
+# alias<TAB>nom catalogue C47, éventuellement suivi d'un paramètre : orthographes acceptées en plus des noms de items.c
+X<>Y	x⇄y
+𝑥⇄𝑦	x⇄y
+NEWMAT	M.NEW
+→REC	→RECT
+→POL	→POLAR
+DROP	DROPx
+ABS	|x|
+X↑2	xⅢ
+SQRT	√x
+cos(x)	COS
+sin(x)	SIN
+tan(x)	TAN
+cos	COS
+sin	SIN
+tan	TAN
+cos⁻¹(x)	ARCCOS
+sin⁻¹(x)	ARCSIN
+tan⁻¹(x)	ARCTAN
+ACOS	ARCCOS
+ASIN	ARCSIN
+ATAN	ARCTAN
+ln(x)	LN
+log₁₀(x)	LOG
+eˣ	ⅇˣ
+e^x	ⅇˣ
+CLx	CLX
+φ	ϕ
+🖨xy	⎙xy
+🖨x	⎙x
+g_⊕	g⊕
+CLLCDxy	CLLCD⒳⒴
+VARMENU	VARMNU
+⌈x⌉	ceil
+⌊x⌋	floor
+STRING?	STRI?
+setEUR	S.EUR
+SIGN	sign
+𝝅	pi
+PI	π
+FORyˣ	FOR⧰
+Draw_y^x	Draw⧰
+FORᵀᴼᴾ	FORⓉⓄⓅ
+∫^x_y	∫⧰
+x̂	͹
+k_B	kⓑ
+ζ(ϕ,m)	Ζ(ϕ,m)
+→RECT_(HP)	→RECT⒣⒫
+→POL_(HP)	→POL⒣⒫
+CPX𝒿	CPXⅉ
+iℝ	i ℝ
+X=0?	x=? 0.
+X≠0?	x≠? 0.
+X#0?	x≠? 0.
+X!=0?	x≠? 0.
+X<>0?	x≠? 0.
+X<0?	x<? 0.
+X>0?	x>? 0.
+X≤0?	x≤? 0.
+X<=0?	x≤? 0.
+X≥0?	x≥? 0.
+X>=0?	x≥? 0.
+X=Y?	x=? Y
+X≠Y?	x≠? Y
+X#Y?	x≠? Y
+X!=Y?	x≠? Y
+X<>Y?	x≠? Y
+X<Y?	x<? Y
+X>Y?	x>? Y
+X≤Y?	x≤? Y
+X<=Y?	x≤? Y
+X≥Y?	x≥? Y
+X>=Y?	x≥? Y
+Σₙ	∑⒩
+∑ₙ	∑⒩
+/	÷
+LongInt	LINT
+ShortInt	SINT
+LongInt?	LINT?
+ShortInt?	SINT?
+g_d⁻¹	gђ
+→INT	ITM:1872

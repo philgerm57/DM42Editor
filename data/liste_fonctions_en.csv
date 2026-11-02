@@ -1,0 +1,333 @@
+Name;Description;Key;Page;Group
+ABS;Absolute value;CONVERT/ABS;86;CONVERT
+ACOS;Arc cosine;ACOS;82;TRIGO
+ACOSH;Inverse hyperbolic cosine;ACOS;89;TRIGO
+ADV;Advances the printer by one line;PRINT/ADV;101;PRINT
+AGRAPH;Alpha graphics: displays a graphic image. Each character of the Alpha register specifies a column pattern of 8 dots. The X and Y registers specify the pixel position of the image;PGM.FCN/AGRA;136;ALPHA
+AIP;Appends the integer part of X to the ALPHA register;PGM.FCN/AIP;133;ALPHA
+ALENG;Returns the number of characters in the ALPHA register;prgm or XEQ;135;ALPHA
+ALL;Selects the ALL display format;DISP/ALL;36;DISPLAY
+ALL?;All-sum statistics mode (ALLΣ);STAT/ALL;233;STAT
+ALPHA;Selects the ALPHA menu;;37;ALPHA
+AND;Logical AND: returns X AND Y;BASE/LOGIC/AND;250;BASE
+AOFF;Exits the ALPHA menu;prgm or XEQ;157;ALPHA
+AON;Turns on the ALPHA menu;;156;ALPHA
+ARCL;Recalls a register into the ALPHA register by appending, the number is formatted according to the DISP format;RCL in ALPHA mode;133;ALPHA
+AROT;Rotates the ALPHA register by X places;;135;ALPHA
+ASHF;Shifts the ALPHA register left by 6 positions;;135;ALPHA
+ASIN;Arc sine;ASIN;82;TRIGO
+ASINH;Inverse hyperbolic sine. Returns sinh-1 X;ASINH;89;TRIGO
+ASSIGN;Assigns a function, a program or a variable to a CUSTOM menu key;ASSIGN key;68;PRGM
+ASTO;Alpha store. Copies the first six characters of the Alpha register to a register or a variable;STO;132;ALPHA
+ATAN;Arc tangent. Returns tan-1 X;ATAN;82;ALPHA
+ATANH;Inverse hyperbolic tangent. Returns tanh-1 X;ATANH;89;ALPHA
+ATOX;Alpha to X. Converts the leftmost character of the Alpha register to its character code (returned in the X register) and deletes the character;;134;ALPHA
+AVIEW;Alpha view. Displays the Alpha register;PGM.FCN/AVIEW;129;ALPHA
+BASE+;Base addition. Returns the 36-bit sum of Y + X;BASE +;249;BASE
+BASE-;Base subtraction. Returns the 36-bit difference between Y and X;BASE -;249;BASE
+BASEx;Base multiplication. Returns the 36-bit product of X x Y;BASE x;249;BASE
+BASE÷;Base division. Returns the 36-bit quotient of Y / X;BASE /;249;BASE
+BASE+/-;Base change sign (2's complement);BASE +/-;249;BASE
+BEEP;Sounds 4 tones;PGM.FCN/BEEP;24;PRGM
+BEST;Selects the best curve-fitting model for the current statistical data;STAT/CFIT/MODL/BEST;240;STAT
+BINM;Selects binary mode;BASE/BINM;245;BASE
+BIT?;Tests the nth bit of Y. If the bit is set (1), executes the next program line. Otherwise skips 1 line;BASE/LOGIC/BIT?;250;BASE
+BST;Back step. Moves the program pointer to the previous program line (not programmable);BST;111;PRGM
+CF;Clear flag. Clears flag nn (00<=nn<=35), (81<=nn<=99) indirect: YES;FLAGS/CF;41;FLAGS
+CLA;Clear alpha. Clears the Alpha register. If Alpha mode is active and character entry is finished (no cursor displayed) <- executes CLA;CLEAR/CLA;26;CLEAR
+CLALL;Clear all. Clears all stored programs and data (not programmable);CLEAR/CLALL;26;CLEAR
+CLD;Clear display. Clears a message from the display;CLEAR/CLD;26;CLEAR
+CLKEYS;Clears all CUSTOM menu assignments;CLEAR/CLKY;70;CLEAR
+CLLCD;Clear LCD. Clears the display;CLEAR/CLLCD;136;CLEAR
+CLMENU;Clear menu. Deletes all menu key definitions for the programmable menu;CLEAR/CLMN;146;CLEAR
+CLP;Clears a program from memory;CLEAR/CLP;119;CLEAR
+CLRG;Clears all numbered storage registers;CLEAR/CLRG;64;CLEAR
+CLST;Clears the stack registers;CLEAR/CLST;43;CLEAR
+CLV;Clears a variable from memory;CLEAR/CLV;62;CLEAR
+CLX;Clears the X register. If digit entry is finished (no cursor displayed) <- also executes CLX;CLEAR/CLX;48;CLEAR
+CL?;Clears the statistical data in the summation registers (CLΣ);CLEAR/CL?;228;CLEAR
+COMB;Combinations of Y items taken X at a time. Returns y! / (x!(y-x)!);PROB/COMB;87;PROB
+COMPLEX;Converts 2 real numbers (or matrices) to a complex number (or matrix). Converts a complex number (or matrix) to 2 real numbers (or matrices);COMPLEX;91;COMPLEX
+CORR;Correlation;;240;
+COS;Cosine. Returns cos X;COS;81;TRIGO
+COSH;Hyperbolic cosine. Returns cosh X;COSH;89;TRIGO
+CPXRES;Complex results. Allows the calculator to return a complex result even if the inputs are real numbers;MODES/CRES;94;COMPLEX
+CPX?;If the X register holds a complex number, executes the next program line, otherwise skips the next line;;151;COMPLEX
+CROSS;Returns the cross product of two vectors (matrices or complex numbers);MATRIX/CROSS;220;MATRIX
+CUSTOM;CUSTOM menu;;68;
+DECM;Decimal mode. Selects decimal mode (base 10);BASE/DECM;245;BASE
+DEG;Selects Degrees angular mode;MODES/DEG;80;TRIGO
+DEL;Delete. Deletes the specified number of lines from the current program. Program-entry mode must be active (not programmable);CLEAR/DEL;120;CLEAR
+DELAY;Delay time. Sets the print delay to X seconds;PRINT/DELAY;103;PRINT
+DELR;Delete row. Deletes the current row of the indexed matrix;MATRIX/DELR;214;MATRIX
+DET;Returns the determinant of the matrix in the X register;MATRIX/DET;219;MATRIX
+DIM;Dimensions a matrix to X columns and Y rows. If it does not exist, DIM creates it. Parameter: variable name, indirect: yes;MATRIX/DIM;217;MATRIX
+DIM?;Dimensions of the matrix in X;;217;MATRIX
+DOT;Returns the dot product of 2 vectors (matrices or complex numbers);MATRIX/DOT;34;MATRIX
+DSE;Decrement, skip if (less than or) equal. Given ccccccc.fffii, subtracts ii and skips the next program line if ccccccc is then <= fff. Parameter: register or variable, indirect: yes;PGM.FCN/DES;153;
+E;Enter exponent. Adds E to the number being entered. Indicates that a power of 10 follows;;27;
+EDIT;Edits a matrix in the X register;MATRIX/EDIT;206;MATRIX
+EDITN;Edits a named matrix. Parameter: variable name, indirect: yes;MATRIX/EDITN;208;MATRIX
+END;End of a program;END;118;PRGM
+ENG;Selects the Engineering display format. Parameter: number of digits, indirect: yes;DISP/ENG;36;DISPLAY
+ENTER;Separates two numbers entered in succession: copies X to the Y register, y to the Z register and z to the T register, t is lost;;46;
+EXITALL;Exits all menus;;;
+EXPF;Selects the exponential curve-fitting model;STAT/CFIT MODL EXPF;240;STAT
+E^X;Natural exponential. Returns e^x;;78;MATH
+E^X-1;Natural exponential for x near zero. Returns e^x - 1, which gives greater precision in the fractional part of the result;;;
+FC?;If the specified flag is clear, executes the next program line, if it is set, skips the next line;FLAGS/FS?;41;FLAGS
+FC?C;If the specified flag is clear, executes the next program line, if it is set, skips the next line. Clears the flag after the test (usable only with flags 00..35 and 81 to 99);FLAGS/FC?C;41;FLAGS
+FCSTX;Forecast x given y (statistics);;;STAT
+FCSTY;Forecast y given x (statistics);STAT/CFIT/FCSTX;;STAT
+FIX;Fixed decimal display format;STAT/CFIT/FCSTX;;STAT
+FRNM;Returns the Frobenius norm of the matrix in the X register;;;
+FP;Returns the fractional part of X;;;CONVERT
+GAMMA;Gamma function;;;PROB
+GETKEY;Puts the next key number in the X register;PGM.FCN;;
+GETM;Get matrix. Copies a submatrix from the indexed matrix to the X register;;226;MATRIX
+GRAD;Selects Grads angular mode;MODES/GRAD;80;MODE
+GROW;Grow mode (matrix editing): the matrix gains a new row if the index pointers are on the last element (bottom right) of the matrix;MATRIX/EDT/GROW;213;MATRIX
+GTO;Go to label. From the keyboard, moves the pointer to the specified label. In a running program, branches to the label;;111;
+GTO.;Moves the program pointer to a line number or a global label (not programmable);;118;
+GTO..;Moves the program pointer to a new place in program memory (not programmable);;;
+HEXM;Hexadecimal mode;BASE/HEXM;245;BASE
+HMS+;Adds x and y using H.MMSSss;;84;
+HMS-;Subtracts x from y using H.MMSSss;;84;
+I+;Increments the row pointer (matrix);;224;MATRIX
+I-;Decrements the row pointer (matrix);;224;MATRIX
+INDEX;Indexes a named matrix. Indirect: YES;;223;MATRIX
+INPUT;Recalls a register or variable to the X register, displays its name with the contents of X and stops the program. Pressing R/S (or SST) stores x in the register or variable, pressing EXIT cancels (programming only). Indirect: YES;PGM.FCN;121;
+INSR;Inserts a row in the indexed matrix;MATRIX/EDIT/INSR;;MATRIX
+INTEG;Integrates the specified integration program with respect to the specified variable. Indirect: YES;;203;
+INVRT;Returns the inverse of the matrix in the X register;MATRIX/INV;219;MATRIX
+IP;Returns the integer part of x;CONVERT/IP;86;CONVERT
+ISG;Increment, skip if greater. Given ccccccc.fffii in a variable or register, adds ii to ccccccc and skips the next program line if ccccccc is > fff;PGM.FCN;153;
+J+;Increments the column pointer of the indexed matrix;MATRIX;224;MATRIX
+J-;Decrements the column pointer of the indexed matrix;MATRIX;224;MATRIX
+KEYASN;Key assignments. Selects the key-assignment mode for the CUSTOM menu;MODE/KEY;167;MODE
+KEYG;On key, go to. Defines the label to branch to when you press a given menu key;;;
+KEYX;On key, execute. Defines the label to execute (as a subroutine) when you press a given menu key;;;
+LASTX;Last x. Recalls the last X value used in a calculation;;;
+LBL;Label. Identifies programs and routines for execution and branching;PGM.FCN;116;
+LCLBL;Selects local label mode for the CUSTOM menu;MODE;167;MODE
+LINF;Selects the linear curve-fitting model;STAT/CFIT/MODL/LINF;240;STAT
+LINE;Linear mode (six summation registers). Selects the linear statistics mode, which uses six summation coefficients (LINΣ);STAT/LINE;233;STAT
+LIST;List program lines. Prints part of the program listing (not programmable);PRINT/LIST;105;PRINT
+LN;Natural logarithm. Returns ln x;;78;
+LN1+X;Natural logarithm for values near zero. Returns ln(1+X), which offers much greater precision in the fractional part of the result;;;
+LOG;Common logarithm. Returns log10 X;;78;
+LOGF;Selects the logarithmic curve-fitting model;STAT/CFIT/MODL/LOGF;240;STAT
+MAN;Selects manual print mode;PRINT/MAN;102;
+MAT?;If the X register holds a matrix, executes the next program line, otherwise skips the next line;;151;
+MEAN;Returns the mean of the x values (sum X / n) and of the y values (sum Y / n);STAT/MEAN;231;STAT
+MENU;Programmable MENU;;146;
+MOD;Modulo. Returns the remainder of Y / X;CONVERT/MOD;87;CONVERT
+MVAR;Declares a menu variable;PGM.FCN/MVAR;125;PGM.FCN
+N!;Factorial. Returns X!;PROB/N!;87;PROB
+NEWMAT;New matrix;;206;
+NORM;Selects normal print mode, which prints keystrokes;PRINT/NORM;102;PRINT
+NOT;Logical NOT. Returns NOT X;BASE/LOGIC/NOT;250;BASE
+OCTM;Selects Octal mode (base 8);BASE/OCTM;245;BASE
+OFF;Off. Turns the calculator off (programmable);;18;
+OLD;Recalls the current element of the indexed matrix (equivalent to RCLEL);MATRIX;213;MATRIX
+ON;Prevents the calculator from turning off automatically after ten minutes of inactivity;;;
+OR;Logical OR: returns X OR Y;;250;
+PERM;Permutations of y items taken x at a time. Returns y! / (y-x)!;PROB/PERM;87;PROB
+PGMINT;Selects a program to integrate. Parameter: global label, indirect: yes;;203;
+PGMSLV;Selects a program to solve. Parameter: global label, indirect: YES;;189;SOLVER
+PI;Recalls an approximation of PI to the X register;;117;
+PIXEL;Pixel on. Turns on one pixel of the display. Its position is given by the numbers in the X and Y registers;PGM.FCN/PIXEL;135;PGM.FCN
+POLAR;Polar mode. Selects polar coordinates for displaying complex numbers;MODES/POLAR;80;MODE
+POSA;Position in alpha. Searches the Alpha register for the target given in the X register. If found, returns the character position, otherwise -1;;134;
+PRA;Print alpha. Prints the ALPHA register;PRINT/PRA;102;PRINT
+PRLCD;Print LCD. Prints the whole display;PRINT/PRLCD;101;PRINT
+PROFF;Printing off. Clears flags 21 and 55;PRINT/POFF;101;PRINT
+PROMPT;Displays the ALPHA register and stops the program;PGM.FCN/PROM;101;PGM.FCN
+PRON;Printing on. Sets flags 21 and 55;PRINT/PON;87;PRINT
+PRP;Print program. If no label is specified, prints the current program. Parameter: global label;PRINT/PRP;101;PRINT
+PRSTK;Print stack. Prints the contents of the stack registers (X Y Z T);;101;PRINT
+PRUSR;Print user variables and labels. Prints user-defined variables and programs;PRINT/PRUSR;101;PRINT
+PRV;Print variable. Prints a variable. Parameter: variable name, indirect: yes;PRINT/PRV;63;PRINT
+PRX;Prints the X register;;101;PRINT
+PR?;Print summation registers. Prints the contents of the summation registers (PRΣ);PRINT/PR?;237;PRINT
+PSE;Pause. Suspends the program for about one second;PGM.FCN/PSE;131;
+PUTM;Put matrix. Stores the matrix in the X register into the indexed matrix, starting at the current element;MATRIX/PUTM;226;MATRIX
+PWRF;Power fit. Selects the power curve-fitting model;STAT/CFIT/MODL/PWRF;240;STAT
+QUIET;Quiet mode. Changes flag 26 to turn the tone on/off (not programmable);MODE/QUIET;275;MODE
+RAD;Radians mode. Selects radians angular mode;MODE/RAD;80;MODE
+RAN;Random number. Returns a random number (0<=x<1);PROB/RAN;88;PROB
+RCL;Recall. Recalls data to the X register. Parameter: register or variable, indirect: yes;;55;
+RCL+;Recall add. Recalls data and adds it to the X register. Parameter: register or variable, indirect: YES;;61;
+RCL-;Recall subtract. Recalls data and subtracts it from the X register. Parameter: register or variable, indirect: YES;;61;
+RCLx;Recall multiply. Recalls data and multiplies the X register by it. Parameter: register or variable, indirect: YES;;61;
+RCL÷;Recall divide. Recalls data and divides the X register by it. Parameter: register or variable, indirect: YES;;61;
+RCLEL;Recall element. Recalls the current element of the indexed matrix;MATRIX/RCLEL;225;MATRIX
+RCLIJ;Recall IJ pointers. Recalls the row and column pointers (I and J) of the indexed matrix;MATRIX/RCLIJ;224;MATRIX
+RDX,;Selects the comma as the decimal separator;DISP/RDX,;36;
+RDX.;Selects the period as the decimal separator;DISP/RDX.;36;
+REALRES;Prevents the calculator from returning a complex result from real inputs;MODE/RRES;94;MODE
+REAL?;If the X register holds a real number, executes the next program line, otherwise skips the next line;;151;
+RECT;Selects rectangular coordinates for displaying complex numbers;;80;
+RND;Rounds the number in the X register using the current display format;CONVERT/RND;86;CONVERT
+RNRM;Returns the row norm of the matrix in the X register;;219;
+ROTXY;Rotates the 36-bit number in the Y register by x bits;BASE/LOGIC/ROTXY;250;BASE
+RSUM;Row sum. Returns the sum of each row of the matrix in the X register, as a column matrix;;220;MATRIX
+RTN;Return. In a running program, moves the pointer to the line after the most recent XEQ. If there is none, the program stops. From the keyboard, moves the program pointer to line 00 of the current program;PGM.FCN/RTN;143;
+R<>R;Row swap row. Swaps the elements of rows X and Y in the indexed matrix;;225;MATRIX
+R^;Roll up. Moves the contents of the four stack registers up one place;;44;
+Rv;Roll down. Moves the contents of the four stack registers down one place;;44;
+R/S;Run/stop. Runs a program (starting at the current line). In program-entry mode, inserts a STOP instruction;;113;
+SCI;Selects the scientific display format. Parameter: number of digits, indirect: yes;DISP/SCI;35;
+SDEV;Returns the standard deviations sx and sy from the statistical data;STAT/SDEV;232;STAT
+SEED;Stores a starting number for the random number generator;PROB/SEED;88;
+SF;Sets flag nn (00<=nn<=35, 81<=nn<=99);FLAGS/SF;41;FLAGS
+SHOW;Shows the full precision of the number in the X register, the whole Alpha register or a whole program line;;36;
+SIGN;Sign. Returns 1 for X>=0, -1 for X<0 and 0 for non-numbers. Returns the unit vector of a complex number;CONVERT/SIGN;86;
+SIN;Sine. Returns sin X;;80;
+SINH;Hyperbolic sine. Returns sinh X;;89;
+SIZE;Size of REGS. Sets the number of storage registers. Parameter: number of registers;;64;
+SLOPE;Returns the slope of the linear transformation of the current curve-fitting model;STAT/CFIT/SLOPE;240;STAT
+SOLVE;Solve for variable. Solves for an unknown. Parameter: variable name, indirect: yes;SOLVER/SLOVE;189;SOLVER
+SQRT;Square root. Returns the square root of X;;78;
+SST;Single step. Moves the program pointer to the next program line (not programmable);;114;
+STAT;Selects the STAT menu;;231;
+STO;Stores a copy of X in a destination register or variable. Parameter: register or variable, indirect: yes;;55;
+STO+;Store add. Adds X to an existing register or variable. Parameter: register or variable, indirect: yes;;61;
+STO-;Store subtract. Subtracts X from an existing register or variable. Parameter: register or variable, indirect: yes;;61;
+STO×;Store multiply. Multiplies an existing register or variable by X. Parameter: register or variable, indirect: yes;;61;
+STO÷;Store divide. Divides an existing register or variable by X. Parameter: register or variable, indirect: yes;;61;
+STOEL;Store element. Stores a copy of X in the current element of the indexed matrix;MATRIX/STOEL;225;
+STOIJ;Store IJ pointers. Moves the row and column pointers to I=x and J=y in the indexed matrix;MATRIX/STOIJ;224;
+STOP;Stop program. Stops the program. R/S key in program-entry mode;;114;
+STR?;If the X register holds an Alpha string, executes the next program line, otherwise skips the next line;;151;
+SUM;Recalls Σx and Σy. Returns the sums Σx and Σy in the X and Y registers;STAT/SUM;231;STAT
+TAN;Tangent. Returns tan X;;;
+TANH;Hyperbolic tangent. Returns tanh X;;89;
+TONE;Tone (0-9). Sounds a tone. Parameter: number 0..9, indirect: YES;PGM.FCN/TONE;141;
+TRACE;Selects Trace print mode, which prints keystrokes and results;PRINT/TRACE;102;PRINT
+TRANS;Transpose matrix. Returns the transpose of the matrix in the X register;MATRIX/TRAN;219;MATRIX
+UVEC;Unit vector. Returns the unit vector of the matrix or complex number in the X register;MATRIX/UVEC;220;MATRIX
+VARMENU ;Variable menu. Creates a variable menu using the MVAR instructions after the specified global label. Parameter: global program label, indirect: YES;PGM.FCN/VARM;125;
+VIEW;View. Displays the contents of a register or variable. Parameter: register or variable, indirect: YES;PGM.FCN / VIEW;128;
+WMEAN;Weighted mean. Returns the mean of the X values weighted by the Y values: Σxy / Σy;STAT/WMN;231;STAT
+WRAP;Wrap mode. Selects Wrap mode, which prevents the indexed matrix from growing;MATRIX/EDIT/WRAP;213;MATRIX
+X<>;x exchange;;;
+X<>Y;x exchange y. Swaps the contents of the X and Y registers;;44;
+XEQ;Executes a function or program. Parameter: function or label, indirect: yes;;143;
+XOR;Logical XOR (exclusive OR). Returns x XOR y;BASE/LOGIC/XOR;;BASE
+XTOA;X to alpha. Appends a character (given by the code in the X register) to the Alpha register. If the X register holds an Alpha string, appends the whole string;PGM.FCN/XTOA;134;
+X^2;Returns X squared;;78;
+YINT;Y-intercept. Returns the y-intercept of the curve fitted to the current statistical data;STAT/CFIT/YINT;240;
+Y^X;Power. Returns Y to the power X;;78;
+1/X;Reciprocal. Returns 1 / X;;78;
+10^X;Common exponential, 10^x;;78;
++;Addition. Returns Y + X;;78;
+-;Subtraction. Returns Y - X;;78;
+x;Multiplication. Returns X x Y;;78;
+÷;Division. Returns Y / X;;78;
+/;Division. Returns Y / X;;78;
++/-;Changes the sign of the X register. During exponent entry, also changes the sign of the exponent;;78;
+S+;Adds the X and Y values to the summation registers (Σ+);;228;
+S-;Subtracts a pair of X and Y values from the summation registers (Σ-);;232;
+SREG;Summation registers. Sets the number of the first summation register. Parameter: register number, indirect: YES;STAT/?REG;234;
+SREG?;Returns the number of the first summation register;;234;
+>DEC;To decimal. Converts the octal (base 8) representation of a number to decimal (base 10). Note: included for compatibility with HP-41 programs, not related to the Base application;;171;
+>DEG;Converts an angle from radians to degrees. Returns (360 / 2 PI)X;CONVERT/?DEG;171;
+>HMS;To hours, minutes, seconds. Converts X from decimal hours to hours, minutes, seconds;CONVERT/?HMS;83;
+>HR;To hours. Converts X from hours, minutes, seconds to decimal hours;CONVERT/?HR;83;
+>OCT;To octal;;;
+>POL;To polar;;;
+>RAD;To radians;;;
+>REC;To rectangular;;;
+>;Moves the pointer one element right in the indexed matrix;;212;MATRIX
+^;Moves the pointer one element up in the indexed matrix;;212;MATRIX
+v;Moves the pointer one element down in the indexed matrix;;212;MATRIX
+<;Moves the pointer one element left in the indexed matrix;;212;MATRIX
+%;Percent. Returns (X x Y) / 100 (leaves y in the Y register);;79;
+%CH;Percent change. Returns (X - Y) (100 / Y);;79;
+├;APPEND a string of up to 14 characters;;;
+;;;;
+ADATE;Append date from X to alpha;;;
+ATIME;Append time from X to alpha;;;
+AT24 ;Append 24h time from X to a.;;;
+CL12;Set 12h time format AM/PM;;;
+CL24;Set 24h time format;;;
+DATE;Put date to X register;;;
+DATE+;Add dates in X and Y regs;;;
+DDAYS;Delta days of X and Y regs;;;
+DMY;Set date format to DMY;;;
+DOW;Day of Week of date in X reg;;;
+MDY;Set date format to MDY;;;
+TIME;Put time to X register;;;
+;;;;
+X<0?;Tests X less than zero;PGM.FCN/X?0/X<0?;151;
+X<Y?;Tests X less than Y;PGM.FCN/X?Y/X<Y?;151;
+X≤0?;Tests X less than or equal to zero;PGM.FCN/X?0/X?0? ;151;
+X≤Y?;Tests X less than or equal to Y;PGM.FCN/X?Y/X?Y? ;151;
+X=0?;Tests X equal to zero;PGM.FCN/X?0/X=0? ;151;
+X=Y?;Tests X equal to Y;PGM.FCN/X?Y/X=Y? ;151;
+X≠0?;Tests X not equal to zero;PGM.FCN/X?0/X?0? ;151;
+X≠Y?;Tests X not equal to Y;PGM.FCN/X?Y/X?Y? ;151;
+X>0?;Tests X greater than zero;PGM.FCN/X?0/X>0?;151;
+X>Y?;Tests X greater than Y;PGM.FCN/X?Y/X>Y? ;151;
+X≥0?;Tests X greater than or equal to zero;PGM.FCN/X?0/X?0? ;151;
+X≥Y?;Tests X greater than or equal to Y;PGM.FCN/X?Y/X?Y? ;151;
+
+
+FLAGS;;;;
+00-10; User Flags;;;
+11; Auto Execute;;;
+12;Print Double-wide;;;
+13; Print Lowercase;;;
+15-16; Print Mode;;;
+19-20; General Use;;;
+21; Printer Enable;;;
+22; Numeric Input;;;
+23; Alpha Input;;;
+24; Ignore Range Errors;;;
+25; Ignore Next Error;;;
+26; Beeper Enable;;;
+27; CUSTOM Menu;;;
+28; Radix Mark Period;;;
+29; Digit Separators;;;
+30; Stack Lift Disable;;;
+31; DMY Date Format;;;
+34-35; AGRAPH Control;;;
+36-39; Number of Digits;;;
+40-41; Display Format;;;
+42; Grads Mode;;;
+43; Radians Mode;;;
+44; Continuous On;;;
+45; Solving;;;
+46; Integrating;;;
+47; Variable Menu;;;
+48; Alpha Mode;;;
+49; Low Battery Power;;;
+50; Message;;;
+51; Two-Line Message;;;
+52; Program-Entry Mode;;;
+53; INPUT;;;
+55; Printer Existence;;;
+56; Linear Model;;;
+57; Logarithmic Model;;;
+58; Exponential Model;;;
+59; Power Model;;;
+60; AllS Mode;;;
+61; Log Model Invalid;;;
+62; Exp Model Invalid;;;
+63; Pwr Model Invalid;;;
+64; Shift State;;;
+65; Matrix Editor In Use;;;
+66; Grow Mode;;;
+67; YMD Date Format;;;
+68-71;Base Mode;;;
+72; Local-Label Mode;;;
+73; Polar Mode;;;
+74; Real-Result Only;;;
+75; MENU;;;
+76; Edge Wrap;;;
+77; End Wrap;;;
+78; Base Signed;;;
+79; Base Wrap;;;
+81-99; User Flags;;;
+

@@ -156,7 +156,7 @@
             // 
             this.newProgramToolStripMenuItem.Name = "newProgramToolStripMenuItem";
             this.newProgramToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.newProgramToolStripMenuItem.Text = "Nouveau programme";
+            this.newProgramToolStripMenuItem.Text = "Nouveau programme HP42";
             this.newProgramToolStripMenuItem.Click += new System.EventHandler(this.newProgramToolStripMenuItem_Click);
             // 
             // OpenPrgmToolStripMenuItem

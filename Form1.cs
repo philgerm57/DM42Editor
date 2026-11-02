@@ -438,12 +438,13 @@ namespace dm42editor
 
             InitFctList(); // initialise la liste de fonctions
 
-            InitPythonMenu(); // menu Python -> RPN (Form1.Python.cs), avant le thème pour qu'il en profite
+            InitC47Menu(); InitPythonMenu(); // menu Python -> RPN (Form1.Python.cs), avant le thème pour qu'il en profite
             InitFlowchartMenu(); // logigramme (Form1.Flowchart.cs)
             InitHp41Menu(); // conversion HP-41 → DM42 (Form1.Hp41.cs)
 
             ApplyTheme(Parameter.parameters.DarkMode);
             ApplyEditorParams(Parameter.parameters.Params[Parameter.parameters.current]);
+            Text = "DM42 / C47 Editor";   // nom affiché ; l'exécutable et le dossier de réglages restent dm42editor
             Lang.Apply(this);
 
         }
@@ -468,7 +469,8 @@ namespace dm42editor
 
         private void viewRawDataToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Encode to raw 
+            // Encode to raw
+            if (IsC47(CurrentTB)) { ViewC47Bytes(CurrentTB); return; }
             if (CurrentTB != null)
             {
 
@@ -555,12 +557,16 @@ namespace dm42editor
         private void OpenPrgmToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
-            ofdMain.Filter = Lang.T("Fichier free42 (*.free42)| *.free42|Fichier dm42 (*.s42)|*.s42|Fichier HP42s (*.hp42s)|*.hp42s|Fichier raw (*.raw)|*.raw|Tous les fichiers (*.*) | *.*");
-            // ouverture d'un programme 
+            ofdMain.Filter = Lang.T("Fichier free42 (*.free42)| *.free42|Fichier dm42 (*.s42)|*.s42|Fichier HP42s (*.hp42s)|*.hp42s|Fichier raw (*.raw)|*.raw|Programmes C47 (*.p47;*.p47u)|*.p47;*.p47u|Tous les fichiers (*.*) | *.*");
+            // ouverture d'un programme
             if (ofdMain.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-
-                if (Path.GetExtension(ofdMain.FileName).ToUpper() == ".RAW")
+                string ext = Path.GetExtension(ofdMain.FileName).ToUpperInvariant();
+                if (ext == ".P47" || ext == ".P47U")
+                {
+                    OpenC47File(ofdMain.FileName);   // onglet C47 (Form1.C47.cs)
+                }
+                else if (ext == ".RAW")
                 {
                     // decode le fichier raw 
                     string filePath = ofdMain.FileName;
@@ -631,6 +637,7 @@ namespace dm42editor
 
         private void toolStripMenuItem2_Click(object sender, EventArgs e)
         {
+            if (IsC47(CurrentTB)) { SaveC47P47(CurrentTB); return; }
             if (CurrentTB != null)
             {
 
@@ -651,7 +658,7 @@ namespace dm42editor
                 Parser.parse();
 
                 // Recupere le chemin complet du fichier.
-                // Un onglet jamais enregistre ("[new]" ou texte colle) n'a pas de Tag :
+                // Un onglet jamais enregistre ("[HP42]" ou texte colle) n'a pas de Tag :
                 // CurrentTB.Parent.Tag.ToString() levait alors une NullReferenceException.
                 string titre = CurrentTB.Parent?.Tag as string;
                 if (string.IsNullOrWhiteSpace(titre))
@@ -764,7 +771,7 @@ namespace dm42editor
 
         #endregion
 
-        CodeEditor InitNewTab(Color BackColor)
+        CodeEditor InitNewTab(Color BackColor, bool c47 = false)
         {
             try
             {
@@ -774,9 +781,9 @@ namespace dm42editor
                 tb.Dock = DockStyle.Fill;
                 tb.BorderStyle = BorderStyle.Fixed3D;
                 tb.LeftPadding = 17;
-                tb.LineNumberStart = 0;   // la ligne { } est la ligne 0, comme dans le listing
+                tb.LineNumberStart = c47 ? 1 : 0;   // DM42 : la ligne { } est la ligne 0, comme dans le listing ; C47 : lignes de source
 
-                tb.Tag = new TbInfo();
+                tb.Tag = new TbInfo { C47 = c47 };
 
                 tb.Focus();
                 tb.DelayedTextChangedInterval = 500;
@@ -790,7 +797,8 @@ namespace dm42editor
                 //create autocomplete popup menu
                 AutocompleteMenu popupMenu = new AutocompleteMenu(tb);
                 popupMenu.Opening += new EventHandler<CancelEventArgs>(popupMenu_Opening);
-                BuildAutocompleteMenu(popupMenu);
+                if (c47) BuildC47Autocomplete(popupMenu);
+                else BuildAutocompleteMenu(popupMenu);
                 (tb.Tag as TbInfo).popupMenu = popupMenu;
                 return tb;
             }
@@ -807,28 +815,34 @@ namespace dm42editor
 
             var tb = InitNewTab(Color.Black);
 
-            var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[new]", tb);
+            var tab = new FATabStripItem(fileName != null ? Path.GetFileName(fileName) : "[HP42]", tb);
             tab.Tag = fileName;
             if (fileName != null)
                 tb.OpenFile(fileName, Encoding.UTF8);
-            tab.Title = Path.GetFileName(fileName);
+            tab.Title = fileName != null ? Path.GetFileName(fileName) : "[HP42]";
             tsFiles.AddTab(tab);
             tsFiles.SelectedItem = tab;
         }
 
-        private void InitNewDataTab(string Data, string title)
+        private void InitNewDataTab(string Data, string title, bool c47 = false)
         {
            // var tb = InitNewTab(Color.FromArgb(30, 30, 30));
 
-            var tb = InitNewTab(Color.Black);
+            var tb = InitNewTab(Color.Black, c47);
 
-            var tab = new FATabStripItem(title, tb);
+            var tab = new FATabStripItem(title ?? (c47 ? "[C47]" : "[HP42]"), tb);
             tab.Tag = title;
 
             tb.Text = Data;
-            tab.Title = Path.GetFileName(title);
+            tab.Title = title != null ? Path.GetFileName(title) : c47 ? "[C47]" : "[HP42]";
             tsFiles.AddTab(tab);
             tsFiles.SelectedItem = tab;
+            if (c47)
+            {
+                HighlightC47(tb.Range);
+                CheckC47(tb);
+                SyncWithTabType();
+            }
         }
 
         private void InitFctList()
@@ -846,6 +860,7 @@ namespace dm42editor
             var tb = sender as CodeEditor;
             var place = tb.PointToPlace(e.Location);
             var r = new Range(tb, place, place);
+            if (IsC47(tb)) { lbWordUnderMouse.Text = C47Status(tb, place.iLine); return; }   // erreur de la ligne survolée
             string text = r.GetFragment("[a-zA-Z]").Text;
             lbWordUnderMouse.Text = text;
         }
@@ -921,7 +936,12 @@ namespace dm42editor
                 (o) => ReBuildObjectExplorer(text)
             );
 
-            Highlight(e.ChangedRange);
+            if (IsC47(tb))
+            {
+                HighlightC47(e.ChangedRange);
+                CheckC47(tb);
+            }
+            else Highlight(e.ChangedRange);
         }
 
         /// <summary>Coloration RPN : commentaires, chaînes, tests, nombres puis mots-clés (le premier style posé l'emporte).</summary>
@@ -997,6 +1017,7 @@ namespace dm42editor
 
         private void tsFiles_TabStripItemSelectionChanged(TabStripItemChangedEventArgs e)
         {
+            SyncWithTabType();   // liste des fonctions et libellés HP-42S ou C47 (Form1.C47.cs)
             if (CurrentTB != null)
             {
                 CurrentTB.Focus();
@@ -1359,12 +1380,22 @@ namespace dm42editor
             if (tab.Tag == null)
             {
 
-                sfdMain.Title = Lang.T("Enregistrer le fichier free42");
+                if (IsC47(tb))
+                {
+                    sfdMain.Title = Lang.T("Enregistrer la source C47");
+                    sfdMain.Filter = Lang.T("Source C47 (*.p47u)|*.p47u");
+                    sfdMain.DefaultExt = ".p47u";
+                    sfdMain.FileName = Path.GetFileNameWithoutExtension(tab.Title.Trim('[', ']')) + ".p47u";
+                }
+                else
+                {
+                    sfdMain.Title = Lang.T("Enregistrer le fichier free42");
 
-                //  sfdMain.FileName = Path.GetFileName(titre);
-                sfdMain.Filter = Lang.T("Fichier free42 (*.free42)|*.free42|Fichier dm42 (*.s42)|*.s42");
+                    //  sfdMain.FileName = Path.GetFileName(titre);
+                    sfdMain.Filter = Lang.T("Fichier free42 (*.free42)|*.free42|Fichier dm42 (*.s42)|*.s42");
+                    sfdMain.DefaultExt = ".free42";
+                }
                 sfdMain.FilterIndex = 1;
-                sfdMain.DefaultExt = ".free42";
 
                 if (sfdMain.ShowDialog() != System.Windows.Forms.DialogResult.OK)
                     return false;
@@ -1418,6 +1449,7 @@ namespace dm42editor
                     copyToolStripButton.Enabled = copyToolStripMenuItem.Enabled = !tb.Selection.IsEmpty;
                     printToolStripButton.Enabled = true;
                     printToolStripMenuItem.Enabled = true;
+                    toolStripMenuItem2.Enabled = true;   // « Encoder et enregistrer » : .raw ou .p47 selon l'onglet
                 }
                 else
                 {
@@ -1428,6 +1460,7 @@ namespace dm42editor
                     pasteToolStripButton.Enabled = pasteToolStripMenuItem.Enabled = false;
                     printToolStripButton.Enabled = false;
                     printToolStripMenuItem.Enabled = false;
+                    toolStripMenuItem2.Enabled = false;
                     undoStripButton.Enabled = undoToolStripMenuItem.Enabled = false;
                     redoStripButton.Enabled = redoToolStripMenuItem.Enabled = false;
                     dgvObjectExplorer.RowCount = 0;
@@ -1519,7 +1552,13 @@ namespace dm42editor
             string lReplace = "(//|#)(.*?)\r?\n";
 
 
-            // Copy without comment 
+            // Copy without comment
+            if (IsC47(CurrentTB))
+            {
+                string code = C47WithoutComments(CurrentTB.Text);
+                if (code.Length > 0) Clipboard.SetText(code);
+                return;
+            }
             if (CurrentTB != null && tsFiles.Items.Count > 0)
             {
                 var tb = CurrentTB;
@@ -1572,6 +1611,8 @@ namespace dm42editor
         public class TbInfo
         {
             public AutocompleteMenu popupMenu;
+            public bool C47;                          // onglet RPN C47 (Form1.C47.cs) plutôt que HP-42S
+            public C47.Core.EncodeResult C47Result;   // dernier encodage, pour les erreurs et la barre d'état
         }
 
         private void parameterToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1630,7 +1671,8 @@ namespace dm42editor
                 var tb = EditorOf(tab);
                 if (tb == null) continue;
                 ApplyEditorColors(tb);
-                Highlight(tb.Range);
+                if (IsC47(tb)) HighlightC47(tb.Range);
+                else Highlight(tb.Range);
             }
         }
 
@@ -1659,11 +1701,18 @@ namespace dm42editor
 
         private void ListViewFct_DoubleClick(object sender, EventArgs e)
         {
+            if (ListViewFct.SelectedItems.Count > 0 && ListViewFct.SelectedItems[0].Tag is C47.Core.Item c47Selected)
+            {
+                InsertInC47Tab(C47Help.Snippet(c47Selected));   // aussi depuis l'onglet des octets
+                return;
+            }
             if (CurrentTB != null)
             {
 
 
+                if (ListViewFct.SelectedItems.Count == 0) return;
                 var item = ListViewFct.SelectedItems[0];
+                if (item.Tag is C47.Core.Item c47Item) { InsertInC47Tab(C47Help.Snippet(c47Item)); return; }
 
                // Range prevSelection = CurrentTB.Selection.Clone();
 
