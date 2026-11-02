@@ -17,6 +17,10 @@ La syntaxe suit les listings `.p47u` de `rejig` et les exports `XPORTP` :
 - Chaîne : `‘TEXTE’`, `"TEXTE"` ou `'TEXTE'`.
 - `# texte` reste dans le programme (pas `REM`) ; `@ texte` et `; texte` sont ignorés.
 - Les noms de `items.c` (`x≠ ?`) et les noms courants (`X≠0?`, `X<>Y`, `SQRT`) sont acceptés : voir `C47.Core/c47_alias.tsv`.
+- Les glyphes propres à la police C47 s'écrivent en clair : indices et exposants sans caractère Unicode en `_abc` / `^abc`
+  (`kⓑ` → `k_B`, `STOⓜ` → `STO_M`), `⧰` en `yˣ`, sans les espaces fines (`iℝ`, `RWDOT⋅`). Quand `c47_alias.tsv`
+  donne l'orthographe des listings `.p47u`, elle l'emporte (`Draw_y^x`, `FORyˣ`, `∫^x_y`, `CLLCDxy`).
+  Le décodeur et l'aide utilisent ces noms ; les codes de la police restent acceptés.
 - `IF`, `ELSE`, `DO`, etc. sont numérotés automatiquement comme le fait `VALID`.
 - `⟦hex⟧` insère des octets bruts : le décodeur s'en sert pour les littéraux binaires.
 - `ITM:n` désigne une instruction par son numéro quand plusieurs partagent un nom.

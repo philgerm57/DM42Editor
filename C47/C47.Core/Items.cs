@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace C47.Core;
 
@@ -9,8 +10,8 @@ public sealed record Item(int Number, ParamKind Kind, int TamMax, string Catalog
     /// <summary>Nom affiché dans un listing, comme decodeOneStep() : conversion complète, sinon catalogue, sinon menu.</summary>
     public string Name => FullConversion != "" ? FullConversion : Catalog != "" ? Catalog : Menu;
 
-    /// <summary>Nom lisible : vrais exposants, et x≠? plutôt que le « x≠ ? » du catalogue.</summary>
-    public string Shown => C47Text.Display(Name).Replace(" ?", "?");
+    /// <summary>Nom lisible : vrais exposants, glyphes propres à la C47 écrits en clair (Draw_y^x, k_B), et x≠? plutôt que le « x≠ ? » du catalogue.</summary>
+    public string Shown => Items.ShownName(this);
 }
 
 /// <summary>Table des instructions C47, générée depuis items.c par tools/gen_items.py.</summary>
@@ -75,8 +76,35 @@ public static class Items
             if (f[1].StartsWith("ITM:")) { byName[Normalize(f[0])] = ByNumber[int.Parse(f[1][4..])]; continue; }
             if (!byName.TryGetValue(Normalize(param ? parts[0] : f[1]), out var target)) throw new InvalidDataException("c47_alias.tsv : cible inconnue " + f[1]);
             if (byName.TryAdd(Normalize(f[0]), target) && param) AliasParam[Normalize(f[0])] = parts[1];
+            else if (!param) rejig.TryAdd(target.Number, C47Text.Plain(f[0]));
+        }
+        // nom en clair accepté par l'encodeur ; s'il désigne déjà une autre instruction, on garde le glyphe
+        foreach (var item in ByNumber.Values.OrderBy(i => i.Number))
+        {
+            if (item.Kind == ParamKind.Disabled) continue;
+            string clear = Clear(item.Name);
+            // notation inventée ici (FOR_y^x) : l'orthographe des listings rejig (FORyˣ) l'emporte
+            if (clear != C47Text.Display(item.Name).Replace(" ?", "?") && rejig.TryGetValue(item.Number, out var r)) clear = r;
+            if (byName.TryAdd(Normalize(clear), item) || byName[Normalize(clear)] == item) shown[item.Number] = clear;
         }
     }
+
+    static readonly Dictionary<int, string> shown = new();
+
+    /// <summary>Premier alias de c47_alias.tsv pour chaque instruction : orthographe des listings .p47u.</summary>
+    static readonly Dictionary<int, string> rejig = new();
+
+    /// <summary>
+    /// Readable, sans les espaces fines (iℝ, PLTf, RWDOT⋅ comme rejig : elles ne se tapent pas)
+    /// ni le point ou la virgule larges de FWPER ➉ / FWCOM ➈, qui n'ont pas de caractère simple.
+    /// </summary>
+    static string Clear(string name)
+    {
+        var s = Regex.Replace(C47Text.Readable(name).Replace(" ?", "?"), "[\\u2002-\\u200a]", "");
+        return Regex.Replace(s, "^([A-Z]+)[．，]$", "$1");
+    }
+
+    public static string ShownName(Item i) => shown.TryGetValue(i.Number, out var s) ? s : Clear(i.Name);
 
     static IEnumerable<string> Lines(string resource)
     {
@@ -105,7 +133,7 @@ public static class Items
                 if (line[0] == '#') continue;
                 var f = line.Split('	');
                 // la doc écrit avec les codes de la police C47
-                h[int.Parse(f[0])] = (f[1], f.Length > 2 ? C47Text.Display(f[2]) : "", f.Length > 3 ? C47Text.Display(f[3]) : "");
+                h[int.Parse(f[0])] = (f[1], f.Length > 2 ? C47Text.Readable(f[2]) : "", f.Length > 3 ? C47Text.Readable(f[3]) : "");
             }
             help = h;
         }
@@ -151,8 +179,10 @@ public static class Items
     /// <summary>Nom que l'encodeur ramène à cette instruction : plusieurs instructions partagent parfois un libellé.</summary>
     public static string Unique(Item i)
     {
-        if (i.Name.All(char.IsDigit)) return "ITM:" + i.Number; // serait lu comme un nombre
-        if (Find(i.Name) == i) return i.Shown;
+        if (i.Name.All(char.IsDigit) || i.Name == "#") return "ITM:" + i.Number; // serait lu comme un nombre ou un commentaire
+        if (Find(i.Shown) == i) return i.Shown;
+        if (Find(i.Name) == i) return C47Text.Display(i.Name);
+        if (i.Menu != "" && Find(C47Text.Readable(i.Menu)) == i) return C47Text.Readable(i.Menu);
         if (i.Menu != "" && Find(i.Menu) == i) return C47Text.Display(i.Menu);
         return "ITM:" + i.Number;
     }
@@ -178,6 +208,59 @@ public static class C47Text
             if (fontToReal.TryGetValue(sb[i], out char c)) sb[i] = c;
         // lettres surmontées sans code Unicode précomposé : la police C47 leur donne un code libre
         return sb.Replace("͸", "x̄").Replace("͹", "x̂").Replace("Ϳ", "x").ToString();
+    }
+
+    /// <summary>Glyphes de la police C47 sans équivalent Unicode, écrits en clair dans les noms d'instructions.</summary>
+    static readonly Dictionary<char, string> clearGlyphs = new()
+    {
+        ['⧰'] = "yˣ", ['⧱'] = "fg",                                    // STD_YX (bornes prises dans Y et X, FORyˣ de rejig), STD_fg
+        ['΀'] = "ū", ['΁'] = "v̄", ['΂'] = "w̄", ['΃'] = "z̄", // ū v̄ w̄ z̄
+        ['΋'] = "v̂", ['΍'] = "ẑ", ['΢'] = "û",                       // v̂ ẑ û
+        ['➉'] = "．", ['➈'] = "，",                                      // STD_WPERIOD, STD_WCOMMA : point et virgule larges
+        ['␭'] = "_UK", ['␮'] = "_US",                         // unités impériales et américaines (gal_UK→l)
+        ['⁳'] = "_E", ['₏'] = "^*", ['₞'] = "^∞", ['₟'] = "_∞",
+        ['ѐ'] = "_m^α", ['ё'] = "_n*", ['ђ'] = "_d⁻¹", ['ѓ'] = "_k*", ['є'] = "_1*",                 // Lᵅₘ, Bₙ*, g(d-1)…
+        ['і'] = "²_p", ['ї'] = "²◭", ['ј'] = "²◮",                                                   // χ²
+    };
+
+    /// <summary>Lettre en indice (-1) ou en exposant (+1) de la police C47, 0 sinon.</summary>
+    static (int Pos, char Letter) Script(char c) => c switch
+    {
+        >= '⒜' and <= '⒵' => (-1, (char)('a' + c - 0x249c)),
+        >= 'ⓐ' and <= 'ⓩ' => (-1, (char)('A' + c - 0x24d0)),
+        '⊖' => (-1, 'α'), '⊗' => (-1, 'δ'), '⊘' => (-1, 'μ'), 'Ɽ' => (-1, 'π'),
+        >= '⒂' and <= '⒛' => (1, (char)('a' + c - 0x2482)),
+        >= 'Ⓐ' and <= 'Ⓩ' => (1, (char)('A' + c - 0x24b6)),
+        'ⱥ' => (1, 'π'),
+        _ => (0, c),
+    };
+
+    /// <summary>
+    /// Nom d'instruction lisible sous Windows : Display, plus les indices et exposants sans caractère Unicode
+    /// écrits _abc / ^abc (kⓑ → k_B) et les glyphes composés de clearGlyphs (Draw⧰ → Draw_y^x).
+    /// </summary>
+    public static string Readable(string s)
+    {
+        _ = Items.ByNumber;
+        var sb = new StringBuilder();
+        for (int i = 0; i < s.Length;)
+        {
+            var (pos, _) = Script(s[i]);
+            if (pos != 0)
+            {
+                int j = i;
+                while (j < s.Length && Script(s[j]).Pos == pos) j++;
+                var run = s[i..j];
+                if (run.All(fontToReal.ContainsKey)) sb.Append(Display(run));
+                else sb.Append(pos < 0 ? '_' : '^').Append(run.Select(c => Script(c).Letter).ToArray());
+                i = j;
+                continue;
+            }
+            if (clearGlyphs.TryGetValue(s[i], out var clear)) sb.Append(clear);
+            else sb.Append(Display(s[i].ToString()));
+            i++;
+        }
+        return sb.ToString();
     }
 
     /// <summary>Caractère lisible vers son code dans la police C47.</summary>
