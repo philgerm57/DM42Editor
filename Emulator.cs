@@ -253,6 +253,83 @@ namespace dm42editor
             return Lang.F("{0}.p47 copié dans {1}. Dans l'émulateur C47 : READP puis choisissez ce fichier.", name, Path.GetDirectoryName(target));
         }
 
+        /// <summary>Pile après l'exécution : X Y Z T, et A B C D quand la pile a 8 niveaux (SSIZE8, réglage d'usine de la C47).</summary>
+        public sealed record C47Run(string X, string Y, string Z, string T, string Alpha, string Error, bool Stack8 = false,
+                                    string A = "", string B = "", string C = "", string D = "", string Log = "");
+
+        /// <summary>
+        /// Exécute un programme dans le simulateur C47 sans fenêtre (--headless, langage de commandes -e) : la pile de départ,
+        /// XEQ entry, chaque INPUT reçoit la valeur suivante puis R/S. Renvoie la pile, ALPHA (registre K des instructions 42α…)
+        /// ou l'erreur. Les menus (varmenu, menu) demandent les touches de menu et ne sont pas simulés ainsi.
+        /// </summary>
+        /// <param name="logVar">variable texte relue à la fin (journal des messages affichés), ou null</param>
+        public static C47Run RunC47(IWin32Window owner, byte[] p47File, string entry, double[] stack, double[] inputs, string logVar = null)
+        {
+            string sim = C47Path;
+            if (sim.Length == 0 || !File.Exists(sim))
+            {
+                if (!ChooseC47(owner)) return new C47Run("", "", "", "", "", Lang.T("Aucun émulateur C47 choisi (Fichier → Paramètres)."));
+                sim = C47Path;
+            }
+            // le lanceur .cmd démarre c47.exe ou r47.exe de son dossier
+            string folder = Path.GetDirectoryName(sim);
+            string exe = sim.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? sim
+                       : new[] { "c47.exe", "r47.exe" }.Select(n => Path.Combine(folder, n)).FirstOrDefault(File.Exists);
+            if (exe == null) return new C47Run("", "", "", "", "", Lang.F("c47.exe introuvable dans {0}", folder));
+
+            string file = Path.Combine(Path.GetTempPath(), "dm42editor", "py47sim.p47");
+            Directory.CreateDirectory(Path.GetDirectoryName(file));
+            File.WriteAllBytes(file, p47File);
+            string N(double v) => v.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
+            var script = new System.Text.StringBuilder($"readp {file.Replace('\\', '/')}; ");
+            foreach (var v in stack) script.Append($"nim {N(v)}; ");
+            script.Append($"xeq {entry}; ");
+            foreach (var v in inputs) script.Append($"nim {N(v)}; press R/S; ");
+            if (logVar != null) script.Append($"puts \"@@LOG=[var {logVar}]\"; ");
+            script.Append("puts \"@@X=[reg X]\"; puts \"@@Y=[reg Y]\"; puts \"@@Z=[reg Z]\"; puts \"@@T=[reg T]\"; puts \"@@K=[reg K]\"; "
+                        + "puts \"@@S8=[flag SSIZE8]\"; puts \"@@A=[reg A]\"; puts \"@@B=[reg B]\"; puts \"@@C=[reg C]\"; puts \"@@D=[reg D]\"");
+
+            var psi = new ProcessStartInfo(exe)
+            {
+                UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true,
+                WorkingDirectory = folder,
+                // le simulateur écrit en UTF-8 ; sans console, l'éditeur lirait en page OEM (¦ → ┬ª : messages collés)
+                StandardOutputEncoding = System.Text.Encoding.UTF8, StandardErrorEncoding = System.Text.Encoding.UTF8,
+            };
+            foreach (var a in new[] { "--reset", "--headless", "-e", script.ToString() }) psi.ArgumentList.Add(a);
+            // bibliothèques GTK du dossier voisin, comme lancer_c47.cmd
+            string gtk = Path.GetFullPath(Path.Combine(folder, "..", "c47build", "gtkroot", "mingw64"));
+            if (Directory.Exists(gtk))
+            {
+                psi.Environment["PATH"] = Path.Combine(gtk, "bin") + ";" + Environment.GetEnvironmentVariable("PATH");
+                psi.Environment["XDG_DATA_DIRS"] = Path.Combine(gtk, "share");
+            }
+            try
+            {
+                using (var p = Process.Start(psi))
+                {
+                    var outTask = p.StandardOutput.ReadToEndAsync();
+                    var errTask = p.StandardError.ReadToEndAsync();
+                    if (!p.WaitForExit(30000))
+                    {
+                        try { p.Kill(); } catch (InvalidOperationException) { }
+                        return new C47Run("", "", "", "", "", Lang.T("Le programme ne s'est pas terminé en 30 s (boucle sans fin, ou saisie attendue par un menu ?)."));
+                    }
+                    string text = outTask.Result + errTask.Result;
+                    string Get(string k) => text.Split('\n').Select(l => l.Trim()).Where(l => l.StartsWith("@@" + k + "=")).Select(l => l.Substring(k.Length + 3)).LastOrDefault() ?? "";
+                    // le simulateur écrit aussi son journal de débogage : seuls les refus de chargement ou d'appel sont gardés
+                    string err = string.Join("\n", text.Split('\n').Select(l => l.Trim())
+                        .Where(l => l.StartsWith("xeq:") || l.StartsWith("readp") || l.StartsWith("nim:") || l.StartsWith("press:")
+                                    || l.Contains("not found") || l.Contains("invalid command") || l.Contains("Structure")));
+                    return new C47Run(Get("X"), Get("Y"), Get("Z"), Get("T"), Get("K"), err, Get("S8") == "1", Get("A"), Get("B"), Get("C"), Get("D"), Get("LOG"));
+                }
+            }
+            catch (Exception ex) when (ex is System.ComponentModel.Win32Exception || ex is IOException)
+            {
+                return new C47Run("", "", "", "", "", ex.Message);
+            }
+        }
+
         /// <summary>Texte d'un onglet prêt à coller : sans commentaires ni lignes vides ; renvoie aussi le nombre de pas.</summary>
         public static string CleanListing(string text, out int steps)
         {

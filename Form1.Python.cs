@@ -28,18 +28,34 @@ namespace dm42editor
             var fenetre = new ToolStripMenuItem("Afficher l'éditeur Python", null, (s, e) => ShowPython(null, keepText: true))
             { ShortcutKeys = Keys.F12 };
 
-            var exemples = new ToolStripMenuItem("Exemples");
+            var exemples = new ToolStripMenuItem("Exemples DM42");
             for (int i = 0; i < Py42.Core.Examples.All.Count; i++)
             {
                 int idx = i;
                 exemples.DropDownItems.Add(Py42.Core.Tr.T(Py42.Core.Examples.All[i].Title), null, (s, e) => ShowPython(null).LoadExample(idx));
             }
 
-            var aide = new ToolStripMenuItem("Aide Python → RPN", null, (s, e) => FrmPython.ShowHelp(this));
+            var exemplesC47 = new ToolStripMenuItem("Exemples C47 / R47");
+            for (int i = 0; i < Py42.Core.ExamplesC47.All.Count; i++)
+            {
+                int idx = i;
+                exemplesC47.DropDownItems.Add(Py42.Core.ExamplesC47.All[i].Title, null, (s, e) => ShowPython(null).LoadC47Example(idx));
+            }
+            var programmesC47 = new ToolStripMenuItem("Programmes de la distribution C47");
+            for (int i = 0; i < Py42.Core.ExamplesC47.Programs.Count; i++)
+            {
+                int idx = i;
+                programmesC47.DropDownItems.Add(Py42.Core.ExamplesC47.Programs[i].Title, null, (s, e) => ShowPython(null).LoadC47Program(idx));
+            }
+            exemplesC47.DropDownItems.Add(new ToolStripSeparator());
+            exemplesC47.DropDownItems.Add(programmesC47);
+
+            var aide = new ToolStripMenuItem("Aide Python → RPN DM42", null, (s, e) => FrmPython.ShowHelp(this));
+            var aideC47 = new ToolStripMenuItem("Aide Python → RPN C47 / R47", null, (s, e) => FrmPython.ShowHelp(this, c47: true));
 
             menu.DropDownItems.AddRange(new ToolStripItem[]
             {
-                nouveau, ouvrir, fenetre, new ToolStripSeparator(), exemples, new ToolStripSeparator(), aide
+                nouveau, ouvrir, fenetre, new ToolStripSeparator(), exemples, exemplesC47, new ToolStripSeparator(), aide, aideC47
             });
 
             // avant le menu Help
@@ -88,6 +104,17 @@ namespace dm42editor
                 }
             }
 
+            if (tab == null && title.EndsWith(".p47u", StringComparison.OrdinalIgnoreCase))
+            {
+                // cible C47 de la fenêtre Python : onglet C47
+                InitNewDataTab(rpn, null, c47: true);
+                tab = tsFiles.SelectedItem;
+                tab.Tag = path;
+                tab.Title = title;
+                EditorOf(tab).IsChanged = true;
+                Activate();
+                return;
+            }
             if (tab == null)
             {
                 var tb = InitNewTab(Color.Black);

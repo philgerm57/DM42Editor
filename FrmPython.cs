@@ -66,7 +66,12 @@ namespace dm42editor
         CodeEditor pyBox, rpnBox;
         ListBox messages;
         ToolStripTextBox progName;
-        ToolStripButton radButton, upperButton, numButton;
+        ToolStripButton radButton, upperButton, numButton, sendButton, rawButton;
+        /// <summary>Cible du listing : HP-42S / DM42, ou C47 / R47 (conversion par C47.Core.Hp42Converter).</summary>
+        ToolStripComboBox targetBox;
+        C47.Core.Hp42Converter.Result lastC47;
+        C47.Core.EncodeResult lastC47Code;
+        bool TargetC47 => targetBox != null && targetBox.SelectedIndex == 1;
         ToolStripStatusLabel status;
         ComboBox entryBox;
         TextBox stackBox, inputsBox, simOut;
@@ -90,6 +95,7 @@ namespace dm42editor
             this.sendToEditor = sendToEditor;
             BuildUi();
             Lang.Apply(this);
+            UpdateTarget();   // libellés .raw / .p47 selon la cible de départ
             NewProgram();
         }
 
@@ -98,7 +104,7 @@ namespace dm42editor
         // ==================================================================
         void BuildUi()
         {
-            Text = "Python → RPN HP-42S / DM42";
+            Text = "Python → RPN DM42";
             Size = new Size(1320, 860);
             MinimumSize = new Size(900, 600);
             StartPosition = FormStartPosition.CenterScreen;
@@ -127,15 +133,23 @@ namespace dm42editor
             numButton = Toggle("N° ligne", true, "Numéros de ligne dans le listing");
             tools.Items.AddRange(new ToolStripItem[] { radButton, upperButton, numButton, new ToolStripSeparator() });
 
-            var send = new ToolStripButton("→ Éditeur  F6") { BackColor = Shift, ForeColor = Color.FromArgb(28, 27, 25), Font = new Font(Font, FontStyle.Bold), Tag = HpRenderer.ShiftKey, ToolTipText = "Ouvre le RPN dans un onglet de DM42 Editor, prêt pour « Encoder et enregistrer en .raw »" };
+            tools.Items.Add(new ToolStripLabel("Cible") { ForeColor = Muted });
+            targetBox = new ToolStripComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 110, ToolTipText = "Calculatrice visée : DM42 (HP-42S, Free42, Plus42), ou C47 / R47" };
+            targetBox.Items.AddRange(new object[] { "DM42", "C47 / R47" });
+            targetBox.SelectedIndex = Emulator.DefaultC47 ? 1 : 0;   // calculatrice par défaut (Paramètres)
+            targetBox.SelectedIndexChanged += (s, e) => { UpdateTarget(); Recompile(); };
+            tools.Items.Add(targetBox);
+            tools.Items.Add(new ToolStripSeparator());
+
+            var send = sendButton = new ToolStripButton("→ Éditeur  F6") { BackColor = Shift, ForeColor = Color.FromArgb(28, 27, 25), Font = new Font(Font, FontStyle.Bold), Tag = HpRenderer.ShiftKey, ToolTipText = "Ouvre le RPN dans un onglet de DM42 Editor, prêt pour « Encoder et enregistrer en .raw »" };
             send.Click += (s, e) => SendToEditor();
             tools.Items.Add(send);
-            var rawBtn = new ToolStripButton("Générer .raw  F8") { BackColor = Shift, ForeColor = Color.FromArgb(28, 27, 25), Font = new Font(Font, FontStyle.Bold), Tag = HpRenderer.ShiftKey, ToolTipText = "Encode directement le programme en fichier .raw pour la DM42 / Free42" };
+            var rawBtn = rawButton = new ToolStripButton("Générer .raw  F8") { BackColor = Shift, ForeColor = Color.FromArgb(28, 27, 25), Font = new Font(Font, FontStyle.Bold), Tag = HpRenderer.ShiftKey, ToolTipText = "Encode directement le programme en fichier .raw pour la DM42 / Free42" };
             rawBtn.Click += (s, e) => SaveRaw();
             tools.Items.Add(rawBtn);
             tools.Items.Add(Button("Émulateur  F7", (s, e) => SendToFree42(), "Copie le listing et affiche l'émulateur réglé dans Paramètres (Free42, Plus42…), lancé si besoin : mode PRGM puis Ctrl+V"));
             tools.Items.Add(new ToolStripSeparator());
-            tools.Items.Add(Button("Aide", (s, e) => ShowHelp(this), "Python accepté et commandes HP42S"));
+            tools.Items.Add(Button("Aide", (s, e) => ShowHelp(this, TargetC47), "Aide de la cible choisie (DM42 ou C47) : Python accepté et commandes"));
 
             // ---- barre d'état
             var statusStrip = new StatusStrip { BackColor = Bar, SizingGrip = true };
@@ -188,7 +202,7 @@ namespace dm42editor
             leftSplit.Panel2.Controls.Add(Framed("MESSAGES", messages));
 
             rightSplit = new SplitContainer { Dock = DockStyle.Fill, Orientation = Orientation.Horizontal, BackColor = Body, SplitterWidth = 6 };
-            rightSplit.Panel1.Controls.Add(Framed("RPN   HP-42S · DM42 · Free42", rpnBox));
+            rightSplit.Panel1.Controls.Add(Framed("RPN   DM42 · HP-42S · Free42", rpnBox));
             rightSplit.Panel2.Controls.Add(Framed("SIMULATION", sim));
 
             mainSplit = new SplitContainer { Dock = DockStyle.Fill, Orientation = Orientation.Vertical, BackColor = Body, SplitterWidth = 6, Padding = new Padding(8) };
@@ -381,9 +395,10 @@ namespace dm42editor
             var r = rpnBox.Range;
             r.ClearStyle(rpLineNo, rpLabel, rpFlow, rpTest, rpAlpha);
             r.SetStyle(rpLineNo, @"^\d{2,3}(?=\s)", RegexOptions.Multiline);
-            r.SetStyle(rpLabel, @"\bLBL\s+(""[^""]*""|\d+)");
-            r.SetStyle(rpFlow, @"\b(GTO|XEQ)\s+(""[^""]*""|\d+)|\b(RTN|END|STOP|KEY \d GTO \d+)\b");
-            r.SetStyle(rpAlpha, @"⊢?""[^""\n]*""");
+            // guillemets HP-42S "…" ou C47 ‘…’ (cible C47)
+            r.SetStyle(rpLabel, @"\bLBL\s+(""[^""]*""|‘[^’]*’|\d+)");
+            r.SetStyle(rpFlow, @"\b(GTO|XEQ)\s+(""[^""]*""|‘[^’]*’|\d+)|\b(RTN|END|STOP|(42)?KEY \d GTO \d+)\b|^\s*(IF|ELSE|ENDIF|DO|WHILE|ENDDO|FORᵀᴼᴾ|NEXT)\b.*$", RegexOptions.Multiline);
+            r.SetStyle(rpAlpha, @"⊢?""[^""\n]*""|(42α|42⊢) ‘[^’\n]*’");
             r.SetStyle(rpTest, RpnTestRegex);
         }
 
@@ -413,7 +428,9 @@ namespace dm42editor
             {
                 ProgramName = progName.Text,
                 Radians = radButton.Checked,
-                UpperCase = upperButton.Checked
+                UpperCase = upperButton.Checked,
+                // C47 : structures IF / DO / FOR, registres locaux ; les noms HP-42S restants passent ensuite par Hp42Converter
+                Target = TargetC47 ? Py.Target.C47 : Py.Target.Hp42
             };
             messages.BeginUpdate();
             messages.Items.Clear();
@@ -422,9 +439,21 @@ namespace dm42editor
             {
                 last = Py.Compiler.Compile(pyBox.Text, opts);
                 rpnBox.Text = last.Listing(numButton.Checked, header: true);
+                if (TargetC47)
+                {
+                    // même listing, en source C47 : une ligne par ligne, la synchronisation avec le Python est gardée
+                    lastC47 = C47.Core.Hp42Converter.Convert(rpnBox.Text);
+                    lastC47Code = C47.Core.Encoder.Encode(lastC47.Source);
+                    rpnBox.Text = lastC47.Source;
+                }
                 rpnBox.ForeColor = RpnFore;
                 HighlightRpn();
                 foreach (var w in last.Warnings) messages.Items.Add(new Msg { Text = "⚠  " + w, Line = LineIn(w) });
+                if (TargetC47)
+                {
+                    foreach (var w in lastC47.Warnings) messages.Items.Add(new Msg { Text = "⚠  C47 : " + C47.Core.Tr.T(w) });
+                    foreach (var er in lastC47Code.Errors.Take(10)) messages.Items.Add(new Msg { Text = "✗  C47 : " + Lang.F("Ligne {0} : {1}", er.Line, C47.Core.Tr.T(er.Message)) });
+                }
                 if (last.Warnings.Count == 0) messages.Items.Add(new Msg { Text = Lang.T("✓  Conversion réussie") });
                 status.Text = Lang.F("{0} pas   ·   {1}/99 labels locaux   ·   pile max {2}/4   ·   {3} variable(s) : {4}", last.Code.Count, last.LocalLabels, last.MaxStack, last.Variables.Count, string.Join(" ", last.Variables));
 
@@ -534,6 +563,7 @@ namespace dm42editor
             try { stack = Nums(stackBox.Text); inputs = Nums(inputsBox.Text); }
             catch (FormatException) { simOut.Text = Lang.T("Valeur invalide : séparez les nombres par des espaces ou des points-virgules."); return; }
 
+            if (TargetC47) { RunC47Simulation(entry, stack, inputs); return; }
             var r = Py.Simulator.Run(last.Code, entry, stack, inputs);
             var sb = new StringBuilder();
             foreach (var d in r.Display) sb.AppendLine(d);
@@ -572,6 +602,85 @@ namespace dm42editor
             simOut.Text = sb.ToString().Replace("\n", Environment.NewLine).Replace("\r\r", "\r");
         }
 
+        const char LogSep = '¦';
+
+        /// <summary>
+        /// Copie de la source C47 pour F5 : après chaque affichage (42AVIEW, 42PRMPT, VIEW), le message est ajouté à la
+        /// variable texte PYLOG ; PYSIM vide le journal puis appelle l'étiquette lancée. Sur la pile de 8 niveaux, les deux
+        /// valeurs empilées puis retirées ne touchent pas ce que le programme utilise (4 niveaux au plus).
+        /// Après chaque saisie, « 0 1 J_y(x) DROP » consomme la touche R/S : le simulateur sans fenêtre la garde enfoncée,
+        /// et le premier calcul interruptible qui suit (Bessel, premiers, gamma, solve, ∫…) s'arrêtait aussitôt sur NaN.
+        /// </summary>
+        static string WithMessageLog(string source, string entry)
+        {
+            string Log(string what) => $"  RCL ‘PYLOG’ RCL {what} + ‘{LogSep}’ + STO ‘PYLOG’ DROP";
+            var lines = source.Replace("\r\n", "\n").Split('\n').ToList();
+            var o = new List<string>();
+            foreach (var raw in lines)
+            {
+                string t = raw.Trim();
+                if (t == "END") continue;
+                o.Add(raw);
+                if (t.StartsWith("INPUT ") || t == "STOP" || t.StartsWith("42PRMPT")) o.Add("  0 1 J_y(x) DROP");
+                if (t == "42AVIEW" || t.StartsWith("42PRMPT")) o.Add(Log("K"));   // ALPHA des instructions de compatibilité
+                else if (t.StartsWith("VIEW "))
+                {
+                    // VIEW X : X est remonté d'un niveau par RCL ‘PYLOG’
+                    string arg = t.Substring(5).Trim();
+                    string shifted = arg switch { "X" => "Y", "Y" => "Z", "Z" => "T", "T" => "A", _ => arg };
+                    o.Add(Log(shifted));
+                }
+            }
+            o.Add("LBL ‘PYSIM’");
+            o.Add("  ‘’ STO ‘PYLOG’ DROP");
+            o.Add($"  XEQ ‘{entry}’");
+            o.Add("  RTN");
+            o.Add("END");
+            return string.Join("\r\n", o);
+        }
+
+        /// <summary>Texte rendu par le simulateur, en codes de la police C47 : exposants lisibles (×⑽ⅫⅣ → ×10⁻³).</summary>
+        static string Readable47(string s) => C47.Core.C47Text.Display(s).Replace("⑽", "10");
+
+        /// <summary>Cible C47 : le programme encodé tourne dans le vrai simulateur C47 (sans fenêtre), qui rend la pile et ALPHA.</summary>
+        void RunC47Simulation(string entry, double[] stack, double[] inputs)
+        {
+            if (lastC47Code == null || !lastC47Code.Ok) { simOut.Text = Lang.T("Le listing C47 contient des erreurs : voir les messages."); return; }
+            simOut.Text = Lang.T("Simulateur C47 en cours…");
+            simOut.Refresh();
+            Cursor = Cursors.WaitCursor;
+            Emulator.C47Run r;
+            // copie instrumentée : chaque message affiché est ajouté au journal PYLOG, relu à la fin
+            var sim = C47.Core.Encoder.Encode(WithMessageLog(lastC47.Source, entry));
+            bool logged = sim.Ok;
+            try { r = Emulator.RunC47(this, C47.Core.P47File.Write((logged ? sim : lastC47Code).Program), logged ? "PYSIM" : entry, stack, inputs, logged ? "PYLOG" : null); }
+            finally { Cursor = Cursors.Default; }
+            var sb = new StringBuilder();
+            sb.AppendLine(Lang.T("Simulateur C47 (calcul sur 34 chiffres)"));
+            var messages = r.Log.Split(LogSep, StringSplitOptions.RemoveEmptyEntries);
+            if (messages.Length > 0)
+            {
+                sb.AppendLine();
+                foreach (var m in messages) sb.AppendLine(Readable47(m));
+            }
+            else if (r.Alpha.Length > 0) sb.AppendLine().AppendLine(Lang.T("Dernier message : ") + Readable47(r.Alpha));
+            if (r.Error.Length > 0) sb.AppendLine().AppendLine(r.Error);
+            sb.AppendLine();
+            sb.AppendLine(Lang.T(r.Stack8 ? "Pile de 8 niveaux (SSIZE8, réglage d'usine de la C47)" : "Pile de 4 niveaux (SSIZE4)"));
+            if (r.Stack8)
+            {
+                sb.AppendLine($"D: {r.D}");
+                sb.AppendLine($"C: {r.C}");
+                sb.AppendLine($"B: {r.B}");
+                sb.AppendLine($"A: {r.A}");
+            }
+            sb.AppendLine($"T: {r.T}");
+            sb.AppendLine($"Z: {r.Z}");
+            sb.AppendLine($"Y: {r.Y}");
+            sb.AppendLine($"X: {r.X}");
+            simOut.Text = sb.ToString().Replace("\n", Environment.NewLine).Replace("\r\r", "\r");
+        }
+
         // ==================================================================
         //  Fichiers, exemples, envoi
         // ==================================================================
@@ -589,9 +698,24 @@ namespace dm42editor
             Recompile();
         }
 
-        public void LoadExample(int index)
+        public void LoadExample(int index) => LoadExample(Py.Examples.All[index]);
+
+        /// <summary>Exemple propre à la C47 (récursivité, entiers longs, textes longs) : la cible passe à C47 / R47.</summary>
+        public void LoadC47Example(int index)
         {
-            var ex = Py.Examples.All[index];
+            targetBox.SelectedIndex = 1;
+            LoadExample(Py.ExamplesC47.All[index]);
+        }
+
+        /// <summary>Programme de la distribution C47 réécrit en Python : cible C47 / R47.</summary>
+        public void LoadC47Program(int index)
+        {
+            targetBox.SelectedIndex = 1;
+            LoadExample(Py.ExamplesC47.Programs[index]);
+        }
+
+        void LoadExample(Py.Examples.Example ex)
+        {
             currentFile = null;
             preferredEntry = ex.Entry;
             entryBox.Items.Clear();
@@ -658,6 +782,13 @@ namespace dm42editor
             if (last == null) { status.Text = Lang.T("Rien à envoyer : corrigez d'abord les erreurs."); return; }
             string baseName = currentFile != null ? Path.GetFileNameWithoutExtension(currentFile)
                             : (progName.Text.Trim().Length > 0 ? progName.Text.Trim() : "MAIN");
+            if (TargetC47)
+            {
+                // onglet C47 (titre en .p47u), prêt pour « Encoder et enregistrer en .p47 »
+                sendToEditor?.Invoke(lastC47.Source, baseName + ".p47u", currentFile != null ? Path.ChangeExtension(currentFile, ".p47u") : null);
+                status.Text = Lang.F("Source C47 envoyée dans l'onglet « {0}.p47u ». Utilisez « Encoder et enregistrer en .p47 » pour la C47.", baseName);
+                return;
+            }
             string path = currentFile != null ? Path.ChangeExtension(currentFile, ".free42") : null;
             sendToEditor?.Invoke(last.Listing(numButton.Checked, header: true), baseName + ".free42", path);
             status.Text = Lang.F("RPN envoyé dans l'onglet « {0}.free42 ». Utilisez « Encoder et enregistrer en .raw » pour la DM42.", baseName);
@@ -675,7 +806,19 @@ namespace dm42editor
         }
 
         void UpdateTitle() =>
-            Text = currentFile == null ? "Python → RPN HP-42S / DM42" : "Python → RPN — " + Path.GetFileName(currentFile);
+            Text = currentFile == null ? (TargetC47 ? "Python → RPN C47 / R47" : "Python → RPN DM42") : "Python → RPN — " + Path.GetFileName(currentFile);
+
+        /// <summary>Libellés des boutons selon la cible : .raw pour la DM42, .p47 pour la C47.</summary>
+        void UpdateTarget()
+        {
+            rawButton.Text = Lang.T(TargetC47 ? "Générer .p47  F8" : "Générer .raw  F8");
+            rawButton.ToolTipText = Lang.T(TargetC47 ? "Encode directement le programme en fichier .p47 pour la C47 / R47" : "Encode directement le programme en fichier .raw pour la DM42 / Free42");
+            // titre du cadre du listing (Framed : bordure dans le panneau, libellé à côté)
+            if (rpnBox.Parent?.Parent?.Controls.OfType<Label>().FirstOrDefault() is Label caption)
+                caption.Text = TargetC47 ? "RPN   C47 · R47" : "RPN   DM42 · HP-42S · Free42";
+            sendButton.ToolTipText = Lang.T(TargetC47 ? "Ouvre la source C47 dans un onglet C47 de l'éditeur, prêt pour « Encoder et enregistrer en .p47 »" : "Ouvre le RPN dans un onglet de DM42 Editor, prêt pour « Encoder et enregistrer en .raw »");
+            UpdateTitle();
+        }
 
         void OnKeyDown(object sender, KeyEventArgs e)
         {
@@ -813,18 +956,38 @@ namespace dm42editor
             pyBox.Invalidate();
         }
 
-        public static void ShowHelp(IWin32Window owner)
+        /// <summary>Instruction produite (après « → ») sous son nom C47, pour l'aide de la cible C47.</summary>
+        static readonly (string Hp42, string C47)[] HelpC47Names =
+        {
+            ("→ SQRT", "→ √x"), ("→ E↑X", "→ ⅇˣ"), ("→ Y↑X", "→ yˣ"), ("→ ABS", "→ |x|"), ("→ N!", "→ x!"), ("→ GAMMA", "→ Γ(x)"),
+            ("→ →RAD", "→ deg→rad"), ("→ →DEG", "→ rad→deg"), ("→ NEWMAT", "→ M.NEW"), ("→ MVAR + VARMENU", "→ MVAR + 42VRMNU"),
+            ("→ ALPHA + AVIEW", "→ 42α + 42ARCL + 42AVIEW"), ("→ INPUT", "→ INPUT"),
+        };
+
+        /// <summary>Aide de la fenêtre Python : cible DM42 (HP-42S, Free42) ou C47 / R47.</summary>
+        public static void ShowHelp(IWin32Window owner, bool c47 = false)
         {
             var sb = new StringBuilder();
             var snippets = new Dictionary<string, string>();   // ligne affichée -> texte inséré au double-clic
-            void Fn(string help)
+            void Fn(string help, string suffix = "")
             {
-                sb.AppendLine("  " + help);
-                snippets["  " + help] = HelpSnippet(Lang.T(help));
+                // C47 : la ligne est traduite ici, puis l'instruction prend son nom C47 (√x, x!…)
+                string line = help;
+                if (c47)
+                {
+                    line = Lang.T(help);
+                    foreach (var (hp, n) in HelpC47Names) line = line.Replace(hp, n);
+                    line += suffix;
+                }
+                sb.AppendLine("  " + line);
+                snippets["  " + line] = HelpSnippet(Lang.T(help));
             }
+            if (c47) { AppendC47Help(sb); AppendC47Functions(sb, snippets); }
             sb.AppendLine("PYTHON ACCEPTÉ");
             sb.AppendLine("  Nombres, variables, + - * / ** % //, parenthèses, comparaisons (chaînées), and / or / not");
-            sb.AppendLine("  if / elif / else, while (+ else), for i in range(...) (+ else), break, continue, pass");
+            if (c47) sb.AppendLine("  if / elif / else → IF ELSE ENDIF ; while (+ else) → DO WHILE ENDDO ; for i in range(...) → FORᵀᴼᴾ NEXT ; break, continue, pass");
+            if (c47) sb.AppendLine("  Bit à bit sur des entiers : & | ^ ~ → SINT … AND / OR / XOR / NOT … LINT ; x << n, x >> n → par 2ⁿ (exact en entier long)");
+            else sb.AppendLine("  if / elif / else, while (+ else), for i in range(...) (+ else), break, continue, pass");
             sb.AppendLine("  def f(a, b, ...) : 4 paramètres max ; return x ou return a, b (puis a, b = f(...))");
             sb.AppendLine("  global, assert condition, \"message\"");
             sb.AppendLine("  # commentaire  ou bloc \"\"\" … \"\"\" (ou ''') en début de ligne : commentaires ignorés, absents du RPN");
@@ -873,7 +1036,7 @@ namespace dm42editor
             sb.AppendLine("  z = 3 + 4j   complex(a, b)   z.real  z.imag  abs(z)  z.conjugate()  cmath.phase(z)  cmath.rect(r, phi)");
             sb.AppendLine("  + - * / ** sqrt exp log sin cos tan sur des complexes ; RECT est ajouté au début du programme");
             sb.AppendLine();
-            sb.AppendLine("MENUS DM42");
+            sb.AppendLine(c47 ? "MENUS (compatibilité HP-42S de la C47 : 42VRMNU, 42KEY)" : "MENUS DM42");
             sb.AppendLine("  varmenu(a, b, c)            MVAR + VARMENU : tapez une valeur, touche de la variable, puis R/S");
             sb.AppendLine("  choix = menu(\"ADD\", \"SUB\")  menu de touches (6 max) : renvoie 1 à 6, 0 pour EXIT");
             sb.AppendLine();
@@ -881,7 +1044,8 @@ namespace dm42editor
             sb.AppendLine("  SF(n) CF(n)                 lève / baisse le drapeau n");
             sb.AppendLine("  if FS(n): ...  if FC(n):    tests ; FSC(n) / FCC(n) testent puis baissent le drapeau");
             sb.AppendLine();
-            sb.AppendLine("COMMANDES HP42S ( majuscules ou minuscules)");
+            sb.AppendLine(c47 ? "COMMANDES DM42 ACCEPTÉES (nom HP-42S, majuscules ou minuscules ; écrites en C47 sous le nom après ⇒)" : "COMMANDES HP42S ( majuscules ou minuscules)");
+            if (c47) sb.AppendLine("  Elles complètent les fonctions Python ci-dessus : la C47 reprend les commandes de la HP-42S, parfois sous un autre nom.");
             sb.AppendLine("  Les arguments suivent l'ordre de la pile : le dernier va dans X.");
             sb.AppendLine("  SIN(x), COS(x)... utilisent le mode d'angle de la calculatrice (DEG(), RAD()) ;");
             sb.AppendLine("  math.sin(x) travaille toujours en radians.");
@@ -891,12 +1055,28 @@ namespace dm42editor
             sb.AppendLine("  Heure : h = toHR(TIME())  → heures décimales.");
             sb.AppendLine("  Exemple : print(\"sine of\", myvar, \"is\", SIN(myvar))");
             foreach (var h in Py.Hp42.AllHelp().OrderBy(k => k.Name, StringComparer.OrdinalIgnoreCase))
-                Fn(h.Help);
+                Fn(h.Help, c47 ? C47NameOf(h.Name) : "");
             sb.AppendLine();
+            if (c47) AppendC47Catalog(sb, snippets);
             sb.AppendLine("LIMITES");
-            sb.AppendLine("  Pile de 4 niveaux · variables globales (les locales en conflit sont renommées) · pas de récursivité");
-            sb.AppendLine("  Noms de 7 caractères · 99 labels locaux · pas de listes, chaînes manipulées, classes, exceptions");
-            sb.AppendLine();
+            if (c47)
+            {
+                sb.AppendLine("  Expressions sur 4 niveaux de pile (le programme marche en SSIZE4 comme en SSIZE8)");
+                sb.AppendLine("  99 registres locaux par fonction · 18 boucles FOR en cours à la fois · 32 indicateurs locaux");
+                sb.AppendLine("  Noms de 7 caractères · 99 labels locaux · pas de listes, chaînes manipulées, classes, exceptions");
+                sb.AppendLine();
+                sb.AppendLine("RACCOURCIS (cible C47) : F5 simulateur C47 · F6 onglet C47 de l'éditeur · F7 émulateur C47 · F8 fichier .p47");
+                sb.AppendLine("  F5 exécute le programme dans le simulateur C47 (réglé dans Fichier → Paramètres) : chaque INPUT reçoit la valeur suivante puis R/S.");
+                sb.AppendLine("  La pile affichée a 8 niveaux (X Y Z T A B C D, réglage d'usine SSIZE8) ; les menus (varmenu, menu) ne sont pas simulés ainsi.");
+                sb.AppendLine("FICHIER .P47 : F8 encode le programme ; sur la C47, READP le charge.");
+                sb.AppendLine();
+            }
+            else
+            {
+                sb.AppendLine("  Pile de 4 niveaux · variables globales (les locales en conflit sont renommées) · pas de récursivité");
+                sb.AppendLine("  Noms de 7 caractères · 99 labels locaux · pas de listes, chaînes manipulées, classes, exceptions");
+                sb.AppendLine();
+            }
             sb.AppendLine("RACCOURCIS : F5 simulation · F6 envoyer vers l'éditeur · F7 envoyer vers l'émulateur · Ctrl+K commenter · Ctrl+N nouveau · Ctrl+O ouvrir · Ctrl+S enregistrer · Ctrl+P imprimer · Ctrl+F rechercher · Ctrl+H remplacer");
             sb.AppendLine("  Menu Fichier : nouveau, ouvrir, enregistrer (sous), exemples, imprimer le code Python ou le listing RPN, quitter.");
             sb.AppendLine("  Clic droit dans le code : couper, copier, coller, effacer la sélection, effacer la page.");
@@ -907,7 +1087,7 @@ namespace dm42editor
 
             var f = new Form
             {
-                Text = Lang.T("Aide Python → RPN"),
+                Text = Lang.T(c47 ? "Aide Python → RPN C47 / R47" : "Aide Python → RPN DM42"),
                 Size = new Size(860, 720),
                 StartPosition = FormStartPosition.CenterParent,
                 BackColor = Body,
@@ -934,7 +1114,33 @@ namespace dm42editor
                 BorderStyle = BorderStyle.None
             };
             box.ItemHeight = box.Font.Height + 2;
-            box.Items.AddRange(sb.ToString().Split(new[] { "\r\n" }, StringSplitOptions.None).Cast<object>().ToArray());
+            var allLines = sb.ToString().Split(new[] { "\r\n" }, StringSplitOptions.None);
+            box.Items.AddRange(allLines.Cast<object>().ToArray());
+            // recherche : lignes qui contiennent le texte, avec le titre de leur section
+            var search = new TextBox { Dock = DockStyle.Top, PlaceholderText = Lang.T("Rechercher dans l'aide (nom, fonction, description)…") };
+            search.TextChanged += (s, e) =>
+            {
+                string q = search.Text.Trim();
+                var shown = new List<object>();
+                string head = null, sub = null;
+                foreach (var line in allLines)
+                {
+                    if (line.Length > 0 && line[0] != ' ' && !line.StartsWith("· ")) { head = line; sub = null; }
+                    else if (line.StartsWith("· ")) sub = line;
+                    if (q.Length > 0 && line.IndexOf(q, StringComparison.OrdinalIgnoreCase) < 0 && Shown(line).IndexOf(q, StringComparison.OrdinalIgnoreCase) < 0) continue;
+                    if (q.Length > 0)
+                    {
+                        // titre de la section, puis sous-titre du domaine, avant la ligne trouvée
+                        if (head != null && line != head && !shown.Contains(head)) shown.Add(head);
+                        if (sub != null && line != sub && !shown.Contains(sub)) shown.Add(sub);
+                    }
+                    shown.Add(line);
+                }
+                box.BeginUpdate();
+                box.Items.Clear();
+                box.Items.AddRange(shown.ToArray());
+                box.EndUpdate();
+            };
             // le retrait des lignes ne fait pas partie du texte traduit
             string Shown(string line)
             {
@@ -974,8 +1180,126 @@ namespace dm42editor
                 else if (e.Control && e.KeyCode == Keys.C && box.SelectedItem is string line && line.Length > 0) Clipboard.SetText(Lang.T(line.Trim()));
             };
             f.Controls.Add(box);
+            f.Controls.Add(search);
             f.Controls.Add(hint);
             f.Show(owner);
+        }
+
+        /// <summary>
+        /// Fonctions Python de la cible C47 (table Py42.Core.C47Functions, chacune vérifiée sur le simulateur), par domaine :
+        /// appel Python → instruction C47 : description ; double-clic insère l'appel.
+        /// </summary>
+        static void AppendC47Functions(StringBuilder sb, Dictionary<string, string> snippets)
+        {
+            bool en = Py.Tr.English;
+            void Line(string call, string rpn, string desc)
+            {
+                string line = $"  {call} → {rpn} : {desc}";   // retrait hors de l'appel inséré
+                sb.AppendLine(line);
+                snippets[line] = call;
+            }
+            // « jv(v, x) : Bessel… » : l'appel est déjà dans la description
+            (string Call, string Desc) Split(Py.C47Functions.Fn f)
+            {
+                string d = en ? f.En : f.Fr;
+                int i = d.IndexOf(" : ", StringComparison.Ordinal) is int a && a > 0 ? a : d.IndexOf(": ", StringComparison.Ordinal);
+                if (d.StartsWith(f.Python + "(") && i > 0) return (d.Substring(0, i), d.Substring(i).TrimStart(' ', ':'));
+                return (f.Python + (f.Args == 1 ? "(x)" : "(x, y)"), d);
+            }
+            sb.AppendLine("FONCTIONS PYTHON → C47 (math, scipy.special, sympy ; double-clic : insère l'appel)");
+            foreach (var g in Py.C47Functions.All.GroupBy(f => f.Domain))
+            {
+                sb.AppendLine("· " + Lang.T(g.Key).ToUpperInvariant());
+                foreach (var f in g) { var (call, desc) = Split(f); Line(call, f.Rpn, desc); }
+            }
+            sb.AppendLine("· " + Lang.T("Statistiques et probabilités").ToUpperInvariant() + "  (import statistics ; v : liste ou variable liste)");
+            foreach (var f in Py.C47Functions.Statistics) Line("statistics." + f.Python + "(v)", "CLΣ, Σ+… " + f.Rpn, en ? f.En : f.Fr);
+            sb.AppendLine("· " + (en ? "PROBABILITY DISTRIBUTIONS (import scipy.stats as st)" : "LOIS DE PROBABILITÉ (import scipy.stats as st)"));
+            sb.AppendLine(en ? "  st.LAW.pdf (or pmf) / cdf / sf / ppf (x, parameters): the parameters go into registers M N P Q R S, as on the C47"
+                             : "  st.LOI.pdf (ou pmf) / cdf / sf / ppf (x, paramètres) : les paramètres vont dans les registres M N P Q R S, comme sur la C47");
+            foreach (var d in Py.C47Functions.Distributions)
+            {
+                string pm = d.Discrete ? "pmf" : "pdf";
+                string pars = d.Python switch
+                {
+                    "norm" or "cauchy" or "logistic" => "x, loc, scale", "expon" => "x, 0, scale", "weibull_min" => "x, c, 0, scale",
+                    "t" or "chi2" => "x, df", "f" => "x, dfn, dfd", "binom" or "nbinom" => "k, n, p", "poisson" => "k, mu", _ => "k, p"
+                };
+                Line($"st.{d.Python}.{pm}({pars})", $"{d.Pdf} {d.Cdf} {d.Sf} {d.Ppf}", en ? d.En : d.Fr);
+            }
+            Line("st.norm.cdf(x)", "ϕₚ Φ◭ Φ◮ Φ⁻¹", en ? "standard normal distribution (no loc, scale)" : "loi normale centrée réduite (sans loc ni scale)");
+            sb.AppendLine("· " + Lang.T("Constantes").ToUpperInvariant() + "  (import scipy.constants)");
+            foreach (var f in Py.C47Functions.Constants) Line("scipy.constants." + f.Python, f.Rpn, en ? f.En : f.Fr);
+            sb.AppendLine("· TESTS");
+            Line("if isprime(n):", "PRIME?", en ? "sympy.isprime: n is prime" : "sympy.isprime : n est premier");
+            sb.AppendLine("· APPEL DIRECT (import c47)");
+            Line("c47.call(\"ft→m\", x)", "ft→m", en ? "any C47 instruction by its name written as text, symbols included (full list at the end of this help)"
+                                                         : "toute instruction C47 par son nom écrit en texte, symboles compris (liste complète en fin d'aide)");
+            Line("c47.AGM(a, b)", "AGM", en ? "any C47 instruction by its name: arguments in stack order, the last one in X" : "n'importe quelle instruction C47 par son nom : arguments dans l'ordre de la pile, le dernier dans X");
+            sb.AppendLine();
+        }
+
+        /// <summary>« ⇒ NOM » : nom C47 d'une commande HP-42S de Py42 quand il diffère (Hp42Converter), vide sinon.</summary>
+        static string C47NameOf(string python)
+        {
+            string rpn = Py.Hp42.Commands.TryGetValue(python, out var cmd) ? cmd.Rpn
+                       : Py.Hp42.VarCommands.TryGetValue(python, out var vc) ? vc.Rpn
+                       : Py.Hp42.LabelCommands.TryGetValue(python, out var lc) ? lc.Rpn : null;
+            if (string.IsNullOrEmpty(rpn)) return "";
+            string first = rpn.Split(' ')[0];
+            string c47 = C47.Core.Hp42Converter.Convert(first).Source.Trim();
+            if (c47.StartsWith("@")) return "  " + Lang.T("⇒ (sans objet sur la C47)");
+            return c47 != first ? "  ⇒ " + c47 : "";
+        }
+
+        /// <summary>Toutes les instructions C47 sans paramètre, par domaine, appelables par c47.call("nom", …).</summary>
+        static void AppendC47Catalog(StringBuilder sb, Dictionary<string, string> snippets)
+        {
+            sb.AppendLine("TOUTES LES INSTRUCTIONS C47 SANS PARAMÈTRE : c47.call(\"nom\", arguments…) (double-clic : insère l'appel)");
+            sb.AppendLine("  Conversions d'unités, dates, bits, réels… : les arguments suivent l'ordre de la pile, le dernier dans X.");
+            foreach (string cat in C47.Core.Items.Categories)
+            {
+                var items = C47Help.Listed().Where(i => i.Kind == C47.Core.ParamKind.None && C47.Core.Items.Help(i).Category == cat)
+                                            .OrderBy(i => i.Shown, StringComparer.OrdinalIgnoreCase).ToList();
+                if (items.Count == 0) continue;
+                sb.AppendLine("· " + Lang.T(cat).ToUpperInvariant() + $"  ({items.Count})");
+                foreach (var i in items)
+                {
+                    string name = C47.Core.Items.Unique(i);
+                    string call = $"c47.call(\"{name}\")";
+                    string line = $"  {call} : {C47Help.Short(i, 90)}";
+                    sb.AppendLine(line);
+                    snippets[line] = call;
+                }
+            }
+            sb.AppendLine();
+        }
+
+        /// <summary>Début de l'aide de la cible C47 : ce que la C47 change par rapport à la DM42.</summary>
+        static void AppendC47Help(StringBuilder sb)
+        {
+            sb.AppendLine("CIBLE C47 / R47");
+            sb.AppendLine("  Le même Python produit un programme pour la C47 : structures, registres locaux, entiers longs, textes longs.");
+            sb.AppendLine("  Les exemples propres à la C47 sont dans Fichier → Exemples C47 / R47.");
+            sb.AppendLine();
+            sb.AppendLine("STRUCTURES (au lieu des GTO de la DM42)");
+            sb.AppendLine("  if c: … elif d: … else: …      test IF … ELSE test IF … ENDIF ENDIF");
+            sb.AppendLine("  while c: … else: …             DO test WHILE … ENDDO, puis le else");
+            sb.AppendLine("  for i in range(a, b, pas):     a, b - 1, pas, FORᵀᴼᴾ i … NEXT i (aucun tour si la plage est vide)");
+            sb.AppendLine("  for avec break, ou qui modifie i : DO … ENDDO (sortir d'un FOR par GTO garde son emplacement occupé)");
+            sb.AppendLine("  and / or / not : la condition est calculée dans un indicateur local .00, .01… (court-circuit de Python)");
+            sb.AppendLine("  Les structures sont numérotées à l'encodage, comme VALID sur la calculatrice.");
+            sb.AppendLine();
+            sb.AppendLine("FONCTIONS ET RÉCURSIVITÉ");
+            sb.AppendLine("  Variables locales d'une fonction dans les registres locaux : LocR n, puis .00, .01… (plus de renommage)");
+            sb.AppendLine("  Chaque appel a ses propres registres : la récursivité est permise (def fact(n): … return n * fact(n - 1))");
+            sb.AppendLine("  Les variables du programme principal restent des variables nommées, visibles sur la calculatrice.");
+            sb.AppendLine();
+            sb.AppendLine("NOMBRES ET TEXTES");
+            sb.AppendLine("  Un nombre entier est un entier long, exact sans limite de taille : fact(25) = 15511210043330985984000000");
+            sb.AppendLine("  Un texte est une valeur poussée dans X, sans limite de 6 caractères : nom = \"CALCULATRICE C47\"");
+            sb.AppendLine("  print passe par les instructions de compatibilité HP-42S (42α, 42ARCL, 42AVIEW ; ALPHA = registre K).");
+            sb.AppendLine();
         }
     }
 }

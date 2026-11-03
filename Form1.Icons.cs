@@ -32,7 +32,11 @@ namespace dm42editor
             ["Ouvrir un fichier Python…"] = "open",
             ["Afficher l'éditeur Python"] = "window",
             ["Exemples"] = "examples",
+            ["Exemples DM42"] = "examples",
+            ["Exemples C47 / R47"] = "examples",
             ["Aide Python → RPN"] = "help",
+            ["Aide Python → RPN DM42"] = "help",
+            ["Aide Python → RPN C47 / R47"] = "help",
             // C47 (Fichier et Aide)
             ["Nouveau programme C47"] = "new",
             ["Instructions C47"] = "list",

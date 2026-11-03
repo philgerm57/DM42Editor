@@ -11,6 +11,10 @@
 - **Logigramme** à la manière des feuilles de programmation HP-41C : losanges pour les tests (O / N), blocs d'instructions, appels `XEQ` à double barre, entrées / sorties en parallélogramme, colonne de commentaires. Mis à jour pendant la saisie.
 - **Conversion HP-41C → DM42** de la syntaxe (registres de pile, arguments à deux chiffres, etc.).
 - **Python → RPN** (Py42) : écrire le programme en Python, obtenir le listing HP-42S et le simuler avant de l'envoyer.
+  Avec la cible **C47 / R47** (liste « Cible » de la fenêtre Python), le programme est produit pour la C47 :
+  structures `IF` / `DO` / `FORᵀᴼᴾ` au lieu des `GTO`, variables locales dans les registres `LocR` (récursivité permise),
+  noms HP-42S convertis (`42α`, `42ARCL`, `42AVIEW`, `42KEY`…). F5 l'exécute dans le simulateur C47, F6 l'ouvre dans un
+  onglet C47, F8 l'enregistre en .p47, F7 l'envoie à l'émulateur C47.
 - **RPN C47** : des onglets C47 dans le même éditeur (Fichier > Nouveau programme C47, ou ouverture d'un `.p47` / `.p47u`) ; coloration, erreurs signalées pendant la saisie, liste des instructions par domaine (aussi dans Aide > Instructions C47), « Encoder et enregistrer en .p47 » et visualisation des octets (voir [C47/README.md](C47/README.md)).
 - **Aide à la saisie** : infobulle sur le mot survolé (instruction, registre `R07`, indicateur `F01`, nombre, remarque…),
   autocomplétion dès deux lettres avec une courte description, et recherche par nom ou description au-dessus de la liste des fonctions.

@@ -31,6 +31,15 @@ La syntaxe suit les listings `.p47u` de `rejig` et les exports `XPORTP` :
 - `⟦hex⟧` insère des octets bruts : le décodeur s'en sert pour les littéraux binaires.
 - `ITM:n` désigne une instruction par son numéro quand plusieurs partagent un nom.
 
+## Conversion HP-42S → C47
+
+`C47.Core/Hp42Converter.cs` convertit un listing HP-42S / DM42 (Free42, Py42) en source C47, une ligne par ligne :
+textes et commandes ALPHA par les versions de compatibilité (`"ABC"` → `42α ‘ABC’`, `ARCL` → `42ARCL`, `AVIEW` → `42AVIEW`,
+`KEY` → `42KEY`, `PROMPT` → `42PRMPT`), noms différents (`+/-` → `CHS`, `→RAD` → `deg→rad`, `INVRT` → `[M]⁻¹`, `MEAN` → `x̄`…),
+`HMS+` / `HMS-` développés, et quelques instructions inutiles sur la C47 (`SIZE`, `ALLΣ`) retirées avec un avertissement.
+La fenêtre Python s'en sert pour la cible C47. Les 11 exemples Py42 donnent les mêmes résultats dans le simulateur C47
+que dans le simulateur Py42.
+
 ## Licence
 
 GNU GPLv3, comme DM42 Editor. `C47.Core/c47_items.tsv` et les règles d'encodage sont dérivés des sources de C47

@@ -83,12 +83,14 @@ namespace dm42editor.Flowchart
         /// <summary>Idem, avec la marque du commentaire (« // », « # » ou « @ », null s'il n'y en a pas).</summary>
         internal static void SplitComment(string s, out string code, out string marker, out string comment)
         {
-            bool quote = false;
+            bool quote = false, c47Quote = false;   // "texte" (DM42) ou ‘texte’ (C47)
             for (int i = 0; i < s.Length; i++)
             {
                 char c = s[i];
-                if (c == '"') quote = !quote;
-                if (quote) continue;
+                if (c == '"' && !c47Quote) quote = !quote;
+                else if (c == '‘' && !quote) c47Quote = true;
+                else if (c == '’' && !quote) c47Quote = false;
+                if (quote || c47Quote) continue;
                 if (c == '#' || c == '@' || (c == '/' && i + 1 < s.Length && s[i + 1] == '/'))
                 {
                     code = s.Substring(0, i);
@@ -138,12 +140,13 @@ namespace dm42editor.Flowchart
                 ins.Op = (sp < 0 ? code : code.Substring(0, sp)).ToUpperInvariant();
                 ins.Arg = sp < 0 ? "" : code.Substring(sp + 1).Trim();
                 ins.IsLabel = ins.Op == "LBL" && ins.Arg.Length > 0;
-                ins.IsGlobalLabel = ins.IsLabel && ins.Arg.StartsWith("\"");
+                // label global : "NOM" (DM42), ‘NOM’ ou 'NOM' (C47)
+                ins.IsGlobalLabel = ins.IsLabel && ins.Arg[0] is '"' or '‘' or '\'';
                 ins.IsGto = ins.Op == "GTO" && ins.Arg.Length > 0 && !ins.Arg.StartsWith("IND", StringComparison.OrdinalIgnoreCase);
                 ins.IsTest = TestRx.IsMatch(code);
                 ins.IsStop = ins.Op == "RTN" || ins.Op == "END";
                 ins.IsCall = ins.Op == "XEQ";
-                ins.IsIO = ins.Op is "INPUT" or "PROMPT" or "VIEW" or "AVIEW";
+                ins.IsIO = ins.Op is "INPUT" or "PROMPT" or "VIEW" or "AVIEW" or "42AVIEW" or "42PRMPT";   // + noms C47 des commandes HP-42S
                 if (ins.IsLabel || ins.IsGto) ins.Key = LabelKey(ins.Arg);
                 list.Add(ins);
             }

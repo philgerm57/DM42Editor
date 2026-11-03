@@ -465,8 +465,8 @@ public static partial class Encoder
             PutStr(o, t);
             return o.ToArray();
         }
-        // écriture rejig d'un complexe : 1.001+1.002𝒾 est stocké 1.001+i1.002
-        m = Regex.Match(t, @"^(-?[\d.]+(?:[eE][-+]?\d+)?)([+-])([\d.]+(?:[eE][-+]?\d+)?)𝒾$");
+        // écriture rejig d'un complexe : 1.001+1.002𝒾 (ou ⅈ, plus facile à taper) est stocké 1.001+i1.002
+        m = Regex.Match(t, @"^(-?[\d.]+(?:[eE][-+]?\d+)?)([+-])([\d.]+(?:[eE][-+]?\d+)?)(?:𝒾|ⅈ)$");
         if (m.Success)
         {
             o.Add(10);

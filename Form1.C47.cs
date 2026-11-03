@@ -79,7 +79,7 @@ namespace dm42editor
                 }
                 else
                 {
-                    InitNewDataTab(C47Text.Plain(File.ReadAllText(path, Encoding.UTF8)), path, c47: true);
+                    InitNewDataTab(EditorText(File.ReadAllText(path, Encoding.UTF8)), path, c47: true);
                 }
                 CurrentTB.IsChanged = false;
             }
@@ -87,6 +87,49 @@ namespace dm42editor
             {
                 MessageBox.Show(this, C47.Core.Tr.T(ex.Message), "C47", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
+        }
+
+        /// <summary>Caractères hors du plan de base (deux unités UTF-16, deux cases dans l'éditeur) et leur équivalent affichable.</summary>
+        static readonly (string Wide, string Narrow)[] WideChars =
+        {
+            ("𝝅", "π"), ("𝜋", "π"), ("𝒾", "ⅈ"), ("𝒿", "ⅉ"), ("🖨", "⎙"), ("🠙", "↑"), ("🠛", "↓"), ("𝚁", "R"), ("𝚂", "S"),
+        };
+
+        /// <summary>
+        /// Source .p47u prête pour l'éditeur, qui affiche un caractère par case : les mots du code écrits avec des caractères
+        /// hors du plan de base (𝝅, 1.001+1.002𝒾, 🖨xy) prennent l'écriture du décodeur (pi, 1.001+i1.002, ⎙xy), qui s'encode
+        /// à l'identique ; dans les textes et commentaires, le caractère prend son équivalent (𝑥 → x, 🠙 → ↑).
+        /// </summary>
+        static string EditorText(string text)
+        {
+            text = C47Text.Plain(text);   // italiques 𝑥 𝑦 𝑒…
+            if (!text.Any(char.IsSurrogate)) return text;
+            string Narrow(string s) { foreach (var (w, n) in WideChars) s = s.Replace(w, n); return s; }
+            string Token(string tok)
+            {
+                if (!tok.Any(char.IsSurrogate)) return tok;
+                var r = Encoder.Encode(tok);
+                var decoded = r.Errors.Count == 0 ? Decoder.Decode(r.Program).Where(l => l != "END").ToList() : null;   // END ajouté par l'encodeur
+                if (decoded?.Count == 1) return decoded[0];
+                return Items.Find(tok) is Item i ? Items.Unique(i) : Narrow(tok);   // instruction suivie de son paramètre (𝑥⇄ R99)
+            }
+            var lines = text.Replace("\r\n", "\n").Split('\n');
+            for (int k = 0; k < lines.Length; k++)
+            {
+                string line = lines[k];
+                if (!line.Any(char.IsSurrogate)) continue;
+                var sb = new StringBuilder();
+                int at = 0;
+                foreach (Match m in C47StringOrComment.Matches(line))
+                {
+                    sb.Append(Regex.Replace(line.Substring(at, m.Index - at), @"\S+", t => Token(t.Value)));
+                    sb.Append(Narrow(m.Value));
+                    at = m.Index + m.Length;
+                }
+                sb.Append(Regex.Replace(line.Substring(at), @"\S+", t => Token(t.Value)));
+                lines[k] = sb.ToString();
+            }
+            return string.Join("\r\n", lines);
         }
 
         void InsertInC47Tab(string text)

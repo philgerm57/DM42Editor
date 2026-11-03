@@ -232,7 +232,7 @@ namespace dm42editor
         ToolStripDropDownButton BuildFileMenu(ToolStrip tools)
         {
             var file = new ToolStripDropDownButton("Fichier") { ForeColor = Ink, ShowDropDownArrow = false };
-            var examples = Ico("examples", new ToolStripMenuItem("Exemples") { ForeColor = Ink });
+            var examples = Ico("examples", new ToolStripMenuItem("Exemples DM42") { ForeColor = Ink });
             for (int i = 0; i < Py42.Core.Examples.All.Count; i++)
             {
                 int idx = i;
@@ -240,6 +240,26 @@ namespace dm42editor
             }
             examples.DropDown.Renderer = tools.Renderer;
             examples.DropDown.BackColor = Color.FromArgb(44, 44, 41);
+            // exemples C47 / R47 : ils choisissent la cible C47 (récursivité, entiers longs : refusés pour la HP-42S)
+            var examplesC47 = Ico("examples", new ToolStripMenuItem("Exemples C47 / R47") { ForeColor = Ink });
+            for (int i = 0; i < Py42.Core.ExamplesC47.All.Count; i++)
+            {
+                int idx = i;
+                examplesC47.DropDownItems.Add(Item(Py42.Core.ExamplesC47.All[i].Title, null, (s, e) => { if (ConfirmDiscard()) LoadC47Example(idx); }));
+            }
+            // programmes de la distribution C47 (dossier PROGRAMS du simulateur) réécrits en Python
+            var programsC47 = new ToolStripMenuItem("Programmes de la distribution C47") { ForeColor = Ink };
+            for (int i = 0; i < Py42.Core.ExamplesC47.Programs.Count; i++)
+            {
+                int idx = i;
+                programsC47.DropDownItems.Add(Item(Py42.Core.ExamplesC47.Programs[i].Title, null, (s, e) => { if (ConfirmDiscard()) LoadC47Program(idx); }));
+            }
+            programsC47.DropDown.Renderer = tools.Renderer;
+            programsC47.DropDown.BackColor = Color.FromArgb(44, 44, 41);
+            examplesC47.DropDownItems.Add(new ToolStripSeparator());
+            examplesC47.DropDownItems.Add(programsC47);
+            examplesC47.DropDown.Renderer = tools.Renderer;
+            examplesC47.DropDown.BackColor = Color.FromArgb(44, 44, 41);
 
             file.DropDownItems.AddRange(new ToolStripItem[]
             {
@@ -249,6 +269,7 @@ namespace dm42editor
                 Ico("save", Item("Enregistrer sous…", "Ctrl+Maj+S", (s, e) => SavePython(true))),
                 new ToolStripSeparator(),
                 examples,
+                examplesC47,
                 new ToolStripSeparator(),
                 Ico("print", Item("Imprimer le code Python…", "Ctrl+P", (s, e) => pyBox.Print(PrintTitle()))),
                 Ico("print", Item("Imprimer le listing RPN…", null, (s, e) => PrintRpn())),
@@ -525,6 +546,7 @@ namespace dm42editor
         void SaveRaw()
         {
             if (last == null) { status.Text = Lang.T("Rien à encoder : corrigez d'abord les erreurs."); return; }
+            if (TargetC47) { SaveP47(); return; }
             var bytes = Py42.Raw.RawExport.Encode(last, out var errors);
             if (bytes == null)
             {
@@ -562,9 +584,51 @@ namespace dm42editor
         // ==================================================================
         //  Envoi vers l'émulateur réglé dans Paramètres (presse-papiers + fenêtre au premier plan)
         // ==================================================================
+        /// <summary>Fichier .p47 pour la C47 / R47 : la source convertie, encodée par C47.Core.</summary>
+        void SaveP47()
+        {
+            if (!lastC47Code.Ok)
+            {
+                MessageBox.Show(this, Lang.T("Le listing n'a pas pu être encodé :\n\n") + string.Join("\n", lastC47Code.Errors.Take(15).Select(er => Lang.F("Ligne {0} : {1}", er.Line, C47.Core.Tr.T(er.Message)))),
+                                Lang.T("Générer .p47"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            string name = currentFile != null ? Path.GetFileNameWithoutExtension(currentFile)
+                        : (progName.Text.Trim().Length > 0 ? progName.Text.Trim() : "MAIN");
+            string dir = lastRawDir ?? (currentFile != null ? Path.GetDirectoryName(currentFile)
+                        : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+            using (var dlg = new SaveFileDialog
+            {
+                Title = Lang.T("Enregistrer le programme pour la C47"),
+                Filter = Lang.T("Programme C47 (*.p47)|*.p47"),
+                DefaultExt = ".p47",
+                FileName = name + ".p47",
+                InitialDirectory = dir
+            })
+            {
+                if (dlg.ShowDialog(this) != DialogResult.OK) return;
+                try
+                {
+                    File.WriteAllBytes(dlg.FileName, C47.Core.P47File.Write(lastC47Code.Program));
+                    lastRawDir = Path.GetDirectoryName(dlg.FileName);
+                    status.Text = Lang.F("{0} enregistré : {1} pas, {2} octets", Path.GetFileName(dlg.FileName), lastC47Code.Steps, lastC47Code.Program.Length);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(this, ex.Message, Lang.T("Écriture impossible"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+        }
+
         void SendToFree42()
         {
             if (last == null) { status.Text = Lang.T("Rien à envoyer : corrigez d'abord les erreurs."); return; }
+            if (TargetC47)
+            {
+                if (!lastC47Code.Ok) { status.Text = Lang.T("Le listing C47 contient des erreurs : voir les messages."); return; }
+                status.Text = Emulator.SendC47(this, C47.Core.P47File.Write(lastC47Code.Program), progName.Text.Trim().Length > 0 ? progName.Text.Trim() : "MAIN");
+                return;
+            }
             status.Text = Emulator.Send(this, last.Listing(true, header: true), last.Code.Count);
         }
     }

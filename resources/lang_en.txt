@@ -472,3 +472,66 @@ Vers le bas (R↓)	Down (R↓)
 Somme (Σ+, Σ-)	Sum (Σ+, Σ-)
 Texte ou nom : ‘LBL’ (le curseur se place entre les guillemets)	Text or name: ‘LBL’ (the cursor goes between the quotes)
 Impossible d'enregistrer les paramètres dans {0}\n{1}	Unable to save the settings to {0}\n{1}
+Cible	Target
+Calculatrice visée : HP-42S / DM42, ou C47 / R47 (instructions HP-42S converties)	Target calculator: HP-42S / DM42, or C47 / R47 (HP-42S instructions converted)
+Générer .p47  F8	Generate .p47  F8
+Générer .p47	Generate .p47
+Encode directement le programme en fichier .p47 pour la C47 / R47	Encodes the program directly into a .p47 file for the C47 / R47
+Ouvre la source C47 dans un onglet C47 de l'éditeur, prêt pour « Encoder et enregistrer en .p47 »	Opens the C47 source in a C47 editor tab, ready for "Encode and save as .p47"
+Source C47 envoyée dans l'onglet « {0}.p47u ». Utilisez « Encoder et enregistrer en .p47 » pour la C47.	C47 source sent to tab "{0}.p47u". Use "Encode and save as .p47" for the C47.
+Le listing C47 contient des erreurs : voir les messages.	The C47 listing has errors: see the messages.
+Encode directement le programme en fichier .raw pour la DM42 / Free42	Encodes the program directly into a .raw file for the DM42 / Free42
+Ouvre le RPN dans un onglet de DM42 Editor, prêt pour « Encoder et enregistrer en .raw »	Opens the RPN in a DM42 Editor tab, ready for "Encode and save as .raw"
+Simulateur C47 en cours…	C47 simulator running…
+Simulateur C47 (calcul sur 34 chiffres)	C47 simulator (34-digit arithmetic)
+Dernier message : 	Last message: 
+c47.exe introuvable dans {0}	c47.exe not found in {0}
+Le programme ne s'est pas terminé en 30 s (boucle sans fin, ou saisie attendue par un menu ?).	The program did not finish within 30 s (endless loop, or input expected from a menu?).
+Exemples C47 / R47	C47 / R47 examples
+Exemples DM42	DM42 examples
+Aide Python → RPN DM42	Python → RPN DM42 help
+Python → RPN DM42	Python → RPN DM42
+Calculatrice visée : DM42 (HP-42S, Free42, Plus42), ou C47 / R47	Target calculator: DM42 (HP-42S, Free42, Plus42), or C47 / R47
+Aide Python → RPN DM42 : Python accepté et commandes HP-42S	Python → RPN DM42 help: accepted Python and HP-42S commands
+Pile de 8 niveaux (SSIZE8, réglage d'usine de la C47)	8-level stack (SSIZE8, C47 factory setting)
+Pile de 4 niveaux (SSIZE4)	4-level stack (SSIZE4)
+Aide Python → RPN C47 / R47	Python → RPN C47 / R47 help
+Aide de la cible choisie (DM42 ou C47) : Python accepté et commandes	Help for the chosen target (DM42 or C47): accepted Python and commands
+CIBLE C47 / R47	C47 / R47 TARGET
+Le même Python produit un programme pour la C47 : structures, registres locaux, entiers longs, textes longs.	The same Python produces a C47 program: structures, local registers, long integers, long texts.
+Les exemples propres à la C47 sont dans Fichier → Exemples C47 / R47.	The C47-specific examples are in File → C47 / R47 examples.
+STRUCTURES (au lieu des GTO de la DM42)	STRUCTURES (instead of the DM42 GTOs)
+if c: … elif d: … else: …      test IF … ELSE test IF … ENDIF ENDIF	if c: … elif d: … else: …      test IF … ELSE test IF … ENDIF ENDIF
+while c: … else: …             DO test WHILE … ENDDO, puis le else	while c: … else: …             DO test WHILE … ENDDO, then the else
+for i in range(a, b, pas):     a, b - 1, pas, FORᵀᴼᴾ i … NEXT i (aucun tour si la plage est vide)	for i in range(a, b, step):    a, b - 1, step, FORᵀᴼᴾ i … NEXT i (no pass when the range is empty)
+for avec break, ou qui modifie i : DO … ENDDO (sortir d'un FOR par GTO garde son emplacement occupé)	for with break, or changing i: DO … ENDDO (leaving a FOR by GTO keeps its slot busy)
+and / or / not : la condition est calculée dans un indicateur local .00, .01… (court-circuit de Python)	and / or / not: the condition is computed in a local flag .00, .01… (Python short-circuit)
+Les structures sont numérotées à l'encodage, comme VALID sur la calculatrice.	Structures are numbered when encoding, like VALID on the calculator.
+FONCTIONS ET RÉCURSIVITÉ	FUNCTIONS AND RECURSION
+Variables locales d'une fonction dans les registres locaux : LocR n, puis .00, .01… (plus de renommage)	A function's local variables live in local registers: LocR n, then .00, .01… (no more renaming)
+Chaque appel a ses propres registres : la récursivité est permise (def fact(n): … return n * fact(n - 1))	Each call has its own registers: recursion is allowed (def fact(n): … return n * fact(n - 1))
+Les variables du programme principal restent des variables nommées, visibles sur la calculatrice.	Main program variables remain named variables, visible on the calculator.
+NOMBRES ET TEXTES	NUMBERS AND TEXTS
+Un nombre entier est un entier long, exact sans limite de taille : fact(25) = 15511210043330985984000000	An integer is a long integer, exact at any size: fact(25) = 15511210043330985984000000
+Un texte est une valeur poussée dans X, sans limite de 6 caractères : nom = "CALCULATRICE C47"	A text is a value pushed into X, without the 6-character limit: name = "CALCULATOR C47"
+print passe par les instructions de compatibilité HP-42S (42α, 42ARCL, 42AVIEW ; ALPHA = registre K).	print uses the HP-42S compatibility instructions (42α, 42ARCL, 42AVIEW; ALPHA = register K).
+if / elif / else → IF ELSE ENDIF ; while (+ else) → DO WHILE ENDDO ; for i in range(...) → FORᵀᴼᴾ NEXT ; break, continue, pass	if / elif / else → IF ELSE ENDIF; while (+ else) → DO WHILE ENDDO; for i in range(...) → FORᵀᴼᴾ NEXT; break, continue, pass
+Cible C47 : ces commandes sont écrites sous leur nom C47 (+/- → CHS, ARCL → 42ARCL, INVRT → [M]⁻¹…).	C47 target: these commands are written under their C47 name (+/- → CHS, ARCL → 42ARCL, INVRT → [M]⁻¹…).
+Expressions sur 4 niveaux de pile (le programme marche en SSIZE4 comme en SSIZE8)	Expressions use 4 stack levels (the program works with SSIZE4 as with SSIZE8)
+99 registres locaux par fonction · 18 boucles FOR en cours à la fois · 32 indicateurs locaux	99 local registers per function · 18 FOR loops running at once · 32 local flags
+RACCOURCIS (cible C47) : F5 simulateur C47 · F6 onglet C47 de l'éditeur · F7 émulateur C47 · F8 fichier .p47	SHORTCUTS (C47 target): F5 C47 simulator · F6 editor C47 tab · F7 C47 emulator · F8 .p47 file
+F5 exécute le programme dans le simulateur C47 (réglé dans Fichier → Paramètres) : chaque INPUT reçoit la valeur suivante puis R/S.	F5 runs the program in the C47 simulator (set in File → Settings): each INPUT gets the next value then R/S.
+La pile affichée a 8 niveaux (X Y Z T A B C D, réglage d'usine SSIZE8) ; les menus (varmenu, menu) ne sont pas simulés ainsi.	The displayed stack has 8 levels (X Y Z T A B C D, factory setting SSIZE8); menus (varmenu, menu) are not simulated this way.
+FICHIER .P47 : F8 encode le programme ; sur la C47, READP le charge.	.P47 FILE: F8 encodes the program; on the C47, READP loads it.
+MENUS (compatibilité HP-42S de la C47 : 42VRMNU, 42KEY)	MENUS (C47 HP-42S compatibility: 42VRMNU, 42KEY)
+FONCTIONS PYTHON → C47 (math, scipy.special, sympy ; double-clic : insère l'appel)	PYTHON → C47 FUNCTIONS (math, scipy.special, sympy; double-click: inserts the call)
+· APPEL DIRECT (import c47)	· DIRECT CALL (import c47)
+· TESTS	· TESTS
+Bit à bit sur des entiers : & | ^ ~ → SINT … AND / OR / XOR / NOT … LINT ; x << n, x >> n → par 2ⁿ (exact en entier long)	Bitwise on integers: & | ^ ~ → SINT … AND / OR / XOR / NOT … LINT; x << n, x >> n → through 2ⁿ (exact as long integer)
+COMMANDES DM42 ACCEPTÉES (nom HP-42S, majuscules ou minuscules ; écrites en C47 sous le nom après ⇒)	ACCEPTED DM42 COMMANDS (HP-42S name, upper or lower case; written in C47 under the name after ⇒)
+Elles complètent les fonctions Python ci-dessus : la C47 reprend les commandes de la HP-42S, parfois sous un autre nom.	They complement the Python functions above: the C47 keeps the HP-42S commands, sometimes under another name.
+⇒ (sans objet sur la C47)	⇒ (not needed on the C47)
+Conversions d'unités, dates, bits, réels… : les arguments suivent l'ordre de la pile, le dernier dans X.	Unit conversions, dates, bits, reals…: arguments follow the stack order, the last one in X.
+Rechercher dans l'aide (nom, fonction, description)…	Search the help (name, function, description)…
+TOUTES LES INSTRUCTIONS C47 SANS PARAMÈTRE : c47.call("nom", arguments…) (double-clic : insère l'appel)	ALL C47 INSTRUCTIONS WITHOUT PARAMETER: c47.call("name", arguments…) (double-click: inserts the call)
+Programmes de la distribution C47	Programs from the C47 distribution
