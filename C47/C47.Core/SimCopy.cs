@@ -12,6 +12,10 @@ namespace C47.Core;
 /// calcul interruptible qui suit (Bessel, premiers, gamma, solve, ∫…) s'arrêtait aussitôt sur NaN.</item>
 /// <item>Les menus deviennent des saisies, comme dans le simulateur DM42 de Py42 : le STOP d'un VARMENU demande une valeur
 /// par variable du menu ; le STOP d'un MENU demande le numéro de la touche (1 à 6, 0 = EXIT) et saute à son action.</item>
+/// <item>Sans fenêtre, aucune touche n'arrive : PAUSE 99 (attendre une touche) bloquait le simulateur. Une PAUSE juste
+/// avant la fin (RTN, END) devient une capture de l'écran dessiné par le programme (SNAP) ; les autres sont retirées.
+/// L'attente d'une touche (KEY? r, GETKEY) capture l'écran puis lit le code de touche comme une saisie : sans saisie,
+/// le programme s'arrête là au lieu de tourner sans fin.</item>
 /// <item>PYSIM vide le journal puis appelle l'étiquette lancée.</item>
 /// </list>
 /// </summary>
@@ -25,6 +29,8 @@ public static class SimCopy
     static readonly Regex KeyRx = new(@"^(?:42)?KEY\s+(\d)\s+(GTO|XEQ)\s+(.+)$", RegexOptions.IgnoreCase);
     static readonly Regex LblRx = new(@"^LBL\s+(‘[^’]*’)$");
     static readonly Regex MvarRx = new(@"^MVAR\s+(‘[^’]*’)$");
+    static readonly Regex PauseRx = new(@"(?<=^|\s)PAUSE\s+\d+(?=\s|$)");
+    static readonly Regex KeyQRx = new(@"^KEY\?\s+(.+)$");
     static readonly Regex VarMenuRx = new(@"^(?:42VRMNU|VARMENU)\s+(‘[^’]*’)$");
 
     /// <summary>Instruction d'une ligne, sans le commentaire « ; … » d'un source C47 (hors des textes ‘…’ et "…").</summary>
@@ -42,8 +48,12 @@ public static class SimCopy
         return line.Trim();
     }
 
-    public static string Build(string source, string entry)
+    public static string Build(string source, string entry) => Build(source, entry, out _);
+
+    /// <param name="pauseSnap">vrai si une PAUSE de fin est devenue SNAP : l'appelant nomme sa capture (iofile)</param>
+    public static string Build(string source, string entry, out bool pauseSnap)
     {
+        pauseSnap = false;
         string Log(string what) => $"  RCL ‘{LogVar}’ RCL {what} + ‘{LogSep}’ + STO ‘{LogVar}’ DROP";
         var lines = source.Replace("\r\n", "\n").Split('\n');
 
@@ -67,10 +77,48 @@ public static class SimCopy
         var keys = new List<(string N, string Op, string Target)>();   // touches du menu en cours (KEY n GTO/XEQ)
         var relays = new List<string>();                               // relais des sauts de menu, ajoutés en fin de programme
         string prev = null, varMenu = null;
-        foreach (var raw in lines)
+        for (int li = 0; li < lines.Length; li++)
         {
+            string raw = lines[li];
             string t = Code(raw);
             if (t == "END") continue;
+            if (PauseRx.IsMatch(t))
+            {
+                string next = lines.Skip(li + 1).Select(Code).FirstOrDefault(c => c.Length > 0) ?? "END";
+                if (PauseRx.Replace(t, "").Trim().Length == 0 && next is "RTN" or "END")
+                {
+                    // PAUSE juste avant la fin (« regardez l'écran ») : capture de l'écran tel que le programme l'a dessiné ;
+                    // après la fin, la calculatrice réaffiche la pile par-dessus
+                    t = "XEQ ‘PYSN’";
+                    raw = "  XEQ ‘PYSN’";
+                    pauseSnap = true;
+                }
+                else
+                {
+                    // ailleurs, PAUSE retirée (seule sur sa ligne, ou au milieu d'autres instructions)
+                    t = PauseRx.Replace(t, "").Trim();
+                    if (t.Length == 0) continue;
+                    raw = "  " + t;
+                }
+            }
+            var kq = KeyQRx.Match(t);
+            if (kq.Success || t == "GETKEY")
+            {
+                // attente d'une touche : capture de l'écran (la première fois), puis le code de touche est lu comme une saisie
+                o.Add("  XEQ ‘PYKY’");
+                if (kq.Success)
+                {
+                    // KEY? r : le code va dans r, et le test est faux comme après une touche (vrai = aucune touche) ;
+                    // x≠? compare X à une copie de lui-même : la pile ne change pas
+                    o.Add($"  STO {kq.Groups[1].Value}");
+                    o.Add("  DROP");
+                    o.Add("  STO ‘PYKX’");
+                    o.Add("  x≠? ‘PYKX’");
+                }
+                pauseSnap = true;
+                prev = t;
+                continue;
+            }
             if (t == "CLMENU" || t == "EXITALL") { keys.Clear(); if (t == "EXITALL") varMenu = null; }
             var k = KeyRx.Match(t);
             if (k.Success) keys.Add((k.Groups[1].Value, k.Groups[2].Value.ToUpperInvariant(), k.Groups[3].Value.Trim()));
@@ -130,8 +178,31 @@ public static class SimCopy
             if (t.Length > 0) prev = t;
         }
         o.AddRange(relays);
+        if (pauseSnap)
+        {
+            // PYSN : capture de l'écran, une seule fois (seule la première prend le nom donné par l'appelant) ;
+            // PAUSE 1 laisse le simulateur recopier le dessin du programme dans l'écran capturé
+            o.Add("LBL ‘PYSN’");
+            o.Add("  RCL ‘PYSNF’");
+            o.Add("  X=0?");
+            o.Add("  XEQ ‘PYSN1’");
+            o.Add("  DROP");
+            o.Add("  RTN");
+            o.Add("LBL ‘PYSN1’");
+            o.Add("  PAUSE 1");
+            o.Add("  SNAP");
+            o.Add("  1 STO ‘PYSNF’ DROP");
+            o.Add("  RTN");
+            // PYKY : attente d'une touche (KEY?, GETKEY) : capture, puis code de touche saisi, laissé dans X
+            o.Add("LBL ‘PYKY’");
+            o.Add("  XEQ ‘PYSN’");
+            o.Add("  INPUT ‘PYKEY’");
+            o.Add(ConsumeKey);
+            o.Add("  RTN");
+        }
         o.Add($"LBL ‘{Entry}’");
         o.Add($"  ‘’ STO ‘{LogVar}’ DROP");
+        if (pauseSnap) o.Add("  0 STO ‘PYSNF’ DROP");
         o.Add($"  XEQ ‘{entry}’");
         o.Add("  RTN");
         o.Add("END");

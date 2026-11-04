@@ -581,6 +581,7 @@ namespace dm42editor
 
         void RunSimulation()
         {
+            if (Emulator.C47Busy) { Emulator.C47Cancel = true; return; }   // F5 pendant une simulation C47 : l'interrompt
             if (last == null) { simOut.Text = Lang.T("Corrigez d'abord les erreurs signalées dans les messages."); return; }
             if (!(entryBox.SelectedItem is string entry)) { simOut.Text = Lang.T("Aucun label à lancer."); return; }
             double[] stack, inputs;
@@ -659,14 +660,14 @@ namespace dm42editor
         void RunC47Simulation(string entry, double[] stack, double[] inputs)
         {
             if (lastC47Code == null || !lastC47Code.Ok) { simOut.Text = Lang.T("Le listing C47 contient des erreurs : voir les messages."); return; }
-            simOut.Text = Lang.T("Simulateur C47 en cours…");
+            simOut.Text = Lang.T("Simulateur C47 en cours… (F5 pour l'interrompre)");
             simOut.Refresh();
             Cursor = Cursors.WaitCursor;
             Emulator.C47Run r;
             // copie instrumentée : chaque message affiché est ajouté au journal PYLOG, relu à la fin
-            var sim = C47.Core.Encoder.Encode(C47.Core.SimCopy.Build(lastC47.Source, entry));
+            var sim = C47.Core.Encoder.Encode(C47.Core.SimCopy.Build(lastC47.Source, entry, out bool pauseSnap));
             bool logged = sim.Ok;
-            try { r = Emulator.RunC47(this, C47.Core.P47File.Write((logged ? sim : lastC47Code).Program), logged ? C47.Core.SimCopy.Entry : entry, stack, inputs, logged ? C47.Core.SimCopy.LogVar : null); }
+            try { r = Emulator.RunC47(this, C47.Core.P47File.Write((logged ? sim : lastC47Code).Program), logged ? C47.Core.SimCopy.Entry : entry, stack, inputs, logged ? C47.Core.SimCopy.LogVar : null, logged && pauseSnap); }
             finally { Cursor = Cursors.Default; }
             ShowLcd(r.Screen);
             var sb = new StringBuilder();

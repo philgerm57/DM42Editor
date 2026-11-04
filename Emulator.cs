@@ -264,7 +264,22 @@ namespace dm42editor
         /// ou l'erreur. Les menus (varmenu, menu) demandent les touches de menu et ne sont pas simulés ainsi.
         /// </summary>
         /// <param name="logVar">variable texte relue à la fin (journal des messages affichés), ou null</param>
-        public static C47Run RunC47(IWin32Window owner, byte[] p47File, string entry, double[] stack, double[] inputs, string logVar = null)
+        /// <summary>Simulation C47 en cours (la fenêtre reste utilisable pendant l'attente) ; C47Cancel = true l'interrompt.</summary>
+        public static bool C47Busy { get; private set; }
+        public static volatile bool C47Cancel;
+
+        /// <param name="pauseSnap">le programme exécute SNAP à la place de sa PAUSE de fin (SimCopy.Build) : sa capture est l'écran rendu</param>
+        public static C47Run RunC47(IWin32Window owner, byte[] p47File, string entry, double[] stack, double[] inputs, string logVar = null,
+                                    bool pauseSnap = false)
+        {
+            if (C47Busy) return new C47Run("", "", "", "", "", Lang.T("Une simulation C47 est déjà en cours."));
+            C47Busy = true;
+            C47Cancel = false;
+            try { return RunC47Core(owner, p47File, entry, stack, inputs, logVar, pauseSnap); }
+            finally { C47Busy = false; }
+        }
+
+        static C47Run RunC47Core(IWin32Window owner, byte[] p47File, string entry, double[] stack, double[] inputs, string logVar, bool pauseSnap)
         {
             string sim = C47Path;
             if (sim.Length == 0 || !File.Exists(sim))
@@ -288,7 +303,13 @@ namespace dm42editor
             string N(double v) => v.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
             var script = new System.Text.StringBuilder($"readp {file.Replace('\\', '/')}; ");
             foreach (var v in stack) script.Append($"nim {N(v)}; ");
+            // SNAP du programme (PAUSE de fin, voir SimCopy) : sa capture prend ce nom au lieu d'un nom daté
+            string pause = Path.Combine(Path.GetDirectoryName(file), "py47pause");
+            string[] pauseFiles = { pause + ".bmp", pause + ".REGS.TSV", pause + ".REGS.TSV.T47.TSV" };
+            foreach (var f in pauseFiles) try { File.Delete(f); } catch (IOException) { }
+            if (pauseSnap) script.Append($"iofile {pause.Replace('\\', '/')}.bmp; tsvfn {pause.Replace('\\', '/')}.REGS.TSV; ");
             script.Append($"xeq {entry}; ");
+            if (pauseSnap) script.Append("tsvfn; ");
             foreach (var v in inputs) script.Append($"nim {N(v)}; press R/S; ");
             script.Append($"snap {snap.Replace('\\', '/')}; ");
             if (logVar != null) script.Append($"puts \"@@LOG=[var {logVar}]\"; ");
@@ -316,19 +337,31 @@ namespace dm42editor
                 {
                     var outTask = p.StandardOutput.ReadToEndAsync();
                     var errTask = p.StandardError.ReadToEndAsync();
-                    if (!p.WaitForExit(30000))
+                    // attente sans figer la fenêtre : elle se redessine, et l'utilisateur peut interrompre (C47Cancel)
+                    var clock = Stopwatch.StartNew();
+                    while (!p.WaitForExit(50))
                     {
-                        try { p.Kill(); } catch (InvalidOperationException) { }
-                        return new C47Run("", "", "", "", "", Lang.T("Le programme ne s'est pas terminé en 30 s (boucle sans fin, ou saisie attendue par un menu ?)."));
+                        Application.DoEvents();
+                        if (C47Cancel || clock.ElapsedMilliseconds > 30000)
+                        {
+                            try { p.Kill(); } catch (InvalidOperationException) { }
+                            return new C47Run("", "", "", "", "", C47Cancel
+                                ? Lang.T("Simulation C47 interrompue.")
+                                : Lang.T("Le programme ne s'est pas terminé en 30 s (boucle sans fin, ou saisie attendue par un menu ?)."));
+                        }
                     }
+                    p.WaitForExit();
                     string text = outTask.Result + errTask.Result;
                     string Get(string k) => text.Split('\n').Select(l => l.Trim()).Where(l => l.StartsWith("@@" + k + "=")).Select(l => l.Substring(k.Length + 3)).LastOrDefault() ?? "";
+                    // valeurs de la pile en codes de la police C47 : exposants lisibles (TEXTEⅢ → TEXTE², ×⑽ⅫⅣ → ×10⁻³)
+                    string Reg(string k) => C47.Core.C47Text.Display(Get(k)).Replace("⑽", "10");
                     // le simulateur écrit aussi son journal de débogage : seuls les refus de chargement ou d'appel sont gardés
                     string err = string.Join("\n", text.Split('\n').Select(l => l.Trim())
                         .Where(l => l.StartsWith("xeq:") || l.StartsWith("readp") || l.StartsWith("nim:") || l.StartsWith("press:")
                                     || l.Contains("not found") || l.Contains("invalid command") || l.Contains("Structure")));
-                    return new C47Run(Get("X"), Get("Y"), Get("Z"), Get("T"), Get("K"), err, Get("S8") == "1", Get("A"), Get("B"), Get("C"), Get("D"), Get("LOG"),
-                                      LoadScreen(snapFiles));
+                    return new C47Run(Reg("X"), Reg("Y"), Reg("Z"), Reg("T"), Get("K"), err, Get("S8") == "1", Reg("A"), Reg("B"), Reg("C"), Reg("D"), Get("LOG"),
+                                      // l'écran capturé pendant la pause du programme, sinon celui de la fin
+                                      File.Exists(pauseFiles[0]) ? LoadScreen(pauseFiles, snapFiles) : LoadScreen(snapFiles, pauseFiles));
                 }
             }
             catch (Exception ex) when (ex is System.ComponentModel.Win32Exception || ex is IOException)
@@ -338,8 +371,9 @@ namespace dm42editor
         }
 
         /// <summary>Capture SNAP du simulateur, chargée en mémoire (le fichier reste libre) ; les fichiers sont effacés.</summary>
-        static System.Drawing.Image LoadScreen(string[] files)
+        static System.Drawing.Image LoadScreen(string[] files, string[] unused)
         {
+            foreach (var f in unused) try { File.Delete(f); } catch (IOException) { }
             System.Drawing.Image img = null;
             try
             {

@@ -545,3 +545,40 @@ Simulateur	Simulator
 Aucun label global à lancer (LBL "NOM").	No global label to run (LBL "NAME").
 Simulateur DM42 (calcul en double précision, 16 chiffres)	DM42 simulator (double precision, 16 digits)
 ERREUR ligne {0} : {1}	ERROR line {0}: {1}
+Pas à pas	Step by step
+Pas détaillé  F11	Step into  F11
+Pas principal  F10	Step over  F10
+Sortir  Maj+F11	Step out  Shift+F11
+Pas précédent  Ctrl+F10	Step back  Ctrl+F10
+Continuer  F5	Continue  F5
+Arrêter  Maj+F5	Stop  Shift+F5
+Point d'arrêt  F9	Breakpoint  F9
+Instruction suivante, en entrant dans les sous-programmes (XEQ) et dans la fonction de SOLVE / INTEG	Next instruction, stepping into subroutines (XEQ) and into the SOLVE / INTEG function
+Instruction suivante ; un XEQ, SOLVE ou INTEG est exécuté d'un coup	Next instruction; an XEQ, SOLVE or INTEG runs in one go
+Jusqu'au retour (RTN) du sous-programme en cours	Until the current subroutine returns (RTN)
+Revient à l'instruction précédente	Goes back to the previous instruction
+Jusqu'au prochain point d'arrêt ou à la fin du programme	Until the next breakpoint or the end of the program
+Quitte le pas à pas	Leaves step-by-step mode
+Pose ou retire un point d'arrêt sur la ligne du curseur	Sets or clears a breakpoint on the caret line
+Le pas à pas n'existe que pour les programmes DM42 : le simulateur C47 s'exécute d'un bloc.	Step by step exists only for DM42 programs: the C47 simulator runs in one go.
+pas {0} / {1}	step {0} / {1}
+Pas à pas : fin du programme (Ctrl+F10 pour revenir en arrière, Maj+F5 pour quitter)	Step by step: end of program (Ctrl+F10 to go back, Shift+F5 to quit)
+Prochaine instruction, ligne {0} :  {1}	Next instruction, line {0}:  {1}
+Niveau d'appel {0}	Call level {0}
+Enregistrement limité aux {0} premiers pas : la suite n'est pas parcourue.	Recording limited to the first {0} steps: the rest cannot be stepped through.
+Variables : 	Variables: 
+Registres : 	Registers: 
+Messages :	Messages:
+Pas détaillé	Step into
+Pas principal	Step over
+Sortir du sous-programme	Step out of subroutine
+Pas précédent	Step back
+Arrêter le pas à pas	Stop stepping
+Point d'arrêt	Breakpoint
+Effacer les points d'arrêt	Clear breakpoints
+Une simulation C47 est déjà en cours.	A C47 simulation is already running.
+Simulation C47 interrompue.	C47 simulation stopped.
+Simulateur C47 en cours… (F5 ou Arrêter pour l'interrompre)	C47 simulator running… (F5 or Stop to interrupt)
+Simulateur C47 en cours… (F5 pour l'interrompre)	C47 simulator running… (F5 to interrupt)
+Arrêter	Stop
+Réponses dans l'ordre : INPUT, prompt(), VARMENU (une par variable), menu() (n° de touche, 0 = EXIT), GETKEY et KEY? (code de touche)	Answers in order: INPUT, prompt(), VARMENU (one per variable), menu() (key number, 0 = EXIT), GETKEY and KEY? (key code)

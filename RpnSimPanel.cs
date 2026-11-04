@@ -6,14 +6,17 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Dm42.Editor;
 
 namespace dm42editor
 {
     /// <summary>
     /// Simulateur en bas de l'éditeur RPN, comme celui de la fenêtre Python : onglet DM42 → simulateur HP-42S de Py42
     /// (listing relu par Py42.Core.RpnListing) ; onglet C47 → vrai simulateur C47 sans fenêtre, écran compris.
+    /// Pas à pas (DM42) : l'exécution est enregistrée (Py42.Core.SimTrace) puis parcourue ; les saisies étant données
+    /// à l'avance, c'est équivalent à exécuter instruction par instruction, et l'on peut aussi revenir en arrière.
     /// </summary>
-    sealed class RpnSimPanel : UserControl
+    sealed partial class RpnSimPanel : UserControl
     {
         static readonly Color Lcd = Color.FromArgb(198, 205, 176);
         static readonly Color LcdInk = Color.FromArgb(30, 36, 24);
@@ -21,19 +24,22 @@ namespace dm42editor
         readonly Func<string> source;          // texte de l'onglet courant
         readonly Func<bool> isC47;             // onglet C47 plutôt que DM42
         readonly Action<int> gotoLine;         // ligne (1-based) d'une erreur DM42
+        readonly Func<CodeEditor> editor;      // éditeur de l'onglet : points d'arrêt, ligne en cours
         readonly ComboBox entryBox;
         readonly TextBox stackBox, inputsBox, output;
         readonly PictureBox lcdBox;
         readonly Label title;
+        readonly Button runButton;
 
-        public RpnSimPanel(Func<string> source, Func<bool> isC47, Action<int> gotoLine)
+        public RpnSimPanel(Func<string> source, Func<bool> isC47, Action<int> gotoLine, Func<CodeEditor> editor)
         {
             this.source = source;
             this.isC47 = isC47;
             this.gotoLine = gotoLine;
+            this.editor = editor;
             Dock = DockStyle.Fill;
 
-            var grid = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 7, RowCount = 2, Padding = new Padding(4) };
+            var grid = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 7, RowCount = 3, Padding = new Padding(4) };
             grid.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30));
             grid.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
@@ -41,6 +47,7 @@ namespace dm42editor
             grid.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 35));
             grid.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             grid.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
@@ -50,11 +57,11 @@ namespace dm42editor
             entryBox = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill };
             stackBox = new TextBox { Dock = DockStyle.Fill, Font = new Font("Consolas", 10f) };
             inputsBox = new TextBox { Dock = DockStyle.Fill, Font = new Font("Consolas", 10f) };
-            var run = new Button { Text = "R/S  (F5)", AutoSize = true, Margin = new Padding(6, 1, 0, 1) };
+            var run = runButton = new Button { Text = "R/S  (F5)", AutoSize = true, Margin = new Padding(6, 1, 0, 1) };
             run.Click += (s, e) => Run();
             var tip = new ToolTip();
             tip.SetToolTip(stackBox, Lang.T("Valeurs mises sur la pile avant l'appel, la dernière va dans X (ex. : 12 18)"));
-            tip.SetToolTip(inputsBox, Lang.T("Réponses dans l'ordre : INPUT, prompt(), VARMENU (une par variable), menu() (n° de touche, 0 = EXIT), GETKEY"));
+            tip.SetToolTip(inputsBox, Lang.T("Réponses dans l'ordre : INPUT, prompt(), VARMENU (une par variable), menu() (n° de touche, 0 = EXIT), GETKEY et KEY? (code de touche)"));
 
             var head = new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = Padding.Empty };
             head.Controls.Add(title);
@@ -66,6 +73,9 @@ namespace dm42editor
             grid.Controls.Add(L("INPUT"), 4, 0);
             grid.Controls.Add(inputsBox, 5, 0);
             grid.Controls.Add(run, 6, 0);
+            debugBar = BuildDebugBar(tip);
+            grid.Controls.Add(debugBar, 0, 1);
+            grid.SetColumnSpan(debugBar, 7);
 
             // résultat : écran C47 à gauche (masqué pour la DM42), texte à droite
             output = new TextBox
@@ -80,7 +90,7 @@ namespace dm42editor
             result.Resize += (s, e) => lcdBox.Width = Math.Min(result.ClientSize.Height * 400 / 240, result.ClientSize.Width / 2);
             result.Controls.Add(output);
             result.Controls.Add(lcdBox);
-            grid.Controls.Add(result, 0, 1);
+            grid.Controls.Add(result, 0, 2);
             grid.SetColumnSpan(result, 7);
             Controls.Add(grid);
         }
@@ -90,6 +100,8 @@ namespace dm42editor
         {
             bool c47 = isC47();
             title.Text = Lang.T(c47 ? "Simulateur C47" : "Simulateur DM42");
+            debugBar.Enabled = !c47;
+            if (!keepOutput) StopDebug();
             string text = source() ?? "";
             var labels = c47
                 ? Regex.Matches(text, @"^\s*(?:\d+\s+)?LBL\s+(?:‘([^’]+)’|'([^']+)'|""([^""]+)"")", RegexOptions.Multiline)
@@ -107,27 +119,47 @@ namespace dm42editor
             if (!keepOutput) { output.Text = ""; ShowLcd(null); }
         }
 
+        /// <summary>Numéro affiché d'une ligne (1-based) : celui de la marge de l'éditeur, qui peut commencer à 0.</summary>
+        int Shown(int line1) => line1 - 1 + (editor()?.LineNumberStart ?? 1);
+
         static double[] Nums(string s) => s
             .Split(new[] { ' ', ';', '\t' }, StringSplitOptions.RemoveEmptyEntries)
             .Select(v => double.Parse(v.Replace(',', '.'), NumberStyles.Float, CultureInfo.InvariantCulture))
             .ToArray();
 
+        /// <summary>F5 : continue le pas à pas en cours ; sinon lance le programme, en s'arrêtant au premier point d'arrêt (DM42).</summary>
         public void Run()
         {
-            Refresh();
-            if (!(entryBox.SelectedItem is string entry)) { output.Text = Lang.T("Aucun label global à lancer (LBL \"NOM\")."); return; }
-            double[] stack, inputs;
-            try { stack = Nums(stackBox.Text); inputs = Nums(inputsBox.Text); }
-            catch (FormatException) { output.Text = Lang.T("Valeur invalide : séparez les nombres par des espaces ou des points-virgules."); return; }
+            if (Emulator.C47Busy) { Emulator.C47Cancel = true; return; }   // F5 pendant une simulation C47 : l'interrompt
+            if (Debugging) { Continue(); return; }
+            Refresh(true);
+            if (!ReadArgs(out string entry, out double[] stack, out double[] inputs)) return;
             ShowLcd(null);
             if (isC47()) RunC47(entry, stack, inputs);
+            else if (editor()?.BreakpointLines.Any() == true) StartDebug(StepKind.Continue);
             else RunDm42(entry, stack, inputs);
+        }
+
+        bool ReadArgs(out string entry, out double[] stack, out double[] inputs)
+        {
+            stack = inputs = null;
+            entry = entryBox.SelectedItem as string;
+            if (entry == null) { output.Text = Lang.T("Aucun label global à lancer (LBL \"NOM\")."); return false; }
+            try { stack = Nums(stackBox.Text); inputs = Nums(inputsBox.Text); }
+            catch (FormatException) { output.Text = Lang.T("Valeur invalide : séparez les nombres par des espaces ou des points-virgules."); return false; }
+            return true;
         }
 
         void RunDm42(string entry, double[] stack, double[] inputs)
         {
             var listing = Py42.Core.RpnListing.Parse(source() ?? "");
             var r = Py42.Core.Simulator.Run(listing.Code, entry, stack, inputs);
+            output.Text = Dm42Report(listing, r, true);
+        }
+
+        /// <summary>Résultat complet d'une exécution DM42 : avertissements, messages, erreur (et saut vers sa ligne), pile.</summary>
+        string Dm42Report(Py42.Core.RpnListing.Result listing, Py42.Core.SimResult r, bool jumpToError)
+        {
             var sb = new StringBuilder();
             sb.AppendLine(Lang.T("Simulateur DM42 (calcul en double précision, 16 chiffres)"));
             foreach (var w in listing.Warnings) sb.AppendLine("⚠ " + w);
@@ -136,8 +168,8 @@ namespace dm42editor
             if (r.Error != null)
             {
                 int line = r.ErrorPc >= 0 && r.ErrorPc < listing.Code.Count ? listing.Code[r.ErrorPc].Line : 0;
-                sb.AppendLine().AppendLine(Lang.F("ERREUR ligne {0} : {1}", line, r.Error));
-                if (line > 0) gotoLine(line);
+                sb.AppendLine().AppendLine(Lang.F("ERREUR ligne {0} : {1}", Shown(line), r.Error));
+                if (line > 0 && jumpToError) gotoLine(line);
             }
             sb.AppendLine();
             sb.AppendLine($"T: {Py42.Core.Simulator.Fmt(r.T)}");
@@ -145,7 +177,7 @@ namespace dm42editor
             sb.AppendLine($"Y: {Py42.Core.Simulator.Fmt(r.Y)}");
             sb.AppendLine($"X: {Py42.Core.Simulator.Fmt(r.X)}");
             sb.AppendLine(Lang.F("{0} pas exécutés", r.Steps));
-            output.Text = sb.ToString().Replace("\n", Environment.NewLine).Replace("\r\r", "\r");
+            return sb.ToString().Replace("\n", Environment.NewLine).Replace("\r\r", "\r");
         }
 
         void RunC47(string entry, double[] stack, double[] inputs)
@@ -155,13 +187,14 @@ namespace dm42editor
             if (!own.Ok)
             {
                 var e = own.Errors[0];
-                output.Text = Lang.F("ERREUR ligne {0} : {1}", e.Line, e.Message);
+                output.Text = Lang.F("ERREUR ligne {0} : {1}", Shown(e.Line), e.Message);
                 if (e.Line > 0) gotoLine(e.Line);
                 return;
             }
-            var sim = C47.Core.Encoder.Encode(C47.Core.SimCopy.Build(text, entry));
+            var sim = C47.Core.Encoder.Encode(C47.Core.SimCopy.Build(text, entry, out bool pauseSnap));
             if (!sim.Ok) sim = own;   // copie instrumentée refusée : le programme tel quel, sans journal des messages
-            output.Text = Lang.T("Simulateur C47 en cours…");
+            output.Text = Lang.T("Simulateur C47 en cours… (F5 ou Arrêter pour l'interrompre)");
+            runButton.Text = Lang.T("Arrêter");
             output.Refresh();
             Emulator.C47Run r;
             Cursor = Cursors.WaitCursor;
@@ -169,9 +202,9 @@ namespace dm42editor
             try
             {
                 r = Emulator.RunC47(FindForm(), C47.Core.P47File.Write(sim.Program), logged ? C47.Core.SimCopy.Entry : entry, stack, inputs,
-                                    logged ? C47.Core.SimCopy.LogVar : null);
+                                    logged ? C47.Core.SimCopy.LogVar : null, logged && pauseSnap);
             }
-            finally { Cursor = Cursors.Default; }
+            finally { Cursor = Cursors.Default; runButton.Text = "R/S  (F5)"; }
             ShowLcd(r.Screen);
             var sb = new StringBuilder();
             sb.AppendLine(Lang.T("Simulateur C47 (calcul sur 34 chiffres)"));

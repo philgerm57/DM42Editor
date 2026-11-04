@@ -151,9 +151,11 @@ namespace Dm42.Editor
             return f;
         }
 
-        int GutterWidth => showLineNumbers ? Math.Max(2, lines.Count.ToString().Length) * charWidth + 16 : (ChangedLineColor.A > 0 || HasBookmarks ? 8 : 0);
+        int GutterWidth => showLineNumbers ? Math.Max(2, lines.Count.ToString().Length) * charWidth + 16 + MarkerWidth : (ChangedLineColor.A > 0 || HasBookmarks ? 14 : 0);
+        /// <summary>Colonne des points d'arrêt et de la flèche du pas à pas, à gauche des numéros de ligne.</summary>
+        int MarkerWidth => execLine >= 0 || lines.Any(l => l.Breakpoint) ? 14 : 0;
         int TextLeft => GutterWidth + leftPadding + 3;
-        bool HasBookmarks => lines.Any(l => l.BookmarkName != null);
+        bool HasBookmarks => execLine >= 0 || lines.Any(l => l.BookmarkName != null || l.Breakpoint);
         int ScrollX => -AutoScrollPosition.X;
         int ScrollY => -AutoScrollPosition.Y;
 
@@ -432,8 +434,10 @@ namespace Dm42.Editor
         {
             lastWasTyping = false;
             var marks = lines.Select((l, i) => (l.BookmarkName, i)).Where(b => b.BookmarkName != null).ToList();
+            var stops = BreakpointLines.ToList();
             ReplaceRange(new Place(0, 0), EndPlace, string.Join("\n", s.Lines));
             foreach (var (name, i) in marks) if (i < lines.Count) lines[i].BookmarkName = name;
+            foreach (int i in stops) if (i < lines.Count) lines[i].Breakpoint = true;
             selection.Set(Clamp(s.Start), Clamp(s.End));
             OnSelectionMoved();
             EnsureCaretVisible();
@@ -485,6 +489,42 @@ namespace Dm42.Editor
             UpdateScrollSize();
             Invalidate();
         }
+
+        /// <summary>Pose ou retire le point d'arrêt d'une ligne (pas à pas du simulateur).</summary>
+        public void ToggleBreakpoint(int iLine)
+        {
+            if (iLine < 0 || iLine >= lines.Count) return;
+            lines[iLine].Breakpoint = !lines[iLine].Breakpoint;
+            UpdateScrollSize();
+            Invalidate();
+        }
+
+        public void ClearBreakpoints()
+        {
+            foreach (var l in lines) l.Breakpoint = false;
+            UpdateScrollSize();
+            Invalidate();
+        }
+
+        /// <summary>Lignes (0-based) qui portent un point d'arrêt.</summary>
+        public IEnumerable<int> BreakpointLines => lines.Select((l, i) => (l, i)).Where(x => x.l.Breakpoint).Select(x => x.i).ToList();
+
+        /// <summary>Ligne (0-based) de la prochaine instruction du pas à pas, -1 hors du pas à pas.</summary>
+        public int ExecLine
+        {
+            get => execLine;
+            set
+            {
+                if (execLine == value) return;
+                execLine = value;
+                UpdateScrollSize();
+                if (value >= 0 && value < lines.Count) { Navigate(value); }
+                Invalidate();
+            }
+        }
+        int execLine = -1;
+        public Color ExecLineColor { get; set; } = Color.FromArgb(140, 255, 210, 40);
+        public Color BreakpointColor { get; set; } = Color.FromArgb(210, 40, 40);
 
         public IEnumerable<Bookmark> Bookmarks =>
             lines.Select((l, i) => (l, i)).Where(x => x.l.BookmarkName != null).Select(x => new Bookmark(this, x.l.BookmarkName, x.i)).ToList();
@@ -619,6 +659,10 @@ namespace Dm42.Editor
                 if (CurrentLineColor.A > 0 && i == selection.Start.iLine && selection.IsEmpty)
                     using (var b = new SolidBrush(CurrentLineColor)) g.FillRectangle(b, gutter, y, ClientSize.Width - gutter, lineHeight);
 
+                // ligne de la prochaine instruction du pas à pas
+                if (i == execLine)
+                    using (var b = new SolidBrush(ExecLineColor)) g.FillRectangle(b, gutter, y, ClientSize.Width - gutter, lineHeight);
+
                 // fonds des styles
                 for (int c = 0; c < line.Count; c++)
                 {
@@ -667,12 +711,26 @@ namespace Dm42.Editor
                                               TextFormatFlags.Right | TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
                     if (lines[i].Changed && ChangedLineColor.A > 0)
                         using (var b = new SolidBrush(ChangedLineColor)) g.FillRectangle(b, gutter - 5, y, 3, lineHeight);
+                    if (lines[i].Breakpoint)
+                        using (var b = new SolidBrush(BreakpointColor))
+                        {
+                            int d = Math.Min(12, lineHeight - 2);
+                            g.FillEllipse(b, 1, y + (lineHeight - d) / 2, d, d);
+                        }
                     if (lines[i].BookmarkName != null)
                         using (var b = new SolidBrush(BookmarkColor))
                         {
-                            int d = Math.Min(10, lineHeight - 4);
-                            g.FillEllipse(b, 2, y + (lineHeight - d) / 2, d, d);
+                            int d = Math.Min(lines[i].Breakpoint ? 6 : 10, lineHeight - 4);
+                            int x0 = lines[i].Breakpoint ? 4 : 2;
+                            g.FillEllipse(b, x0, y + (lineHeight - d) / 2, d, d);
                         }
+                    if (i == execLine)
+                    {
+                        // flèche de la prochaine instruction
+                        int h = Math.Min(10, lineHeight - 4), x0 = 3, ym = y + lineHeight / 2;
+                        using (var b = new SolidBrush(Color.FromArgb(255, 220, 40)))
+                            g.FillPolygon(b, new[] { new Point(x0, ym - h / 2), new Point(x0 + h, ym), new Point(x0, ym + h / 2) });
+                    }
                 }
             }
 

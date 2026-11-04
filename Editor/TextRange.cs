@@ -61,6 +61,8 @@ namespace Dm42.Editor
         internal List<int> Styles;          // un bit par style enregistré dans l'éditeur
         public DateTime LastVisit { get; set; }
         public string BookmarkName { get; internal set; }
+        /// <summary>Point d'arrêt du pas à pas du simulateur (F9).</summary>
+        public bool Breakpoint { get; internal set; }
         internal bool Changed;
 
         internal Line(string text)
