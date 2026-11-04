@@ -121,6 +121,7 @@
     <value>Original works : 2018 J.Heilingbrunner "
 Ce logiciel est sous licence GPLv3. 
 Le cœur applicatif (dm42dll.dll) est basé sur le travail open-source
- de J.Heilingbrunner, projet : vscode-dm42-Free42, sous licence MIT."</value>
+ de J.Heilingbrunner, projet : vscode-dm42-Free42, sous licence MIT."
+Modifications et Extension  vers C47 par Germain PHILIPPE.</value>
   </data>
 </root>

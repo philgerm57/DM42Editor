@@ -39,7 +39,7 @@
             // 
             // button1
             // 
-            button1.Location = new System.Drawing.Point(272, 418);
+            button1.Location = new System.Drawing.Point(282, 404);
             button1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             button1.Name = "button1";
             button1.Size = new System.Drawing.Size(176, 60);
@@ -56,7 +56,7 @@
             label1.Location = new System.Drawing.Point(241, 34);
             label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             label1.Name = "label1";
-            label1.Size = new System.Drawing.Size(236, 39);
+            label1.Size = new System.Drawing.Size(313, 39);
             label1.TabIndex = 2;
             label1.Text = "DM42 / C47 Editor";
             // 
@@ -65,12 +65,12 @@
             label2.AutoSize = true;
             label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             label2.ForeColor = System.Drawing.Color.White;
-            label2.Location = new System.Drawing.Point(65, 103);
+            label2.Location = new System.Drawing.Point(37, 84);
             label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             label2.Name = "label2";
-            label2.Size = new System.Drawing.Size(592, 25);
+            label2.Size = new System.Drawing.Size(512, 75);
             label2.TabIndex = 3;
-            label2.Text = "Importer et exporter des programmes depuis et vers la DM42, Free42 et Python";
+            label2.Text = "Importer et exporter des programmes \r\ndepuis et vers la DM42, Free42,C47, R47  et Python\r\nSimulateur intégré pour DM42 et C47\r\n";
             label2.Click += label2_Click;
             // 
             // label4
@@ -102,7 +102,7 @@
             // textBox1
             // 
             textBox1.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-            textBox1.Location = new System.Drawing.Point(37, 154);
+            textBox1.Location = new System.Drawing.Point(28, 176);
             textBox1.Multiline = true;
             textBox1.Name = "textBox1";
             textBox1.Size = new System.Drawing.Size(673, 180);

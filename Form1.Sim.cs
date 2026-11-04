@@ -22,7 +22,8 @@ namespace dm42editor
             simPanel = new RpnSimPanel(
                 () => CurrentSourceTB?.Text ?? "",
                 () => IsC47(CurrentSourceTB),
-                line => { var tb = CurrentSourceTB; if (tb != null) GotoTextLine(tb, line - 1); });
+                line => { var tb = CurrentSourceTB; if (tb != null) GotoTextLine(tb, line - 1); },
+                () => CurrentSourceTB);
             editorSplit.Panel2.Controls.Add(simPanel);
             host.Controls.Add(editorSplit);
             editorSplit.BringToFront();
@@ -34,6 +35,22 @@ namespace dm42editor
             int at = fileToolStripMenuItem.DropDownItems.IndexOf(printToolStripMenuItem);
             fileToolStripMenuItem.DropDownItems.Insert(at < 0 ? fileToolStripMenuItem.DropDownItems.Count : at + 1, runItem);
             fileToolStripMenuItem.DropDownItems.Insert(at < 0 ? fileToolStripMenuItem.DropDownItems.Count : at + 1, simMenuItem);
+            // pas à pas (DM42) : touches des débogueurs de Visual Studio
+            var debug = new ToolStripMenuItem("Pas à pas");
+            ToolStripMenuItem D(string text, Keys keys, Action act) =>
+                new ToolStripMenuItem(text, null, (s, e) => act()) { ShortcutKeys = keys };
+            debug.DropDownItems.AddRange(new ToolStripItem[]
+            {
+                D("Pas détaillé", Keys.F11, () => StepSimPanel(RpnSimPanel.StepKind.Into)),
+                D("Pas principal", Keys.F10, () => StepSimPanel(RpnSimPanel.StepKind.Over)),
+                D("Sortir du sous-programme", Keys.Shift | Keys.F11, () => StepSimPanel(RpnSimPanel.StepKind.Out)),
+                D("Pas précédent", Keys.Control | Keys.F10, () => StepSimPanel(RpnSimPanel.StepKind.Back)),
+                D("Arrêter le pas à pas", Keys.Shift | Keys.F5, () => simPanel.StopDebug()),
+                new ToolStripSeparator(),
+                D("Point d'arrêt", Keys.F9, () => simPanel.ToggleBreakpoint()),
+                D("Effacer les points d'arrêt", Keys.Control | Keys.Shift | Keys.F9, () => CurrentSourceTB?.ClearBreakpoints()),
+            });
+            fileToolStripMenuItem.DropDownItems.Insert(fileToolStripMenuItem.DropDownItems.IndexOf(runItem) + 1, debug);
             cmMain.Items.Add(new ToolStripMenuItem("Simulateur du programme", null, (s, e) => ShowSimPanel(editorSplit.Panel2Collapsed)) { ShortcutKeyDisplayString = "Ctrl+F5" });
         }
 
@@ -42,6 +59,7 @@ namespace dm42editor
             if (show == !editorSplit.Panel2Collapsed) return;
             editorSplit.Panel2Collapsed = !show;
             simMenuItem.Checked = show;
+            if (!show) simPanel.StopDebug();
             if (show)
             {
                 editorSplit.SplitterDistance = Math.Max(120, editorSplit.Height - 260);
@@ -54,6 +72,13 @@ namespace dm42editor
             if (CurrentSourceTB == null) { MessageBox.Show(this, Lang.T("Ouvrez d'abord un programme RPN."), Lang.T("Simulateur")); return; }
             ShowSimPanel(true);
             simPanel.Run();
+        }
+
+        void StepSimPanel(RpnSimPanel.StepKind kind)
+        {
+            if (CurrentSourceTB == null) { MessageBox.Show(this, Lang.T("Ouvrez d'abord un programme RPN."), Lang.T("Simulateur")); return; }
+            ShowSimPanel(true);
+            simPanel.DoStep(kind);
         }
 
         /// <summary>Onglet changé : le simulateur reprend ses labels et son type (DM42 / C47).</summary>

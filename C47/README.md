@@ -40,6 +40,14 @@ textes et commandes ALPHA par les versions de compatibilité (`"ABC"` → `42α 
 La fenêtre Python s'en sert pour la cible C47. Les 11 exemples Py42 donnent les mêmes résultats dans le simulateur C47
 que dans le simulateur Py42.
 
+## Copie pour le simulateur
+
+`C47.Core/SimCopy.cs` prépare la copie d'un source C47 lancée par F5 (fenêtre Python et simulateur de l'éditeur RPN) dans
+le simulateur C47 sans fenêtre, qui n'a pas de clavier : journal des messages (`PYLOG`), menus et attentes de touche
+(`KEY?`, `GETKEY`) changés en saisies, `PAUSE` retirées ou changées en capture d'écran (`SNAP`), et touche R/S relâchée
+après chaque saisie. Le programme enregistré ou envoyé n'est pas modifié. Voir la section « Simulateur du programme »
+du [README de l'éditeur](../README.md).
+
 ## Licence
 
 GNU GPLv3, comme DM42 Editor. `C47.Core/c47_items.tsv` et les règles d'encodage sont dérivés des sources de C47
