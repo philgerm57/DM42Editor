@@ -535,3 +535,13 @@ Conversions d'unités, dates, bits, réels… : les arguments suivent l'ordre de
 Rechercher dans l'aide (nom, fonction, description)…	Search the help (name, function, description)…
 TOUTES LES INSTRUCTIONS C47 SANS PARAMÈTRE : c47.call("nom", arguments…) (double-clic : insère l'appel)	ALL C47 INSTRUCTIONS WITHOUT PARAMETER: c47.call("name", arguments…) (double-click: inserts the call)
 Programmes de la distribution C47	Programs from the C47 distribution
+Écran de la C47 à la fin du programme : cliquez pour l'agrandir	C47 screen at the end of the program: click to enlarge
+Écran C47	C47 screen
+Simulateur du programme	Program simulator
+Lancer la simulation	Run the simulation
+Simulateur DM42	DM42 simulator
+Simulateur C47	C47 simulator
+Simulateur	Simulator
+Aucun label global à lancer (LBL "NOM").	No global label to run (LBL "NAME").
+Simulateur DM42 (calcul en double précision, 16 chiffres)	DM42 simulator (double precision, 16 digits)
+ERREUR ligne {0} : {1}	ERROR line {0}: {1}

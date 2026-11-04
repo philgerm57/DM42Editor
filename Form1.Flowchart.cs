@@ -63,7 +63,6 @@ namespace dm42editor
         {
             var tb = CurrentTB;
             if (tb == null) { MessageBox.Show(this, Lang.T("Ouvrez d'abord un programme RPN."), Lang.T("Logigramme")); return; }
-            if (IsC47(tb)) { MessageBox.Show(this, Lang.T("Le logigramme n'est disponible que pour les programmes DM42."), Lang.T("Logigramme")); return; }
             string title = tsFiles.SelectedItem?.Title ?? Lang.T("Programme");
             var f = new FrmFlowchart(() => tb.IsDisposed ? "" : tb.Text, title, line =>
             {

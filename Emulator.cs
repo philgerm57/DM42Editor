@@ -255,7 +255,8 @@ namespace dm42editor
 
         /// <summary>Pile après l'exécution : X Y Z T, et A B C D quand la pile a 8 niveaux (SSIZE8, réglage d'usine de la C47).</summary>
         public sealed record C47Run(string X, string Y, string Z, string T, string Alpha, string Error, bool Stack8 = false,
-                                    string A = "", string B = "", string C = "", string D = "", string Log = "");
+                                    string A = "", string B = "", string C = "", string D = "", string Log = "",
+                                    System.Drawing.Image Screen = null);
 
         /// <summary>
         /// Exécute un programme dans le simulateur C47 sans fenêtre (--headless, langage de commandes -e) : la pile de départ,
@@ -280,11 +281,16 @@ namespace dm42editor
             string file = Path.Combine(Path.GetTempPath(), "dm42editor", "py47sim.p47");
             Directory.CreateDirectory(Path.GetDirectoryName(file));
             File.WriteAllBytes(file, p47File);
+            // écran de la calculatrice à la fin (SNAP : py47lcd.bmp, avec deux fichiers de registres à effacer)
+            string snap = Path.Combine(Path.GetDirectoryName(file), "py47lcd");
+            string[] snapFiles = { snap + ".bmp", snap + ".REGS.TSV", snap + ".REGS.TSV.T47.TSV" };
+            foreach (var f in snapFiles) try { File.Delete(f); } catch (IOException) { }
             string N(double v) => v.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
             var script = new System.Text.StringBuilder($"readp {file.Replace('\\', '/')}; ");
             foreach (var v in stack) script.Append($"nim {N(v)}; ");
             script.Append($"xeq {entry}; ");
             foreach (var v in inputs) script.Append($"nim {N(v)}; press R/S; ");
+            script.Append($"snap {snap.Replace('\\', '/')}; ");
             if (logVar != null) script.Append($"puts \"@@LOG=[var {logVar}]\"; ");
             script.Append("puts \"@@X=[reg X]\"; puts \"@@Y=[reg Y]\"; puts \"@@Z=[reg Z]\"; puts \"@@T=[reg T]\"; puts \"@@K=[reg K]\"; "
                         + "puts \"@@S8=[flag SSIZE8]\"; puts \"@@A=[reg A]\"; puts \"@@B=[reg B]\"; puts \"@@C=[reg C]\"; puts \"@@D=[reg D]\"");
@@ -321,13 +327,28 @@ namespace dm42editor
                     string err = string.Join("\n", text.Split('\n').Select(l => l.Trim())
                         .Where(l => l.StartsWith("xeq:") || l.StartsWith("readp") || l.StartsWith("nim:") || l.StartsWith("press:")
                                     || l.Contains("not found") || l.Contains("invalid command") || l.Contains("Structure")));
-                    return new C47Run(Get("X"), Get("Y"), Get("Z"), Get("T"), Get("K"), err, Get("S8") == "1", Get("A"), Get("B"), Get("C"), Get("D"), Get("LOG"));
+                    return new C47Run(Get("X"), Get("Y"), Get("Z"), Get("T"), Get("K"), err, Get("S8") == "1", Get("A"), Get("B"), Get("C"), Get("D"), Get("LOG"),
+                                      LoadScreen(snapFiles));
                 }
             }
             catch (Exception ex) when (ex is System.ComponentModel.Win32Exception || ex is IOException)
             {
                 return new C47Run("", "", "", "", "", ex.Message);
             }
+        }
+
+        /// <summary>Capture SNAP du simulateur, chargée en mémoire (le fichier reste libre) ; les fichiers sont effacés.</summary>
+        static System.Drawing.Image LoadScreen(string[] files)
+        {
+            System.Drawing.Image img = null;
+            try
+            {
+                if (File.Exists(files[0]))
+                    using (var bmp = new System.Drawing.Bitmap(files[0])) img = new System.Drawing.Bitmap(bmp);
+            }
+            catch (Exception ex) when (ex is IOException || ex is ArgumentException) { }
+            foreach (var f in files) try { File.Delete(f); } catch (IOException) { }
+            return img;
         }
 
         /// <summary>Texte d'un onglet prêt à coller : sans commentaires ni lignes vides ; renvoie aussi le nombre de pas.</summary>

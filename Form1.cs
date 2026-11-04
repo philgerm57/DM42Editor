@@ -440,6 +440,7 @@ namespace dm42editor
 
             InitC47Menu(); InitPythonMenu(); // menu Python -> RPN (Form1.Python.cs), avant le thème pour qu'il en profite
             InitFlowchartMenu(); // logigramme (Form1.Flowchart.cs)
+            InitSimPanel(); // simulateur DM42 / C47 en bas de l'éditeur (Form1.Sim.cs)
             InitHp41Menu(); // conversion HP-41 → DM42 (Form1.Hp41.cs)
 
             ApplyTheme(Parameter.parameters.DarkMode);

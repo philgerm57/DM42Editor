@@ -111,7 +111,7 @@ namespace dm42editor.Flowchart
                     switch (nd.Kind)
                     {
                         case NodeKind.Test:
-                            w = Math.Max(150, M(nd.Lines[0].Code, BoldFont).Width + 80);
+                            w = Math.Max(150, M(nd.Text, BoldFont).Width + 80);
                             h = 62;
                             break;
                         case NodeKind.Start:
@@ -258,7 +258,7 @@ namespace dm42editor.Flowchart
                         var pts = new[] { new PointF(cx, r.Top), new PointF(r.Right, cy), new PointF(cx, r.Bottom), new PointF(r.Left, cy) };
                         using (var f = new SolidBrush(TestFill)) g.FillPolygon(f, pts);
                         g.DrawPolygon(sel ? selPen : pen, pts);
-                        g.DrawString(n.Lines[0].Code, BoldFont, ink, new RectangleF(r.Left, r.Top, r.Width, r.Height), Center);
+                        g.DrawString(n.Text, BoldFont, ink, new RectangleF(r.Left, r.Top, r.Width, r.Height), Center);
                         using (var stepBrush = new SolidBrush(StepInk))
                             g.DrawString(string.Join(" ", n.Lines.Select(l => l.Step)), StepFont, stepBrush, r.Left + 6, r.Top + 4, Fmt);
                         break;

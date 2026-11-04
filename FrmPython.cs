@@ -75,6 +75,8 @@ namespace dm42editor
         ToolStripStatusLabel status;
         ComboBox entryBox;
         TextBox stackBox, inputsBox, simOut;
+        /// <summary>Écran de la C47 à la fin de F5 (capture SNAP du simulateur), masqué pour la DM42.</summary>
+        PictureBox lcdBox;
         SplitContainer mainSplit, leftSplit, rightSplit;
 
         Py.CompileResult last;
@@ -332,8 +334,30 @@ namespace dm42editor
             grid.Controls.Add(L("INPUT"), 0, 2);
             grid.Controls.Add(inputsBox, 1, 2);
             grid.SetColumnSpan(inputsBox, 2);
-            grid.Controls.Add(simOut, 0, 3);
-            grid.SetColumnSpan(simOut, 3);
+            lcdBox = new PictureBox { Dock = DockStyle.Left, SizeMode = PictureBoxSizeMode.Zoom, BackColor = Body, Visible = false, Cursor = Cursors.Hand };
+            new ToolTip().SetToolTip(lcdBox, Lang.T("Écran de la C47 à la fin du programme : cliquez pour l'agrandir"));
+            lcdBox.Click += (s, e) => ZoomLcd();
+            var output = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0, 6, 0, 0) };
+            // l'écran (400 × 240) : à gauche du texte si le panneau est large et bas, au-dessus sinon
+            void PlaceLcd()
+            {
+                var c = output.ClientSize;
+                if (c.Width > c.Height * 2)
+                {
+                    lcdBox.Dock = DockStyle.Left;
+                    lcdBox.Width = Math.Min(c.Height * 400 / 240, c.Width / 2);
+                }
+                else
+                {
+                    lcdBox.Dock = DockStyle.Top;
+                    lcdBox.Height = Math.Min(c.Width * 240 / 400, c.Height / 2);
+                }
+            }
+            output.Resize += (s, e) => PlaceLcd();
+            output.Controls.Add(simOut);
+            output.Controls.Add(lcdBox);
+            grid.Controls.Add(output, 0, 3);
+            grid.SetColumnSpan(output, 3);
             return grid;
         }
 
@@ -563,6 +587,7 @@ namespace dm42editor
             try { stack = Nums(stackBox.Text); inputs = Nums(inputsBox.Text); }
             catch (FormatException) { simOut.Text = Lang.T("Valeur invalide : séparez les nombres par des espaces ou des points-virgules."); return; }
 
+            ShowLcd(null);
             if (TargetC47) { RunC47Simulation(entry, stack, inputs); return; }
             var r = Py.Simulator.Run(last.Code, entry, stack, inputs);
             var sb = new StringBuilder();
@@ -602,41 +627,29 @@ namespace dm42editor
             simOut.Text = sb.ToString().Replace("\n", Environment.NewLine).Replace("\r\r", "\r");
         }
 
-        const char LogSep = '¦';
-
-        /// <summary>
-        /// Copie de la source C47 pour F5 : après chaque affichage (42AVIEW, 42PRMPT, VIEW), le message est ajouté à la
-        /// variable texte PYLOG ; PYSIM vide le journal puis appelle l'étiquette lancée. Sur la pile de 8 niveaux, les deux
-        /// valeurs empilées puis retirées ne touchent pas ce que le programme utilise (4 niveaux au plus).
-        /// Après chaque saisie, « 0 1 J_y(x) DROP » consomme la touche R/S : le simulateur sans fenêtre la garde enfoncée,
-        /// et le premier calcul interruptible qui suit (Bessel, premiers, gamma, solve, ∫…) s'arrêtait aussitôt sur NaN.
-        /// </summary>
-        static string WithMessageLog(string source, string entry)
+        /// <summary>Écran de la C47 en taille double, dans une fenêtre à part (Échap ou clic pour fermer).</summary>
+        void ZoomLcd()
         {
-            string Log(string what) => $"  RCL ‘PYLOG’ RCL {what} + ‘{LogSep}’ + STO ‘PYLOG’ DROP";
-            var lines = source.Replace("\r\n", "\n").Split('\n').ToList();
-            var o = new List<string>();
-            foreach (var raw in lines)
+            if (lcdBox.Image == null) return;
+            var pic = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom, Image = new Bitmap(lcdBox.Image) };
+            var f = new Form
             {
-                string t = raw.Trim();
-                if (t == "END") continue;
-                o.Add(raw);
-                if (t.StartsWith("INPUT ") || t == "STOP" || t.StartsWith("42PRMPT")) o.Add("  0 1 J_y(x) DROP");
-                if (t == "42AVIEW" || t.StartsWith("42PRMPT")) o.Add(Log("K"));   // ALPHA des instructions de compatibilité
-                else if (t.StartsWith("VIEW "))
-                {
-                    // VIEW X : X est remonté d'un niveau par RCL ‘PYLOG’
-                    string arg = t.Substring(5).Trim();
-                    string shifted = arg switch { "X" => "Y", "Y" => "Z", "Z" => "T", "T" => "A", _ => arg };
-                    o.Add(Log(shifted));
-                }
-            }
-            o.Add("LBL ‘PYSIM’");
-            o.Add("  ‘’ STO ‘PYLOG’ DROP");
-            o.Add($"  XEQ ‘{entry}’");
-            o.Add("  RTN");
-            o.Add("END");
-            return string.Join("\r\n", o);
+                Text = Lang.T("Écran C47"), ClientSize = new Size(800, 480), StartPosition = FormStartPosition.CenterParent,
+                FormBorderStyle = FormBorderStyle.SizableToolWindow, KeyPreview = true, ShowInTaskbar = false
+            };
+            f.Controls.Add(pic);
+            pic.Click += (s, e) => f.Close();
+            f.KeyDown += (s, e) => { if (e.KeyCode == Keys.Escape) f.Close(); };
+            f.FormClosed += (s, e) => pic.Image.Dispose();
+            f.Show(this);
+        }
+
+        void ShowLcd(Image screen)
+        {
+            var old = lcdBox.Image;
+            lcdBox.Image = screen;
+            lcdBox.Visible = screen != null;
+            old?.Dispose();
         }
 
         /// <summary>Texte rendu par le simulateur, en codes de la police C47 : exposants lisibles (×⑽ⅫⅣ → ×10⁻³).</summary>
@@ -651,13 +664,14 @@ namespace dm42editor
             Cursor = Cursors.WaitCursor;
             Emulator.C47Run r;
             // copie instrumentée : chaque message affiché est ajouté au journal PYLOG, relu à la fin
-            var sim = C47.Core.Encoder.Encode(WithMessageLog(lastC47.Source, entry));
+            var sim = C47.Core.Encoder.Encode(C47.Core.SimCopy.Build(lastC47.Source, entry));
             bool logged = sim.Ok;
-            try { r = Emulator.RunC47(this, C47.Core.P47File.Write((logged ? sim : lastC47Code).Program), logged ? "PYSIM" : entry, stack, inputs, logged ? "PYLOG" : null); }
+            try { r = Emulator.RunC47(this, C47.Core.P47File.Write((logged ? sim : lastC47Code).Program), logged ? C47.Core.SimCopy.Entry : entry, stack, inputs, logged ? C47.Core.SimCopy.LogVar : null); }
             finally { Cursor = Cursors.Default; }
+            ShowLcd(r.Screen);
             var sb = new StringBuilder();
             sb.AppendLine(Lang.T("Simulateur C47 (calcul sur 34 chiffres)"));
-            var messages = r.Log.Split(LogSep, StringSplitOptions.RemoveEmptyEntries);
+            var messages = r.Log.Split(C47.Core.SimCopy.LogSep, StringSplitOptions.RemoveEmptyEntries);
             if (messages.Length > 0)
             {
                 sb.AppendLine();
