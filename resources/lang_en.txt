@@ -588,8 +588,5 @@ Type de l'onglet courant et calculatrice par défaut (double-clic : Fichier → 
 [touche]	[key]
 Non programmable : touche ou menu de la calculatrice, qu'un programme ne peut pas contenir.	Not programmable: a key or menu of the calculator, which a program cannot contain.
 Fonction non programmable : touche ou menu de la calculatrice, elle ne peut pas être insérée.	Not programmable: a key or menu of the calculator, it cannot be inserted.
-<<<<<<< HEAD
 Importer et exporter des programmes\ndepuis et vers la DM42, Free42,C47, R47\nconversion  Python RPN\nSimulateur intégré pour DM42 et C47	Import and export programs\nfrom and to the DM42, Free42, C47, R47\nPython → RPN conversion\nBuilt-in simulator for DM42 and C47
 Original works : 2018 J.Heilingbrunner\nLe cœur applicatif (dm42dll.dll) est basé sur le travail open-source\n de J.Heilingbrunner, projet : vscode-dm42-Free42, sous licence MIT."\nModifications et Extension  vers C47,  conversion Python  vers\nDM42/C47/R47 par Germain PHILIPPE.\nCe logiciel est sous licence GPLv3.	Original work: 2018 J. Heilingbrunner\nThe application core (dm42dll.dll) is based on the open-source work\nof J. Heilingbrunner, project vscode-dm42-Free42, under the MIT license.\nChanges and extension to the C47, Python conversion to\nDM42 / C47 / R47 by Germain PHILIPPE.\nThis software is licensed under the GPLv3.
-=======
->>>>>>> f732b75c668c48ddf726308de273225bcba2f678
