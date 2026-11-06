@@ -1,0 +1,107 @@
+# Fonctions non programmables (touches, menus) de la carte d'index C47 « Commands & Functions index » (47calc.com),
+# absentes de c47_help.tsv. numéro<TAB>domaine<TAB>description anglaise<TAB>description française
+2035	Graphiques	Zoom in on y-axis	Zoom avant sur l'axe des y
+2034	Graphiques	Zoom out on y-axis	Zoom arrière sur l'axe des y
+988	Programmation	Real zero	Zéro réel (saisie d'un paramètre)
+989	Programmation	Real one	Un réel (saisie d'un paramètre)
+2782	Compatibilité HP-42S	42BIT?	42BIT? (compatibilité HP-42S, barré)
+2795	Compatibilité HP-42S	Key Go to (42)	Touche → aller à (HP-42S)
+2796	Compatibilité HP-42S	Key Execute (42)	Touche → exécuter (HP-42S)
+2781	Compatibilité HP-42S	42ROTXY	42ROTXY (compatibilité HP-42S, barré)
+2044	Autres	Activate USB disk	Active le disque USB
+2720	Finances	Balance	Solde
+1734	Programmation	Backstep	Pas arrière
+1874	Texte (ALPHA)	Clear alpha	Efface ALPHA (touche ; dans un programme : CLα)
+2033	Pile, registres et mémoire	Clear graph	Efface le graphique
+2367	Matrices et vecteurs	Add column	Ajoute une colonne
+1780	Pile, registres et mémoire	Delete Backup	Supprime la sauvegarde
+2365	Matrices et vecteurs	Delete column	Supprime la colonne
+1463	Pile, registres et mémoire	Delete	Supprime
+1425	Pile, registres et mémoire	Delete (current) program	Supprime le programme courant
+1426	Pile, registres et mémoire	Delete all programs	Supprime tous les programmes
+1525	Matrices et vecteurs	Delete row	Supprime la ligne
+1419	Pile, registres et mémoire	Delete all	Supprime tout
+2043	Autres	Access DMCP menu	Ouvre le menu DMCP
+1873	Trigonométrie et angles	Degrees-radians-gradians	Bascule degrés, radians, grades
+1464	Affichage et modes	Edit item	Modifie l'élément (ou l'équation)
+990	Entrées, sorties et impression	Enter exponent	Saisie de l'exposant (×10ⁿ) d'un nombre
+1737	Affichage et modes	Exit	Sortie
+1532	Matrices et vecteurs	Go to matrix element	Va à un élément de la matrice
+2054	Pile, registres et mémoire	HOME menu reset	Réinitialise le menu HOME
+2364	Matrices et vecteurs	Insert column	Insère une colonne
+1534	Matrices et vecteurs	Insert row	Insère une ligne
+1498	Programmation	Key Go to	Touche → aller à (dans un programme : KEY n GTO)
+2023	Pile, registres et mémoire	Keyboard reset	Réinitialise le clavier
+1499	Programmation	Key Execute	Touche → exécuter (dans un programme : KEY n XEQ)
+1785	Date, heure et chronomètre	Store lap time in register	Range le temps du tour dans un registre
+1783	Date, heure et chronomètre	Add lap time to STATS	Ajoute le temps du tour aux statistiques
+1509	Entrées, sorties et impression	Load full backup	Charge une sauvegarde complète
+1510	Entrées, sorties et impression	Load programs	Charge des programmes
+1511	Entrées, sorties et impression	Load registers	Charge des registres
+1512	Entrées, sorties et impression	Load system state	Charge l'état du système
+1552	Entrées, sorties et impression	Load variables	Charge des variables
+1513	Entrées, sorties et impression	Load Sigma registers	Charge les registres statistiques
+1204	Matrices et vecteurs	Matrix X	Matrice X
+2022	Pile, registres et mémoire	MyMenu reset	Réinitialise MyMenu
+2021	Pile, registres et mémoire	Myα menu reset	Réinitialise le menu Myα
+2721	Finances	Step forward	Période suivante
+2246	Affichage et modes	No	Non
+1537	Matrices et vecteurs	Old (matrix)	Ancienne matrice
+2716	Finances	First payment number	Numéro du premier paiement
+2717	Finances	Last Payment number	Numéro du dernier paiement
+2055	Pile, registres et mémoire	P.FN menu reset	Réinitialise le menu P.FN
+1724	Programmation	Programming	Mode programmation
+2166	Fonctions mathématiques	Polynomial 4th degree	Polynôme du 4e degré
+1844	Date, heure et chronomètre	Recall and load to countdown	Rappelle et charge le compte à rebours
+1567	Entrées, sorties et impression	Read/load program	Lit et charge un programme
+1568	Date, heure et chronomètre	Reset stopwatch	Remet le chronomètre à zéro
+2366	Matrices et vecteurs	Add row	Ajoute une ligne
+568	Statistiques et probabilités	Sample standard deviation	Écart-type de l'échantillon
+1586	Entrées, sorties et impression	Save full backup	Sauvegarde complète
+2038	Affichage et modes	Safe reset f/g timers	Réinitialisation sûre des minuteries f/g
+1736	Programmation	Single step	Pas à pas avant
+1784	Date, heure et chronomètre	Store time in register	Range le temps dans un registre
+1782	Date, heure et chronomètre	Add time to STATS	Ajoute le temps aux statistiques
+1631	Autres	Version	Version
+1634	Autres	Who	Auteurs
+1590	Entrées, sorties et impression	Write/save program	Écrit et enregistre un programme
+1933	Entrées, sorties et impression	Write/save & export all	Écrit, enregistre et exporte tout
+2582	Trigonométrie et angles	XFN : Degrees-radians-gradians	XFN : bascule degrés, radians, grades
+1576	Entrées, sorties et impression	Export program	Exporte un programme
+2245	Affichage et modes	Yes	Oui
+2369	Solveur, intégrales, dérivées	Real solver (variable limits)	Solveur réel (bornes en variables)
+2368	Solveur, intégrales, dérivées	Real solver (stack limits)	Solveur réel (bornes sur la pile)
+1968	Matrices et vecteurs	Compose/decompose 1x4 vector	Compose ou décompose un vecteur 1×4
+2495	Matrices et vecteurs	Compose/decompose 1x2 vector	Compose ou décompose un vecteur 1×2
+2496	Matrices et vecteurs	Compose/decompose 1x3 vector	Compose ou décompose un vecteur 1×3
+1807	Entrées, sorties et impression	Giga	Préfixe giga
+2535	Entrées, sorties et impression	Giga binary	Préfixe binaire gibi
+2533	Entrées, sorties et impression	Kilo binary	Préfixe binaire kibi
+1806	Entrées, sorties et impression	Mega	Préfixe méga
+2534	Entrées, sorties et impression	Mega binary	Préfixe binaire mébi
+1892	Entrées, sorties et impression	Peta	Préfixe péta
+2537	Entrées, sorties et impression	Peta binary	Préfixe binaire pébi
+1808	Entrées, sorties et impression	Tera	Préfixe téra
+2536	Entrées, sorties et impression	Tera binary	Préfixe binaire tébi
+1800	Entrées, sorties et impression	femto	Préfixe femto
+1805	Entrées, sorties et impression	kilo	Préfixe kilo
+1802	Entrées, sorties et impression	nano	Préfixe nano
+726	Statistiques et probabilités	y hat	y estimé (ŷ)
+606	Statistiques et probabilités	Scattering factor for a lognormal sample	Facteur de dispersion d'un échantillon log-normal
+620	Statistiques et probabilités	Population standard deviation	Écart-type de la population
+2718	Finances	Sum of interest	Somme des intérêts
+2719	Finances	Sum of principal	Somme du capital
+1932	Texte (ALPHA)	Alpha parse	Analyse d'ALPHA (barré)
+892	Pile, registres et mémoire	Backspace	Retour arrière
+893	Affichage et modes	Up	Haut
+539	Programmation	Indirection	Indirection (saisie d'un paramètre)
+2418	Programmation	Indirect T	Indirection par T
+2415	Programmation	Indirect X	Indirection par X
+2416	Programmation	Indirect Y	Indirection par Y
+2417	Programmation	Indirect Z	Indirection par Z
+895	Affichage et modes	Down	Bas
+1723	Pile, registres et mémoire	Undo	Annule la dernière opération
+2686	Entrées, sorties et impression	Get printer delay	Délai de l'imprimante
+2699	Entrées, sorties et impression	Print all items	Imprime tous les éléments
+2693	Entrées, sorties et impression	Print list	Imprime la liste
+1713	Entrées, sorties et impression	Print program	Imprime le programme

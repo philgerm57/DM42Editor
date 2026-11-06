@@ -85,12 +85,16 @@ the state before each instruction: since the inputs are given in advance, this i
 by instruction, and you can also go back. Recording stops after 200,000 steps; a modified program is restarted from the
 beginning. Matrices are shown by their dimensions.
 
+![Step by step on a DM42 tab: next instruction highlighted, stack, ALPHA, variables and messages](docs/pas-a-pas.png)
+
 ### C47 tab
 
 The program is encoded, then run by the real C47 simulator without a window (`c47.exe --headless`), on 34 digits.
 The simulator shows the displayed messages, the 8-level stack (readable exponents: `TEXT²`, `×10⁻³`) and
 the calculator screen (click it to enlarge). The window stays usable during the simulation; F5, Shift+F5 or the
 Stop button interrupt it, and it stops by itself after 30 s.
+
+![C47 tab: program run in the C47 simulator, with the calculator screen and the stack](docs/simulateur-c47.png)
 
 The saved or sent program is not changed: a copy is simulated, prepared for this simulator without a keyboard
 (`C47/C47.Core/SimCopy.cs`):
