@@ -16,6 +16,13 @@ namespace dm42editor
         internal static IEnumerable<Item> Listed() =>
             Items.Programmable.Where(i => i.Kind != ParamKind.Literal && i.Name.Trim() != "" && !i.Name.StartsWith(">"));
 
+        /// <summary>Tout ce que l'aide présente : les instructions, plus les touches et menus non programmables (EEX, ±ZOOM…),
+        /// marqués [touche] et jamais insérés dans un programme.</summary>
+        internal static IEnumerable<Item> Documented() => Listed().Concat(Items.KeyOnly).Distinct();
+
+        /// <summary>Marque des fonctions non programmables dans les listes.</summary>
+        internal static string KeyMark(Item i) => Items.IsKeyOnly(i) ? Lang.T("[touche]") + " " : "";
+
         /// <summary>Paramètre accepté en indirect : →R05 (adresse dans un registre) ou →‘nom’ (dans une variable), comme decodeOp.</summary>
         internal static bool AcceptsIndirect(Item i) => i.Kind is ParamKind.Label or ParamKind.Register or ParamKind.Compare or ParamKind.Flag
             or ParamKind.Number8 or ParamKind.Number8_16 or ParamKind.Number16 or ParamKind.KeyGKeyX or ParamKind.Menu;
@@ -60,7 +67,7 @@ namespace dm42editor
         }
 
         /// <summary>Texte inséré dans le programme : nom reconnu par l'encodeur, puis espace ou fin de ligne.</summary>
-        internal static string Snippet(Item i) => Items.Unique(i) + (i.Kind == ParamKind.None ? "\r\n" : " ");
+        internal static string Snippet(Item i) => Items.IsKeyOnly(i) ? "" : Items.Unique(i) + (i.Kind == ParamKind.None ? "\r\n" : " ");
 
         /// <summary>Description complète : instruction, paramètre, domaine, texte, et l'anglais d'origine en français.</summary>
         internal static string Full(Item i)
@@ -69,6 +76,7 @@ namespace dm42editor
             string hint = ParamHint(i);
             string text = Items.Describe(i);
             return i.Shown + (hint != "" ? "   [" + hint + "]" : "") + "   ·   " + Lang.T(h.Category) + "\r\n"
+                 + (Items.IsKeyOnly(i) ? Lang.T("Non programmable : touche ou menu de la calculatrice, qu'un programme ne peut pas contenir.") + "\r\n" : "")
                  + (text != "" ? text : Lang.T("Pas de description."))
                  + (text != h.Description && h.Description != "" ? "\r\n\r\nEN : " + h.Description : "")
                  + (AcceptsIndirect(i) ? "\r\n\r\n" + Lang.F("Indirection : {0} →R05 prend l'adresse dans le registre 05, {0} →‘nom’ dans la variable nom (IND 05 est aussi accepté).", i.Shown) : "");
@@ -79,7 +87,7 @@ namespace dm42editor
         {
             if (window != null && !window.IsDisposed) { window.Activate(); return; }
 
-            var all = Listed().OrderBy(i => i.Shown, StringComparer.OrdinalIgnoreCase).ToList();
+            var all = Documented().OrderBy(i => i.Shown, StringComparer.OrdinalIgnoreCase).ToList();
             var byCategory = all.GroupBy(i => Items.Help(i).Category).ToDictionary(g => g.Key, g => g.Count());
             var f = new Form { Text = Lang.T("Instructions C47"), Size = new Size(960, 720), MinimumSize = new Size(640, 420), StartPosition = FormStartPosition.CenterParent, ShowInTaskbar = false };
             var filter = new TextBox { Dock = DockStyle.Top, Font = new Font("Segoe UI", 10f), PlaceholderText = Lang.T("Filtrer (nom ou description, français ou anglais)…") };
@@ -106,7 +114,7 @@ namespace dm42editor
                     if (cat != null && h.Category != cat) continue;
                     if (q == "" || i.Shown.IndexOf(q, StringComparison.OrdinalIgnoreCase) >= 0 || i.Menu.IndexOf(q, StringComparison.OrdinalIgnoreCase) >= 0
                         || h.Description.IndexOf(q, StringComparison.OrdinalIgnoreCase) >= 0 || h.French.IndexOf(q, StringComparison.OrdinalIgnoreCase) >= 0)
-                        box.Items.Add(new Row<Item>(i, i.Shown.PadRight(12) + " " + Short(i)));
+                        box.Items.Add(new Row<Item>(i, i.Shown.PadRight(12) + " " + KeyMark(i) + Short(i)));
                 }
                 box.EndUpdate();
                 if (box.Items.Count > 0) box.SelectedIndex = 0;
@@ -115,7 +123,8 @@ namespace dm42editor
 
             void Insert()
             {
-                if (box.SelectedItem is Row<Item> r) insert(Snippet(r.Value));
+                if (box.SelectedItem is Row<Item> r && !Items.IsKeyOnly(r.Value)) insert(Snippet(r.Value));
+                else System.Media.SystemSounds.Beep.Play();   // touche ou menu : rien à insérer
             }
 
             filter.TextChanged += (s, e) => Fill();

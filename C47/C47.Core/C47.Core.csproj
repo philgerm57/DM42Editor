@@ -9,5 +9,6 @@
     <EmbeddedResource Include="c47_items.tsv" LogicalName="c47_items.tsv" />
     <EmbeddedResource Include="c47_alias.tsv" LogicalName="c47_alias.tsv" />
     <EmbeddedResource Include="c47_help.tsv" LogicalName="c47_help.tsv" />
+    <EmbeddedResource Include="c47_keys.tsv" LogicalName="c47_keys.tsv" />
   </ItemGroup>
 </Project>

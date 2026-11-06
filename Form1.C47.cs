@@ -134,6 +134,12 @@ namespace dm42editor
 
         void InsertInC47Tab(string text)
         {
+            if (string.IsNullOrEmpty(text))
+            {
+                // touche ou menu non programmable (EEX, ±ZOOM…) : décrite dans l'aide, mais rien à insérer
+                lbWordUnderMouse.Text = Lang.T("Fonction non programmable : touche ou menu de la calculatrice, elle ne peut pas être insérée.");
+                return;
+            }
             var tb = CurrentSourceTB;   // depuis l'onglet des octets, l'insertion va dans sa source
             if (!IsC47(tb)) { lbWordUnderMouse.Text = Lang.T("Ouvrez d'abord un onglet C47."); return; }
             if (tb != CurrentTB) CurrentTB = tb;
@@ -465,11 +471,12 @@ namespace dm42editor
         ListViewItem[] BuildC47Functions(out ListViewGroup[] groups)
         {
             var list = new List<ListViewItem>();
-            foreach (var i in C47Help.Listed().OrderBy(i => Array.IndexOf(Items.Categories, Items.Help(i).Category)).ThenBy(i => i.Shown, StringComparer.OrdinalIgnoreCase))
+            foreach (var i in C47Help.Documented().OrderBy(i => Array.IndexOf(Items.Categories, Items.Help(i).Category)).ThenBy(i => i.Shown, StringComparer.OrdinalIgnoreCase))
             {
                 var h = Items.Help(i);
                 var it = new ListViewItem(i.Shown) { Tag = i, ToolTipText = C47Help.Full(i) };
-                it.SubItems.Add(C47Help.Short(i, 90));
+                it.SubItems.Add(C47Help.KeyMark(i) + C47Help.Short(i, 90));
+                if (Items.IsKeyOnly(i)) it.ForeColor = System.Drawing.SystemColors.GrayText;   // non programmable
                 it.SubItems.Add("");
                 it.SubItems.Add(C47Help.ParamHint(i));
                 it.SubItems.Add(new ListViewItem.ListViewSubItem(it, Lang.T(h.Category)) { Tag = h.Category });

@@ -16,7 +16,8 @@ namespace C47.Core;
 /// avant la fin (RTN, END) devient une capture de l'écran dessiné par le programme (SNAP) ; les autres sont retirées.
 /// L'attente d'une touche (KEY? r, GETKEY) capture l'écran puis lit le code de touche comme une saisie : sans saisie,
 /// le programme s'arrête là au lieu de tourner sans fin.</item>
-/// <item>PYSIM vide le journal puis appelle l'étiquette lancée.</item>
+/// <item>Les END deviennent RTN (la copie est un seul programme) ; PYSIM, ajouté à la fin, vide le journal puis appelle
+/// l'étiquette lancée.</item>
 /// </list>
 /// </summary>
 public static class SimCopy
@@ -81,7 +82,14 @@ public static class SimCopy
         {
             string raw = lines[li];
             string t = Code(raw);
-            if (t == "END") continue;
+            if (t == "END")
+            {
+                // la copie est un seul programme : END devient RTN, le retour qu'il fait sur la calculatrice. Sans lui,
+                // un programme sans RTN final continuait dans PYSIM, qui le rappelait sans fin (RAM is full)
+                o.Add("  RTN");
+                prev = t;
+                continue;
+            }
             if (PauseRx.IsMatch(t))
             {
                 string next = lines.Skip(li + 1).Select(Code).FirstOrDefault(c => c.Length > 0) ?? "END";

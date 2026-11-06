@@ -39,10 +39,10 @@
             // 
             // button1
             // 
-            button1.Location = new System.Drawing.Point(282, 404);
+            button1.Location = new System.Drawing.Point(282, 419);
             button1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             button1.Name = "button1";
-            button1.Size = new System.Drawing.Size(176, 60);
+            button1.Size = new System.Drawing.Size(176, 53);
             button1.TabIndex = 0;
             button1.Text = "Fermer";
             button1.UseVisualStyleBackColor = true;
@@ -53,7 +53,7 @@
             label1.AutoSize = true;
             label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             label1.ForeColor = System.Drawing.Color.White;
-            label1.Location = new System.Drawing.Point(241, 34);
+            label1.Location = new System.Drawing.Point(230, 21);
             label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             label1.Name = "label1";
             label1.Size = new System.Drawing.Size(313, 39);
@@ -65,12 +65,13 @@
             label2.AutoSize = true;
             label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             label2.ForeColor = System.Drawing.Color.White;
-            label2.Location = new System.Drawing.Point(37, 84);
+            label2.Location = new System.Drawing.Point(174, 70);
             label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             label2.Name = "label2";
-            label2.Size = new System.Drawing.Size(512, 75);
+            label2.Size = new System.Drawing.Size(421, 100);
             label2.TabIndex = 3;
-            label2.Text = "Importer et exporter des programmes \r\ndepuis et vers la DM42, Free42,C47, R47  et Python\r\nSimulateur intégré pour DM42 et C47\r\n";
+            label2.Text = "Importer et exporter des programmes \r\ndepuis et vers la DM42, Free42,C47, R47  \r\nconversion  Python RPN\r\nSimulateur intégré pour DM42 et C47\r\n";
+            label2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             label2.Click += label2_Click;
             // 
             // label4
@@ -102,12 +103,13 @@
             // textBox1
             // 
             textBox1.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-            textBox1.Location = new System.Drawing.Point(28, 176);
+            textBox1.Location = new System.Drawing.Point(40, 193);
             textBox1.Multiline = true;
             textBox1.Name = "textBox1";
-            textBox1.Size = new System.Drawing.Size(673, 180);
+            textBox1.Size = new System.Drawing.Size(673, 203);
             textBox1.TabIndex = 8;
             textBox1.Text = resources.GetString("textBox1.Text");
+            textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             textBox1.TextChanged += textBox1_TextChanged;
             // 
             // FrmAide

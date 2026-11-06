@@ -582,3 +582,9 @@ Simulateur C47 en cours… (F5 ou Arrêter pour l'interrompre)	C47 simulator run
 Simulateur C47 en cours… (F5 pour l'interrompre)	C47 simulator running… (F5 to interrupt)
 Arrêter	Stop
 Réponses dans l'ordre : INPUT, prompt(), VARMENU (une par variable), menu() (n° de touche, 0 = EXIT), GETKEY et KEY? (code de touche)	Answers in order: INPUT, prompt(), VARMENU (one per variable), menu() (key number, 0 = EXIT), GETKEY and KEY? (key code)
+Par défaut : {0}	Default: {0}
+Onglet {0}  ·  Par défaut : {1}	Tab {0}  ·  Default: {1}
+Type de l'onglet courant et calculatrice par défaut (double-clic : Fichier → Paramètres)	Current tab type and default calculator (double-click: File → Settings)
+[touche]	[key]
+Non programmable : touche ou menu de la calculatrice, qu'un programme ne peut pas contenir.	Not programmable: a key or menu of the calculator, which a program cannot contain.
+Fonction non programmable : touche ou menu de la calculatrice, elle ne peut pas être insérée.	Not programmable: a key or menu of the calculator, it cannot be inserted.
