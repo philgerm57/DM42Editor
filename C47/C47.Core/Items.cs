@@ -204,6 +204,13 @@ public static class Items
     }
 
     static Dictionary<int, (string Category, string Description, string French)>? help;
+    static List<Item>? keyOnly;
+
+    /// <summary>Fonctions de la carte d'index C47 qu'un programme ne peut pas contenir : touches et menus (EEX, ±ZOOM, SST…).</summary>
+    public static IReadOnlyList<Item> KeyOnly { get { Help(ByNumber[Literal]); return keyOnly!; } }
+
+    /// <summary>Instruction non programmable : elle existe sur la calculatrice (touche, menu) mais pas dans un programme.</summary>
+    public static bool IsKeyOnly(Item i) => i.Kind == ParamKind.Disabled;
 
     /// <summary>Domaine (clé française), description anglaise d'origine et sa traduction française, d'après c47_help.tsv.</summary>
     public static (string Category, string Description, string French) Help(Item i)
@@ -218,6 +225,18 @@ public static class Items
                 // la doc écrit avec les codes de la police C47
                 h[int.Parse(f[0])] = (f[1], f.Length > 2 ? C47Text.Readable(f[2]) : "", f.Length > 3 ? C47Text.Readable(f[3]) : "");
             }
+            // fonctions non programmables (touches, menus) de la carte d'index C47 : même forme
+            var keys = new List<Item>();
+            foreach (var line in Lines("c47_keys.tsv"))
+            {
+                if (line[0] == '#') continue;
+                var f = line.Split('	');
+                int n = int.Parse(f[0]);
+                if (!ByNumber.TryGetValue(n, out var item)) continue;
+                h.TryAdd(n, (f[1], f[2], f[3]));
+                keys.Add(item);
+            }
+            keyOnly = keys;
             help = h;
         }
         return help.TryGetValue(i.Number, out var r) ? r : ("Autres", "", "");

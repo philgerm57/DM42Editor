@@ -89,7 +89,9 @@ namespace dm42editor
             var result = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0, 4, 0, 0) };
             result.Resize += (s, e) => lcdBox.Width = Math.Min(result.ClientSize.Height * 400 / 240, result.ClientSize.Width / 2);
             result.Controls.Add(output);
+            result.Controls.Add(SimLayout.Gap(lcdBox, 10));   // espace entre l'écran C47 et le texte
             result.Controls.Add(lcdBox);
+            SimLayout.LeftMargin(output, 8);
             grid.Controls.Add(result, 0, 2);
             grid.SetColumnSpan(result, 7);
             Controls.Add(grid);

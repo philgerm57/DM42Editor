@@ -9,6 +9,8 @@ namespace dm42editor
         SplitContainer editorSplit;
         RpnSimPanel simPanel;
         ToolStripMenuItem simMenuItem;
+        ToolStripStatusLabel modeLabel;
+        string modeShown;
 
         private void InitSimPanel()
         {
@@ -52,6 +54,35 @@ namespace dm42editor
             });
             fileToolStripMenuItem.DropDownItems.Insert(fileToolStripMenuItem.DropDownItems.IndexOf(runItem) + 1, debug);
             cmMain.Items.Add(new ToolStripMenuItem("Simulateur du programme", null, (s, e) => ShowSimPanel(editorSplit.Panel2Collapsed)) { ShortcutKeyDisplayString = "Ctrl+F5" });
+
+            // barre d'état, à droite : type de l'onglet courant et calculatrice par défaut (double-clic : Paramètres)
+            modeLabel = new ToolStripStatusLabel
+            {
+                BorderSides = ToolStripStatusLabelBorderSides.Left, BorderStyle = Border3DStyle.Etched,
+                Padding = new Padding(6, 0, 6, 0), DoubleClickEnabled = true,
+                ToolTipText = Lang.T("Type de l'onglet courant et calculatrice par défaut (double-clic : Fichier → Paramètres)")
+            };
+            modeLabel.DoubleClick += (s, e) => parameterToolStripMenuItem.PerformClick();
+            statusStrip1.ShowItemToolTips = true;
+            // le libellé de gauche (Spring) prend la place restante : sans taille fixe, le nouveau tient sur la même ligne
+            lbWordUnderMouse.AutoSize = true;
+            statusStrip1.Items.Add(modeLabel);
+            UpdateModeLabel(null, EventArgs.Empty);
+            Application.Idle += UpdateModeLabel;
+            FormClosed += (s, e) => Application.Idle -= UpdateModeLabel;
+        }
+
+        /// <summary>« Onglet C47 · Par défaut : DM42 » : suit l'onglet choisi et le réglage des Paramètres.</summary>
+        void UpdateModeLabel(object sender, EventArgs e)
+        {
+            string def = Emulator.DefaultC47 ? "C47" : "DM42";
+            var tb = CurrentSourceTB;
+            string text = tb == null
+                ? Lang.F("Par défaut : {0}", def)
+                : Lang.F("Onglet {0}  ·  Par défaut : {1}", IsC47(tb) ? "C47" : "DM42", def);
+            if (text == modeShown) return;
+            modeShown = text;
+            modeLabel.Text = text;
         }
 
         void ShowSimPanel(bool show)
@@ -85,6 +116,7 @@ namespace dm42editor
         void SyncSimPanel()
         {
             if (simPanel != null && !editorSplit.Panel2Collapsed) simPanel.Refresh(keepOutput: false);
+            if (modeLabel != null) UpdateModeLabel(null, EventArgs.Empty);
         }
     }
 }

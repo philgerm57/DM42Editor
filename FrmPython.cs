@@ -355,7 +355,9 @@ namespace dm42editor
             }
             output.Resize += (s, e) => PlaceLcd();
             output.Controls.Add(simOut);
+            output.Controls.Add(SimLayout.Gap(lcdBox, 10));   // espace entre l'écran C47 et le texte
             output.Controls.Add(lcdBox);
+            SimLayout.LeftMargin(simOut, 8);
             grid.Controls.Add(output, 0, 3);
             grid.SetColumnSpan(output, 3);
             return grid;

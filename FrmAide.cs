@@ -18,9 +18,21 @@ namespace dm42editor
         {
             InitializeComponent();
             Lang.Apply(this);
+            // textes sur plusieurs lignes : Lang.Apply ne traduit ni la zone de texte ni les \r\n et espaces de fin
+            Text = Lang.T("À propos");          // fenêtre sans bordure : titre vu dans Alt+Tab
+            label2.Text = Translate(label2.Text);
+            textBox1.Text = Translate(textBox1.Text);
+        }
 
-            // Centre la fenetre
-
+        /// <summary>
+        /// Traduit un texte de plusieurs lignes : la clé de lang_en.txt est le texte français, lignes sans espaces de fin,
+        /// séparées par \n. Le texte reste tel quel s'il n'a pas de traduction (interface en français).
+        /// </summary>
+        static string Translate(string text)
+        {
+            string key = string.Join("\n", text.Replace("\r\n", "\n").Split('\n').Select(l => l.TrimEnd())).Trim('\n');
+            string en = Lang.T(key);
+            return en == key ? text : en.Replace("\n", "\r\n");
         }
 
         private void button1_Click(object sender, EventArgs e)
