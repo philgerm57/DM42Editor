@@ -349,6 +349,7 @@ namespace dm42editor
             viewCodeLineToolStripMenuItem.Enabled = toolStripMenuItem8.Enabled = !c47;   // numérotation des pas HP-42S
             if (symbolBar != null) symbolBar.Visible = c47;                               // barre de symboles C47
             if (hp41Menu != null) hp41Menu.Enabled = hp41Popup.Enabled = !c47;          // conversion HP-41 → DM42
+            if (androidMenu != null) androidMenu.Enabled = androidPopup.Enabled = c47;  // envoi .p47 vers la R47 Android
             SyncSimPanel();                                                              // simulateur : labels et type de l'onglet
             if (listShowsC47 == c47) return;
 

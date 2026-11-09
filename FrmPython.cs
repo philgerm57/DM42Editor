@@ -841,6 +841,7 @@ namespace dm42editor
         {
             if (e.KeyCode == Keys.F5) { RunSimulation(); e.Handled = true; }
             else if (e.KeyCode == Keys.F6) { SendToEditor(); e.Handled = true; }
+            else if (e.KeyCode == Keys.F7 && e.Shift) { SendToAndroid(); e.Handled = true; }
             else if (e.KeyCode == Keys.F7) { SendToFree42(); e.Handled = true; }
             else if (e.KeyCode == Keys.F8) { SaveRaw(); e.Handled = true; }
             else if (e.Control && e.KeyCode == Keys.K && pyBox.Focused) { ToggleComment(); e.Handled = true; }

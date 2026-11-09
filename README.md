@@ -38,6 +38,12 @@ the editor compile it to RPN.
   For the C47: a symbol bar (→ ⇄ ≤ ≥ ≠ × ÷ ² ˣ √ π…), replacement while typing (`->` → `→`, `<>` → `⇄`, `<=` → `≤`,
   `^2` → `²`, except in strings and comments), and keyboard spellings accepted (`x<>y`, `abs`, `STO*`).
 - **Send to the emulator** Free42 / Plus42 (F7), whose path is set in the settings.
+- **Send to an Android R47 / C47** connected by USB (Shift+F7, C47 tab or C47 target of the Python window): the `.p47` is
+  copied with `adb` into the `PROGRAMS` subfolder of the app's work directory, where `READP` opens the file picker, and
+  the app is brought to the front. Without a work directory, the file goes to `Documents/R47/PROGRAMS`: choose
+  `Documents/R47` once as the work directory in the app's settings. Needs the Android *SDK Platform-Tools* (`adb.exe`,
+  found in the PATH or the Android SDK) and USB debugging on the phone. The work directory is read with `run-as`, so
+  only from a *debug* build of the app; with another build, `Documents/R47/PROGRAMS` is used.
 - Built-in help: the HP-42S function list and the PDF manuals in a WebView2 viewer.
 
 | Flowchart | Python → RPN |

@@ -219,6 +219,7 @@ namespace dm42editor
                 new ToolStripSeparator(),
                 Item("Copier tout le listing", null, (s, e) => CopyRpn()),
                 Item("Envoyer vers l'émulateur", "F7", (s, e) => SendToFree42()),
+                Item("Envoyer vers la R47 Android (USB)", "Maj+F7", (s, e) => SendToAndroid()),
                 Item("Générer le fichier .raw…", "F8", (s, e) => SaveRaw()),
                 Item("Logigramme du listing…", null, (s, e) => ShowFlowchart()),
                 new ToolStripSeparator(),
@@ -630,6 +631,17 @@ namespace dm42editor
                 return;
             }
             status.Text = Emulator.Send(this, last.Listing(true, header: true), last.Code.Count);
+        }
+
+        /// <summary>Maj+F7, cible C47 / R47 : copie le .p47 dans l'application R47 / C47 du téléphone Android branché en USB.</summary>
+        void SendToAndroid()
+        {
+            if (!TargetC47) { status.Text = Lang.T("Choisissez d'abord la cible C47 / R47."); return; }
+            if (last == null) { status.Text = Lang.T("Rien à envoyer : corrigez d'abord les erreurs."); return; }
+            if (!lastC47Code.Ok) { status.Text = Lang.T("Le listing C47 contient des erreurs : voir les messages."); return; }
+            status.Text = Lang.T("Envoi vers le téléphone…");
+            Refresh();
+            status.Text = AndroidR47.Send(this, C47.Core.P47File.Write(lastC47Code.Program), progName.Text.Trim().Length > 0 ? progName.Text.Trim() : "MAIN");
         }
     }
 }

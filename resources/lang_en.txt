@@ -590,3 +590,23 @@ Non programmable : touche ou menu de la calculatrice, qu'un programme ne peut pa
 Fonction non programmable : touche ou menu de la calculatrice, elle ne peut pas être insérée.	Not programmable: a key or menu of the calculator, it cannot be inserted.
 Importer et exporter des programmes\ndepuis et vers la DM42, Free42,C47, R47\nconversion  Python RPN\nSimulateur intégré pour DM42 et C47	Import and export programs\nfrom and to the DM42, Free42, C47, R47\nPython → RPN conversion\nBuilt-in simulator for DM42 and C47
 Original works : 2018 J.Heilingbrunner\nLe cœur applicatif (dm42dll.dll) est basé sur le travail open-source\n de J.Heilingbrunner, projet : vscode-dm42-Free42, sous licence MIT."\nModifications et Extension  vers C47,  conversion Python  vers\nDM42/C47/R47 par Germain PHILIPPE.\nCe logiciel est sous licence GPLv3.	Original work: 2018 J. Heilingbrunner\nThe application core (dm42dll.dll) is based on the open-source work\nof J. Heilingbrunner, project vscode-dm42-Free42, under the MIT license.\nChanges and extension to the C47, Python conversion to\nDM42 / C47 / R47 by Germain PHILIPPE.\nThis software is licensed under the GPLv3.
+Envoyer vers la R47 Android (USB)	Send to the Android R47 (USB)
+R47 Android	Android R47
+Envoi vers le téléphone…	Sending to the phone…
+Choisissez d'abord la cible C47 / R47.	Choose the C47 / R47 target first.
+adb ne répond pas.	adb does not answer.
+adb.exe introuvable.\n\nInstallez les outils Android « SDK Platform-Tools » (ou Android Studio), ou ajoutez leur dossier au PATH.	adb.exe not found.\n\nInstall the Android "SDK Platform-Tools" (or Android Studio), or add their folder to the PATH.
+adb.exe introuvable : programme non envoyé.	adb.exe not found: program not sent.
+Erreur d'adb :\n{0}	adb error:\n{0}
+Programme non envoyé.	Program not sent.
+Le téléphone n'a pas encore autorisé ce PC.\n\nDéverrouillez-le et acceptez « Autoriser le débogage USB ».	The phone has not authorized this PC yet.\n\nUnlock it and accept "Allow USB debugging".
+Aucun téléphone trouvé.\n\nBranchez-le en USB et activez le débogage USB (Options pour les développeurs).	No phone found.\n\nConnect it by USB and turn on USB debugging (Developer options).
+Aucun téléphone Android : programme non envoyé.	No Android phone: program not sent.
+Choisir le téléphone	Choose the phone
+Aucune application C47 / R47 trouvée sur le téléphone.	No C47 / R47 app found on the phone.
+Choisir l'application	Choose the app
+Copie vers le téléphone impossible :\n{0}	Cannot copy to the phone:\n{0}
+Remplacer {0} ?\n\nCe fichier existe déjà sur le téléphone.	Replace {0}?\n\nThis file already exists on the phone.
+{0} copié dans {1} du téléphone. Sur le téléphone : READP puis touchez {0}.	{0} copied to {1} on the phone. On the phone: READP, then tap {0}.
+{0} copié dans {1} du téléphone. Sur le téléphone : READP puis choisissez ce fichier.	{0} copied to {1} on the phone. On the phone: READP, then choose this file.
+{0} est copié dans le dossier {1} du téléphone.\n\nL'application n'a pas de dossier de travail : READP ouvre alors le sélecteur de fichiers ailleurs. Pour qu'il s'ouvre directement sur vos programmes, choisissez une fois le dossier {2} comme dossier de travail dans les réglages de l'application R47.\n\nEn attendant : READP, puis allez dans {1} dans le sélecteur.	{0} is copied to the folder {1} of the phone.\n\nThe app has no work directory, so READP opens the file picker somewhere else. To have it open on your programs directly, choose the folder {2} once as the work directory in the settings of the R47 app.\n\nMeanwhile: READP, then go to {1} in the picker.

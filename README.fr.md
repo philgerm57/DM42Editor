@@ -32,6 +32,13 @@
   Pour la C47 : barre de symboles (→ ⇄ ≤ ≥ ≠ × ÷ ² ˣ √ π…), remplacement pendant la frappe (`->` → `→`, `<>` → `⇄`, `<=` → `≤`,
   `^2` → `²`, sauf dans les textes et commentaires), et écritures au clavier acceptées (`x<>y`, `abs`, `STO*`).
 - **Envoi vers l'émulateur** Free42 / Plus42 (F7), dont le chemin se règle dans les paramètres.
+- **Envoi vers une R47 / C47 Android** branchée en USB (Maj+F7, onglet C47 ou cible C47 de la fenêtre Python) : le `.p47`
+  est copié par `adb` dans le sous-dossier `PROGRAMS` du dossier de travail de l'application, là où `READP` ouvre le
+  sélecteur de fichiers, et l'application passe au premier plan. Sans dossier de travail, le fichier va dans
+  `Documents/R47/PROGRAMS` : choisissez une fois `Documents/R47` comme dossier de travail dans les réglages de
+  l'application. Il faut les outils Android *SDK Platform-Tools* (`adb.exe`, trouvé dans le PATH ou le SDK Android) et
+  le débogage USB sur le téléphone. Le dossier de travail est lu par `run-as`, donc seulement avec une version *debug*
+  de l'application ; sinon c'est `Documents/R47/PROGRAMS`.
 - Aide intégrée : liste des fonctions HP-42S et documentation PDF dans une visionneuse WebView2.
 
 | Logigramme | Python → RPN |

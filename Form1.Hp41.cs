@@ -25,6 +25,33 @@ namespace dm42editor
             int p = fileToolStripMenuItem.DropDownItems.IndexOf(toolStripMenuItem2);
             fileToolStripMenuItem.DropDownItems.Insert(p < 0 ? fileToolStripMenuItem.DropDownItems.Count : p + 1, send);
             cmMain.Items.Add(new ToolStripMenuItem(Lang.T("Envoyer vers l'émulateur"), null, (s, e) => SendToEmulator()) { ShortcutKeyDisplayString = "F7" });
+
+            // envoi du .p47 vers l'émulateur R47 / C47 d'un téléphone Android branché en USB (AndroidR47.cs)
+            androidMenu = new ToolStripMenuItem(Lang.T("Envoyer vers la R47 Android (USB)"), null, (s, e) => SendToAndroid()) { ShortcutKeys = Keys.Shift | Keys.F7 };
+            fileToolStripMenuItem.DropDownItems.Insert(fileToolStripMenuItem.DropDownItems.IndexOf(send) + 1, androidMenu);
+            cmMain.Items.Add(androidPopup = new ToolStripMenuItem(Lang.T("Envoyer vers la R47 Android (USB)"), null, (s, e) => SendToAndroid()) { ShortcutKeyDisplayString = "Maj+F7" });
+        }
+
+        /// <summary>Envoi vers la R47 Android : grisé sur un onglet DM42 (SyncWithTabType).</summary>
+        ToolStripMenuItem androidMenu, androidPopup;
+
+        /// <summary>Maj+F7 sur un onglet C47 : encode et copie le .p47 dans l'application R47 / C47 du téléphone.</summary>
+        private void SendToAndroid()
+        {
+            var tb = CurrentSourceTB;
+            if (!IsC47(tb)) { lbWordUnderMouse.Text = Lang.T("Ouvrez d'abord un onglet C47."); return; }
+            CheckC47(tb);
+            var r = ((TbInfo)tb.Tag).C47Result;
+            if (!r.Ok)
+            {
+                MessageBox.Show(this, Lang.F("Le programme contient {0} erreur(s) : corrigez-les avant de l'envoyer.", r.Errors.Count) + "\n\n"
+                    + string.Join("\n", r.Errors.Take(10).Select(e => Lang.F("Ligne {0} : {1}", e.Line, C47.Core.Tr.T(e.Message)))), Lang.T("R47 Android"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (r.Program.Length == 0) { lbWordUnderMouse.Text = Lang.T("Rien à envoyer : l'onglet ne contient pas d'instruction."); return; }
+            lbWordUnderMouse.Text = Lang.T("Envoi vers le téléphone…");
+            lbWordUnderMouse.Owner?.Refresh();
+            lbWordUnderMouse.Text = AndroidR47.Send(this, C47.Core.P47File.Write(r.Program), C47ProgramName(tb));
         }
 
         /// <summary>Copie le programme de l'onglet (sans commentaires) et affiche l'émulateur : mode PRGM puis Ctrl+V.</summary>
